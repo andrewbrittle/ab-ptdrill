@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" translate="no" class="notranslate">
+<head>
+<meta charset="UTF-8">
+<!-- Never auto-translate: the page is a Portuguese drill, a browser
+     "translate this page" would turn the answers into English. -->
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Instructions — Português Drill</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --text: #f8f6f2;
+    --text-muted: rgba(248,246,242,0.66);
+    --text-dim: rgba(248,246,242,0.42);
+    --accent: #e8c97a;
+    --accent-dim: rgba(232,201,122,0.12);
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.16);
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --surface2: #efece4;
+    --text: #1a1a1a;
+    --text-muted: rgba(26,26,26,0.66);
+    --text-dim: rgba(26,26,26,0.45);
+    --accent: #a9740f;
+    --accent-dim: rgba(169,116,15,0.12);
+    --border: rgba(0,0,0,0.10);
+    --border-hover: rgba(0,0,0,0.20);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 64px; }
+  .back-link {
+    display: inline-block; font-size: 13px; font-weight: 600; color: var(--text-muted);
+    text-decoration: none; border: 1px solid var(--border); border-radius: 99px;
+    padding: 6px 14px; margin-bottom: 20px;
+  }
+  .back-link:hover { border-color: var(--border-hover); color: var(--text); }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h1 span { color: var(--accent); }
+  .byline { font-size: 13px; font-weight: 600; color: var(--text-dim); margin-bottom: 18px; }
+  .intro { font-size: 15px; color: var(--text-muted); margin-bottom: 32px; }
+  h2 {
+    font-size: 17px; color: var(--accent); border-top: 1px solid var(--border);
+    padding-top: 24px; margin: 32px 0 12px;
+  }
+  h2:first-of-type { border-top: none; padding-top: 0; }
+  h3 { font-size: 15px; color: var(--text); margin: 20px 0 8px; }
+  p { font-size: 14.5px; color: var(--text-muted); margin: 0 0 12px; }
+  .setting {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px; margin-bottom: 8px;
+  }
+  .setting-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .setting-desc { font-size: 13.5px; color: var(--text-muted); }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { font-size: 14.5px; color: var(--text-muted); margin-bottom: 4px; }
+  .note {
+    font-size: 13px; color: var(--text-dim); background: var(--surface2);
+    border-radius: 8px; padding: 8px 12px; margin: 10px 0 16px;
+  }
+  .footer { margin-top: 40px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back-link" href="./index.html">← Back to the app</a>
+
+  <h1>A simple Portuguese <span>drilling app</span></h1>
+  <div class="byline">Andrew Brittle, 2026</div>
+  <p class="intro">European Portuguese vocabulary, drilled the same way as the Japanese drill app: pick some words, answer four-option questions or type the answers, and the app keeps a confidence score for every word so the weak ones come round more often.</p>
+
+  <h2>Finding words</h2>
+  <p><strong>Groups</strong> are collections that cut across topics: <em>Latest words</em>, <em>Trip essentials</em> (greetings, useful phrases and signs), <em>Eating &amp; drinking out</em>, <em>Getting around town</em>, <em>Core words</em>, and <em>Portugal vs Brazil</em> (every word where Brazil says it differently).</p>
+  <p><strong>Topics</strong> lists every word list in the app. <strong>Search</strong> looks in the Portuguese, the English and the Brazilian forms, and ignores accents, so <em>nao</em> finds <em>não</em>.</p>
+  <p>The <strong>dice</strong> opens the random drills: 20 words from everything, your weakest 20, or 20 you haven't been tested on yet.</p>
+
+  <h2>Drilling</h2>
+  <p>Tap words to select them, or use Select all / Random 20, then <strong>Drill with this selection</strong>. Hold a card to hear it and see any notes; with <em>Tap a card to hear it</em> on, the page becomes a talking phrasebook.</p>
+  <div class="setting"><div class="setting-name">Reverse the drill direction</div><div class="setting-desc">See the English and pick the Portuguese.</div></div>
+  <div class="setting"><div class="setting-name">Type the answer instead of choosing</div><div class="setting-desc">Type the Portuguese yourself. On its own it shows you the English; with Listen on, it's dictation — write down what you hear.</div></div>
+  <div class="setting"><div class="setting-name">Listen instead of reading</div><div class="setting-desc">Hear the word instead of seeing it. Needs a Portuguese voice on your phone (see below).</div></div>
+  <div class="setting"><div class="setting-name">Say it out loud</div><div class="setting-desc">See the English and say the Portuguese out loud. Tap Show answer (or press Space) to see and hear it, then mark yourself: Got it (1) or Not this time (2). Your mark is scored like any other answer. Also on the Verbs and Grammar screens.</div></div>
+
+  <h2>How typed answers are marked</h2>
+  <ul>
+    <li>Capitals, extra spaces and punctuation never matter.</li>
+    <li>Nouns come with their article (<em>o comboio</em>, <em>a estação</em>) because that's how the gender gets learnt. Leaving the article off still counts, with a reminder. The wrong article (<em>a comboio</em>) is marked wrong.</li>
+    <li>Right letters but wrong or missing accents (<em>voce</em>) counts, with a reminder and half the usual confidence boost — unless you turn on <em>Accents must be right when typing</em> in Settings.</li>
+    <li>Where Brazil uses a different word (<em>o trem</em> for <em>o comboio</em>), the Brazilian form counts, with a note giving the Portuguese one.</li>
+    <li>Entries like <em>obrigado / obrigada</em> accept either form.</li>
+  </ul>
+
+  <h2>Getting a Portuguese (Portugal) voice</h2>
+  <p>Listening and tap-to-hear use your phone's own text-to-speech. A Brazilian voice sounds very different from Portugal, so the app looks for a <strong>Portuguese (Portugal)</strong> voice first. On an iPhone or iPad: Settings → Accessibility → Spoken Content → Voices → Portuguese (Portugal), and download Joana or Catarina. On Android: the Google text-to-speech settings, language Portuguese (Portugal).</p>
+
+  <h2>Verbs</h2>
+  <p>Pick one or more tenses at the top, tap the verbs you want (or Select all), then <strong>Drill 20 forms</strong>. Each question gives a person and a verb - <em>nós · falar</em> - with the tense and the English, and you pick or type the form. Every person-and-tense combination has its own confidence score, so the forms you get wrong come back more often. <strong>Hold</strong> a verb to see its full table; tap a row there to hear it.</p>
+
+  <h2>Numbers</h2>
+  <p><strong>Reading times</strong> and <strong>Reading numbers</strong> make up 10 new questions every round. Times come two ways: everyday, as people say them (<em>São três menos vinte da tarde</em>), and timetable, as stations and opening hours give them (<em>às quinze e quarenta</em>). Both use <em>às / até às / a partir das / por volta das</em>, which is the contractions rule in action. The look-up tools under each show how any number or time is said; tap the answer to hear it. These two have one confidence score each rather than one per question.</p>
+
+  <h2>Grammar</h2>
+  <p>Short rule cards, each with the pattern, the exceptions worth knowing and what Portugal does differently from Brazil. Most end with a drill of just that rule. The <strong>contractions drill</strong> puts <em>no, na, do, ao, pelo…</em> into real sentences.</p>
+
+  <h2>Your progress</h2>
+  <p>Everything is stored on this device only. Settings has Download backup / Restore from backup to move your scores to another phone.</p>
+
+  <div class="footer">
+    <a class="back-link" href="./index.html">← Back to the app</a>
+  </div>
+</div>
+<script>
+  // Match whichever theme the app itself is set to (same localStorage).
+  try {
+    const s = JSON.parse(localStorage.getItem('ptDrillSettings') || '{}');
+    if (s.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  } catch (e) {}
+</script>
+</body>
+</html>

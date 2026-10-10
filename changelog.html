@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en" translate="no" class="notranslate">
+<head>
+<meta charset="UTF-8">
+<!-- Never auto-translate: the page is a Portuguese drill, a browser
+     "translate this page" would turn the answers into English. -->
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>What's new — Português Drill</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --text: #f8f6f2;
+    --text-muted: rgba(248,246,242,0.66);
+    --text-dim: rgba(248,246,242,0.42);
+    --accent: #e8c97a;
+    --accent-dim: rgba(232,201,122,0.12);
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.16);
+  }
+  :root[data-theme="light"] {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --surface2: #efece4;
+    --text: #1a1a1a;
+    --text-muted: rgba(26,26,26,0.66);
+    --text-dim: rgba(26,26,26,0.45);
+    --accent: #a9740f;
+    --accent-dim: rgba(169,116,15,0.12);
+    --border: rgba(0,0,0,0.10);
+    --border-hover: rgba(0,0,0,0.20);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 24px 20px 64px; }
+  .back-link {
+    display: inline-block; font-size: 13px; font-weight: 600; color: var(--text-muted);
+    text-decoration: none; border: 1px solid var(--border); border-radius: 99px;
+    padding: 6px 14px; margin-bottom: 20px;
+  }
+  .back-link:hover { border-color: var(--border-hover); color: var(--text); }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h1 span { color: var(--accent); }
+  .intro { font-size: 14.5px; color: var(--text-muted); margin-bottom: 28px; }
+  .entry {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 14px;
+  }
+  .entry-date {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 8px;
+  }
+  .entry ul { margin: 0; padding-left: 20px; }
+  .entry li { font-size: 14.5px; color: var(--text-muted); margin-bottom: 6px; }
+  .entry li:last-child { margin-bottom: 0; }
+  .footer { margin-top: 32px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back-link" href="./index.html">← Back to the app</a>
+
+  <h1>What's <span>new</span></h1>
+  <p class="intro">
+    The most recent changes will be listed first. Not every small fix makes
+    the list — just the bits actually worth knowing about.
+  </p>
+
+  <div class="entry">
+    <div class="entry-date">11 October 2026</div>
+    <ul>
+      <li><strong>Numbers</strong>: random numbers and times to read, new every round. Times come both the everyday way (<em>às duas e meia da tarde</em>, <em>três menos um quarto</em>) and the timetable way (<em>às catorze e trinta</em>), with at / until / from / around. Plus look-ups for any number or time.</li>
+      <li>A <strong>daily greeting</strong> in Portuguese the first time you open the app each day - greeting, date and time, tap a line to hear it. Tap "Português" at the top to see it again.</li>
+      <li><strong>Say it out loud</strong>: a new switch for vocab, verbs and contractions. See the prompt, say the answer, tap Show answer to see and hear it, then mark yourself. Speaking-speed recall, without spelling getting in the way.</li>
+      <li><strong>Verbs</strong>: 51 everyday verbs in five tenses - present, past, was / used to, right now (estar a…) and going to (ir…). Pick verbs and tenses, then drill the forms; hold a verb to see its full table (tap a row to hear it).</li>
+      <li><strong>Grammar</strong>: ten short rule cards (endings, past tenses, ser or estar, contractions, where me/te/se go, tu/você/o senhor, agreement), most with a drill attached.</li>
+      <li>A contractions drill - no, na, do, ao, pelo… filled into real sentences.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="entry-date">10 October 2026</div>
+    <ul>
+      <li>First version: the Japanese drill app's engine with a European Portuguese starter vocabulary — 561 words in 22 topics, with Brazilian forms shown where they differ.</li>
+      <li>Typing is accent-aware: missing accents are accepted with a reminder (or marked wrong, if you prefer — see Settings).</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <a class="back-link" href="./index.html">← Back to the app</a>
+  </div>
+</div>
+<script>
+  // Match whichever theme the app itself is set to (same localStorage).
+  try {
+    const s = JSON.parse(localStorage.getItem('ptDrillSettings') || '{}');
+    if (s.theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  } catch (e) {}
+</script>
+</body>
+</html>
