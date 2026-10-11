@@ -763,7 +763,7 @@
      in that context - the rest of the time these pills look like normal
      unselected pills. :not(.active) so the existing gold .active state still
      wins once a pill is the one currently selected. */
-  #vocab-level-filter-row.showing-theme-colours #level-pill-1:not(.active) { color: #4d88e5; border-color: rgba(77,136,229,0.4); }
+
   #vocab-level-filter-row.showing-theme-colours #level-pill-random:not(.active) { color: var(--green); border-color: rgba(111,207,151,0.4); }
   .latest-range-row { justify-content: center; }
 
@@ -906,7 +906,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261011.008</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261011.009</div>
   </div>
 
 
@@ -1057,7 +1057,8 @@
     <div class="level-filter-row" id="vocab-level-filter-row">
       <button class="level-pill active" id="level-pill-theme" onclick="setMatchLevel('theme')">Groups</button>
       <button class="level-pill level-pill-icon" id="level-pill-random" onclick="setMatchLevel('random')" title="Random drills" aria-label="Random drills"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"></rect><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="15.5" cy="15.5" r="1.5" fill="currentColor" stroke="none"></circle></svg></button>
-      <button class="level-pill" id="level-pill-1" onclick="setMatchLevel(1)">Topics</button>
+      <!-- Topic pills (Basics / Travel / Life) are added here from vocab.js's
+           PT_DRILL_SECTIONS - see renderSectionPills. -->
     </div>
 
     <div class="level-filter-row andrew-row" id="vocab-andrew-filter-row">
@@ -3724,6 +3725,24 @@ const CAT_CONF_CLASSES = CONFIDENCE_BANDS.map(b => 'cat-conf-' + b);
 // computed over each theme's freshly-computed pool (getThemePool) rather
 // than a single VOCAB category's items, "so it's calculated in a very
 // similar way to the others" per Andrew - just a different item source.
+// Topic pills (2026-10-11) - from vocab.js's PT_DRILL_SECTIONS; replaced a
+// single "Topics" pill listing all categories at once.
+const SECTIONS = (window.PT_DRILL_SECTIONS && window.PT_DRILL_SECTIONS.length) ? window.PT_DRILL_SECTIONS : [{ key: 'all', label: 'Topics' }];
+const SECTION_KEYS = SECTIONS.map(s => s.key);
+function renderSectionPills() {
+  const row = document.getElementById('vocab-level-filter-row');
+  if (!row) return;
+  row.querySelectorAll('[data-section]').forEach(p => p.remove());
+  SECTIONS.forEach(sec => {
+    const btn = document.createElement('button');
+    btn.className = 'level-pill';
+    btn.dataset.section = sec.key;
+    btn.textContent = sec.label;
+    btn.onclick = () => setMatchLevel(sec.key);
+    row.appendChild(btn);
+  });
+}
+
 // Builds the Groups tab's cards from THEMES (i.e. vocab.js). Same markup the
 // cards had when they were written into the page by hand.
 function renderGroupCards() {
@@ -4195,7 +4214,7 @@ let currentMatchLevel = 'theme';
 
 function setMatchLevel(level) {
   currentMatchLevel = level;
-  document.getElementById('level-pill-1').classList.toggle('active', level === 1);
+  document.querySelectorAll('#vocab-level-filter-row [data-section]').forEach(p => p.classList.toggle('active', p.dataset.section === level));
   document.getElementById('level-pill-theme').classList.toggle('active', level === 'theme');
   const randomPill = document.getElementById('level-pill-random');
   if (randomPill) randomPill.classList.toggle('active', level === 'random');
@@ -4206,7 +4225,7 @@ function setMatchLevel(level) {
   // a new category just needs level:'andrew' or level:'untaught' in VOCAB
   // and shows up automatically, no hand-built card needed. Genki (2026-09-12)
   // joins the same list for the same reason.
-  document.getElementById('match-vocab-view').style.display = level === 1 ? 'flex' : 'none';
+  document.getElementById('match-vocab-view').style.display = SECTION_KEYS.includes(level) ? 'flex' : 'none';
   document.getElementById('match-theme-view').style.display = level === 'theme' ? 'flex' : 'none';
   document.getElementById('match-random-view').style.display = level === 'random' ? 'flex' : 'none';
   if (level === 'theme') refreshThemeCategorySwatches();
@@ -4282,16 +4301,20 @@ function buildCategoryTile(key) {
 function buildMatchCategoryList() {
   const container = document.getElementById('match-category-list');
   container.innerHTML = '';
-  if (currentMatchLevel !== 1) return;
-  // Topics (Portuguese build): every category in vocab.js, in file order,
-  // then any private word lists loaded on this device.
+  if (!SECTION_KEYS.includes(currentMatchLevel)) return;
+  // Topic pills (Portuguese build): the categories whose section matches the
+  // pill, in vocab.js order, then any private word lists for that section
+  // (a private list with no section goes under the last pill).
+  const sectionOf = key => VOCAB[key].section && SECTION_KEYS.includes(VOCAB[key].section) ? VOCAB[key].section : SECTION_KEYS[SECTION_KEYS.length - 1];
   Object.keys(VOCAB).forEach(key => {
     if (VOCAB[key].privatePack || VOCAB[key].standaloneCard === false) return;
+    if (sectionOf(key) !== currentMatchLevel) return;
     container.appendChild(buildCategoryTile(key));
   });
-  if (PRIVATE_VOCAB_KEYS.length) {
+  const privateHere = PRIVATE_VOCAB_KEYS.filter(key => sectionOf(key) === currentMatchLevel);
+  if (privateHere.length) {
     container.appendChild(document.createElement('div')).className = 'section-divider';
-    PRIVATE_VOCAB_KEYS.forEach(key => container.appendChild(buildCategoryTile(key)));
+    privateHere.forEach(key => container.appendChild(buildCategoryTile(key)));
   }
 }
 
@@ -5459,6 +5482,7 @@ syncServiceWorkerRegistration();
 // showing-theme-colours pill-text tint, and the confidence swatches on every
 // card - rather than only looking right after leaving and coming back.
 renderGroupCards();
+renderSectionPills();
 setMatchLevel(currentMatchLevel);
 
 syncVocabModeToggles();
