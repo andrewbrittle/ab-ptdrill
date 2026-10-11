@@ -165,6 +165,143 @@ window.PT_DRILL_GRAMMAR = {
     { parts: 'por + as', answer: 'pelas', pt: 'Chego ___ dez.', en: "I'll get there around ten." },
   ],
 
+
+  // SENTENCES (2026-10-11) - whole-sentence examples for the greeting card.
+  // Each pattern has hand-picked slot lists so every combination makes sense;
+  // the app builds verb forms from the verbs above and does the contractions
+  // (a + o = ao, em + a = na…) itself. Nouns that combine with a preposition
+  // carry their article (art: 'o' | 'a' | 'os' | 'as' | '' for none).
+  // English for each activity: [I/we/they form, he/she form] (routine) or
+  // the past sentence. near: true on a place / far: true on a direction keeps
+  // "ten minutes' walk" away from the toilet.
+  sentences: {
+    subjects: [
+      { pt: '', p: 0, en: 'I' },            // eu - usually dropped in Portuguese
+      { pt: '', p: 3, en: 'we' },           // nós - dropped too
+      { pt: 'O João', p: 2, en: 'João' },
+      { pt: 'A Ana', p: 2, en: 'Ana' },
+      { pt: 'Os meus amigos', p: 4, en: 'my friends' },
+    ],
+    routine: {
+      when: [
+        { pt: 'Todos os dias', en: 'Every day' },
+        { pt: 'Às vezes', en: 'Sometimes' },
+        { pt: 'De manhã', en: 'In the morning' },
+        { pt: 'Ao fim de semana', en: 'At weekends' },
+        { pt: 'À noite', en: 'In the evening' },
+      ],
+      activities: [
+        { verb: 'tomar', pt: 'um café', en: ['have a coffee', 'has a coffee'] },
+        { verb: 'apanhar', pt: 'o autocarro para o trabalho', en: ['catch the bus to work', 'catches the bus to work'] },
+        { verb: 'comer', pt: 'na esplanada', en: ['eat on the terrace', 'eats on the terrace'] },
+        { verb: 'ler', pt: 'o jornal', en: ['read the paper', 'reads the paper'] },
+        { verb: 'estudar', pt: 'português', en: ['study Portuguese', 'studies Portuguese'] },
+        { verb: 'jantar', pt: 'com amigos', en: ['have dinner with friends', 'has dinner with friends'] },
+        { verb: 'ir', pt: 'ao ginásio', en: ['go to the gym', 'goes to the gym'] },
+        { verb: 'trabalhar', pt: 'em casa', en: ['work from home', 'works from home'] },
+        { verb: 'beber', pt: 'um galão', en: ['have a milky coffee', 'has a milky coffee'] },
+      ],
+    },
+    going: {
+      when: [
+        { pt: 'Amanhã', en: 'Tomorrow' },
+        { pt: 'No sábado', en: 'On Saturday' },
+        { pt: 'Esta tarde', en: 'This afternoon' },
+        { pt: 'Logo à noite', en: 'Tonight' },
+        { pt: 'Na próxima semana', en: 'Next week' },
+      ],
+      places: [
+        { pt: 'praia', art: 'a', en: 'the beach' },
+        { pt: 'museu', art: 'o', en: 'the museum' },
+        { pt: 'mercado', art: 'o', en: 'the market' },
+        { pt: 'Porto', art: 'o', en: 'Porto' },
+        { pt: 'Lisboa', art: '', en: 'Lisbon' },
+        { pt: 'Sintra', art: '', en: 'Sintra' },
+        { pt: 'castelo', art: 'o', en: 'the castle' },
+        { pt: 'Baixa', art: 'a', en: 'the town centre' },
+        { pt: 'cinema', art: 'o', en: 'the cinema' },
+        { pt: 'Açores', art: 'os', en: 'the Azores' },
+      ],
+    },
+    past: {
+      when: [
+        { pt: 'Ontem', en: 'Yesterday' },
+        { pt: 'Ontem à noite', en: 'Last night' },
+        { pt: 'No sábado passado', en: 'Last Saturday' },
+        { pt: 'Na semana passada', en: 'Last week' },
+      ],
+      activities: [
+        { verb: 'jantar', pt: 'num restaurante perto do rio', en: 'had dinner at a restaurant near the river' },
+        { verb: 'comer', pt: 'bacalhau', en: 'ate salt cod' },
+        { verb: 'comer', pt: 'sardinhas assadas', en: 'ate grilled sardines' },
+        { verb: 'ver', pt: 'o pôr do sol no miradouro', en: 'watched the sunset from the viewpoint' },
+        { verb: 'comprar', pt: 'uma lembrança', en: 'bought a souvenir' },
+        { verb: 'apanhar', pt: 'o comboio para Sintra', en: 'caught the train to Sintra' },
+        { verb: 'ir', pt: 'ao museu', en: 'went to the museum' },
+        { verb: 'ficar', pt: 'em casa', en: 'stayed at home' },
+        { verb: 'tomar', pt: 'um café na esplanada', en: 'had a coffee on the terrace' },
+        { verb: 'beber', pt: 'vinho verde', en: 'drank vinho verde' },
+      ],
+    },
+    likes: [
+      { pt: 'bacalhau', en: 'salt cod' },
+      { pt: 'sardinhas', en: 'sardines' },
+      { pt: 'pastéis de nata', en: 'custard tarts' },
+      { pt: 'vinho verde', en: 'vinho verde' },
+      { pt: 'café', en: 'coffee' },
+      { pt: 'chá', en: 'tea' },
+      { pt: 'marisco', en: 'seafood' },
+      { pt: 'futebol', en: 'football' },
+      { pt: 'ir à praia', en: 'going to the beach' },
+      { pt: 'cozinhar', en: 'cooking' },
+      { pt: 'viajar', en: 'travelling' },
+      { pt: 'ler', en: 'reading' },
+      { pt: 'acordar cedo', en: 'getting up early' },
+    ],
+    orders: [
+      { pt: 'uma bica', en: 'an espresso' },
+      { pt: 'um galão', en: 'a milky coffee' },
+      { pt: 'uma meia de leite', en: 'a white coffee' },
+      { pt: 'um pastel de nata', en: 'a custard tart' },
+      { pt: 'uma tosta mista', en: 'a toasted ham and cheese sandwich' },
+      { pt: 'um sumo de laranja', en: 'an orange juice' },
+      { pt: 'uma água sem gás', en: 'a still water' },
+      { pt: 'um copo de vinho tinto', en: 'a glass of red wine' },
+      { pt: 'uma imperial', en: 'a small beer' },
+      { pt: 'um prego', en: 'a steak sandwich' },
+    ],
+    orderFrames: [
+      { pt: 'Queria {a} e {b}, se faz favor.', en: "I'd like {a} and {b}, please." },
+      { pt: 'Para mim, {a}, se faz favor.', en: 'For me, {a}, please.' },
+      { pt: 'Pode trazer-me {a}, se faz favor?', en: 'Could you bring me {a}, please?' },
+    ],
+    whereIs: [
+      { pt: 'estação', art: 'a', en: 'the station' },
+      { pt: 'museu', art: 'o', en: 'the museum' },
+      { pt: 'farmácia', art: 'a', en: 'the chemist' },
+      { pt: 'multibanco', art: 'o', en: 'the cash machine', near: true },
+      { pt: 'casa de banho', art: 'a', en: 'the toilet', near: true },
+      { pt: 'paragem do autocarro', art: 'a', en: 'the bus stop' },
+      { pt: 'mercado', art: 'o', en: 'the market' },
+    ],
+    directions: [
+      { pt: 'Fica ao fundo da rua, à esquerda.', en: "It's at the end of the street, on the left." },
+      { pt: 'Fica aqui perto, à direita.', en: "It's nearby, on the right." },
+      { pt: 'Fica do outro lado da praça.', en: "It's on the other side of the square." },
+      { pt: 'Siga sempre em frente, depois do semáforo.', en: 'Carry straight on, past the traffic lights.' },
+      { pt: 'Fica em frente da igreja.', en: "It's opposite the church." },
+      { pt: 'Fica ao lado do hotel.', en: "It's next to the hotel." },
+      { pt: 'Fica a dez minutos a pé.', en: "It's ten minutes' walk.", far: true },
+    ],
+    opening: [
+      { pt: 'museu', art: 'o', en: 'the museum' },
+      { pt: 'mercado', art: 'o', en: 'the market' },
+      { pt: 'farmácia', art: 'a', en: 'the chemist' },
+      { pt: 'castelo', art: 'o', en: 'the castle' },
+      { pt: 'loja', art: 'a', en: 'the shop' },
+    ],
+  },
+
   // GRAMMAR NOTES - one card each on the Grammar screen. html is shown as-is
   // (simple markup: p, b, i, table.gtable, ul). drill (optional) adds a button:
   // { type: 'verbs', tenses: [...] } or { type: 'contractions' }.

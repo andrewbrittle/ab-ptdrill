@@ -542,6 +542,11 @@
   .greet-hello .greet-pt { font-size: 30px; color: var(--accent); }
   .greet-sub { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
   .greet-en { font-size: 12.5px; color: var(--text-dim); margin-top: 1px; }
+  .greet-sentence { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border); }
+  .greet-sentence-head { display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; padding: 0 6px; }
+  .greet-another { background: transparent; border: 1px solid var(--border); color: var(--text-muted); border-radius: 99px; width: 30px; height: 30px; font-size: 16px; cursor: pointer; }
+  .greet-sent .greet-pt { font-size: 17px; }
+  .greet-sent + .greet-sent { margin-top: 0.4rem; }
   .greet-hint { font-size: 12px; color: var(--text-dim); text-align: center; margin: 1rem 0 0.6rem; }
   /* Numbers & times (2026-10-11) */
   .numbers-section { flex-direction: column; gap: 0.6rem; }
@@ -814,6 +819,7 @@
   <div class="greet-overlay" id="greeting-overlay" onclick="if (event.target === this) dismissGreeting();">
     <div class="greet-card">
       <div id="greeting-lines"></div>
+      <div class="greet-sentence" id="greeting-sentence"></div>
       <div class="greet-hint">Tap a line to hear it</div>
       <button class="start-btn" onclick="dismissGreeting()">Continuar</button>
     </div>
@@ -906,7 +912,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261011.010</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261011.011</div>
   </div>
 
 
@@ -1294,9 +1300,9 @@
 <!-- ?v= matches the version in Settings (2026-10-11): a new page always
      fetches the data files that go with it, never an older cached copy -
      bump it together with the footer version and sw.js CACHE_VERSION. -->
-<script src="vocab.js?v=261011.010"></script>
+<script src="vocab.js?v=261011.011"></script>
 <!-- Verbs, contractions and grammar notes (2026-10-11). -->
-<script src="grammar.js?v=261011.010"></script>
+<script src="grammar.js?v=261011.011"></script>
 <script>
 // =============================================================================
 // PORTUGUÊS DRILL (2026-10-10) - built from a copy of the Japanese drill app
@@ -5459,6 +5465,7 @@ function showGreeting() {
   const overlay = document.getElementById('greeting-overlay');
   if (!overlay) return;
   renderGreeting();
+  renderSentence();
   clearInterval(greetingTimer);
   greetingTimer = setInterval(renderGreeting, 20000); // keeps the time current while open
   overlay.classList.add('show');
@@ -5476,6 +5483,102 @@ function maybeShowDailyGreeting() {
   if (last === today) return;
   try { localStorage.setItem(GREETING_SEEN_KEY, today); } catch (e) { /* fine */ }
   showGreeting();
+}
+
+// =============================================================================
+// SENTENCES (Portuguese build, 2026-10-11) - one whole sentence (or a short
+// exchange) on the greeting card, built from grammar.js's sentence patterns.
+// Verb forms come from the Verbs engine (conjugate), contractions from
+// ptPrepJoin below, so a pattern only lists words, not grammar.
+// =============================================================================
+const SENT = GRAMMAR.sentences || null;
+const PT_PREP_JOIN = {
+  a: { o: 'ao', a: 'à', os: 'aos', as: 'às', '': 'a' },
+  em: { o: 'no', a: 'na', os: 'nos', as: 'nas', '': 'em' },
+  de: { o: 'do', a: 'da', os: 'dos', as: 'das', '': 'de' },
+  por: { o: 'pelo', a: 'pela', os: 'pelos', as: 'pelas', '': 'por' },
+};
+function ptPrepJoin(prep, noun) { return PT_PREP_JOIN[prep][noun.art || ''] + ' ' + noun.pt; }
+function ptArticle(noun) { return (noun.art ? noun.art + ' ' : '') + noun.pt; }
+function sPick(list) { return list[Math.floor(Math.random() * list.length)]; }
+function sCap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function vForm(inf, tense, p) { return conjugate(VERB_BY_INF[inf], tense, p).form; }
+const EN_BE_FULL = { 0: "I'm", 1: "you're", 2: 'is', 3: "we're", 4: 'are' };
+
+// "Todos os dias tomo um café." (eu / nós dropped) or "Todos os dias o João
+// toma um café." (a named subject keeps its article, lower-cased mid-sentence).
+function sWho(subj) { return subj.pt ? ' ' + subj.pt.charAt(0).toLowerCase() + subj.pt.slice(1) : ''; }
+function sentRoutine() {
+  const subj = sPick(SENT.subjects), w = sPick(SENT.routine.when), a = sPick(SENT.routine.activities);
+  const pt = w.pt + sWho(subj) + ' ' + vForm(a.verb, 'pres', subj.p) + ' ' + a.pt + '.';
+  const en = w.en + ' ' + subj.en + ' ' + (subj.p === 2 ? a.en[1] : a.en[0]) + '.';
+  return [{ pt, en }];
+}
+function sentGoing() {
+  const subj = sPick(SENT.subjects), w = sPick(SENT.going.when), place = sPick(SENT.going.places);
+  const verb = vForm('ir', 'pres', subj.p);
+  const pt = w.pt + sWho(subj) + ' ' + verb + ' ' + ptPrepJoin('a', place) + '.';
+  const enWho = subj.p === 2 ? subj.en + ' is' : subj.p === 4 ? subj.en + ' are' : EN_BE_FULL[subj.p];
+  return [{ pt, en: w.en + ' ' + enWho + ' going to ' + place.en + '.' }];
+}
+function sentPast() {
+  const subj = sPick(SENT.subjects), w = sPick(SENT.past.when), a = sPick(SENT.past.activities);
+  const verb = vForm(a.verb, 'pret', subj.p);
+  return [{ pt: w.pt + sWho(subj) + ' ' + verb + ' ' + a.pt + '.', en: w.en + ' ' + subj.en + ' ' + a.en + '.' }];
+}
+function sentLikes() {
+  const subj = sPick(SENT.subjects.filter(s => s.p !== 4));
+  const [a, b] = shuffle([...SENT.likes]).slice(0, 2);
+  const g = vForm('gostar', 'pres', subj.p);
+  const who = subj.pt ? subj.pt + ' ' : '';
+  const pt = sCap(who + g + ' muito de ' + a.pt + ', mas não ' + g + ' de ' + b.pt + '.');
+  const he = subj.p === 2;
+  const en = sCap(subj.en) + ' really ' + (he ? 'likes' : 'like') + ' ' + a.en + ', but ' + (subj.p === 0 ? 'I' : subj.p === 3 ? 'we' : he ? (subj.en === 'Ana' ? 'she' : 'he') : 'they') + (he ? " doesn't" : " don't") + ' like ' + b.en + '.';
+  return [{ pt, en }];
+}
+function sentOrder() {
+  const f = sPick(SENT.orderFrames);
+  const [a, b] = shuffle([...SENT.orders]).slice(0, 2);
+  return [{ pt: f.pt.replace('{a}', a.pt).replace('{b}', b.pt), en: f.en.replace('{a}', a.en).replace('{b}', b.en) }];
+}
+function sentWhere() {
+  // Sense rule: "ten minutes' walk" only for places you'd walk to (not the toilet).
+  const place = sPick(SENT.whereIs), d = sPick(SENT.directions.filter(x => !x.far || !place.near));
+  return [{ pt: '— Onde fica ' + ptArticle(place) + '?', en: 'Where is ' + place.en + '?' }, { pt: '— ' + d.pt, en: d.en }];
+}
+function sentOpening() {
+  const place = sPick(SENT.opening);
+  const opens = Math.random() < 0.6;
+  const h = opens ? 8 + Math.floor(Math.random() * 3) : 17 + Math.floor(Math.random() * 4);
+  const m = sPick([0, 0, 30]);
+  const time = timeToPortuguese(h, m, 'at', 'everyday');
+  const vb = opens ? 'abre' : 'fecha';
+  const shown = formatTimeShown(h, m, 'none', 'everyday');
+  return [{ pt: '— A que horas ' + vb + ' ' + ptArticle(place) + '?', en: 'What time does ' + place.en + (opens ? ' open?' : ' close?') },
+    { pt: '— ' + sCap(vb) + ' ' + time + '.', en: (opens ? 'It opens at ' : 'It closes at ') + shown + '.' }];
+}
+const SENTENCE_PATTERNS = [sentRoutine, sentGoing, sentPast, sentLikes, sentOrder, sentWhere, sentOpening];
+const SENTENCE_LAST_KEY = 'ptDrillLastSentence';
+function generateSentence() {
+  if (!SENT) return null;
+  let last = null;
+  try { last = localStorage.getItem(SENTENCE_LAST_KEY); } catch (e) { /* fine */ }
+  let lines = null;
+  for (let i = 0; i < 10; i++) { lines = sPick(SENTENCE_PATTERNS)(); if (lines[0].pt !== last) break; }
+  try { localStorage.setItem(SENTENCE_LAST_KEY, lines[0].pt); } catch (e) { /* fine */ }
+  return lines;
+}
+function renderSentence() {
+  const el = document.getElementById('greeting-sentence');
+  if (!el) return;
+  const lines = generateSentence();
+  if (!lines) { el.style.display = 'none'; return; }
+  el.style.display = '';
+  el.innerHTML = `<div class="greet-sentence-head"><span>${lines.length > 1 ? 'A short exchange' : 'A sentence'}</span>` +
+    `<button type="button" class="greet-another" title="Another one" aria-label="Another sentence">↻</button></div>` +
+    lines.map(l => `<div class="greet-line greet-sent" data-say="${escapeHtmlText(l.pt.replace(/^— /, ''))}"><div class="greet-pt">${escapeHtmlText(l.pt)}</div><div class="greet-en">${escapeHtmlText(l.en)}</div></div>`).join('');
+  el.querySelector('.greet-another').onclick = renderSentence;
+  el.querySelectorAll('.greet-sent').forEach(l => { l.onclick = () => speakPortuguese(l.dataset.say); });
 }
 
 applyAllSettingsUI();
