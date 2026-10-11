@@ -535,19 +535,21 @@
   /* Daily greeting (2026-10-11) */
   .greet-overlay { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; background: rgba(0,0,0,0.6); }
   .greet-overlay.show { display: flex; }
-  .greet-card { width: 100%; max-width: 420px; background: var(--surface); border: 1.5px solid var(--accent); border-radius: var(--radius-lg); padding: 1.4rem 1.2rem 1.1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.45); }
+  .greet-stack { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 10px; }
+  .greet-card { background: var(--surface); border: 1.5px solid var(--accent); border-radius: var(--radius-lg); padding: 1.2rem 1.1rem 1rem; box-shadow: 0 10px 40px rgba(0,0,0,0.45); }
   .greet-line { cursor: pointer; border-radius: var(--radius); padding: 4px 6px; }
   .greet-line + .greet-line { margin-top: 0.8rem; }
   .greet-pt { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.35; }
   .greet-hello .greet-pt { font-size: 30px; color: var(--accent); }
   .greet-sub { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
   .greet-en { font-size: 12.5px; color: var(--text-dim); margin-top: 1px; }
-  .greet-sentence { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border); }
+  .greet-sentence { padding-top: 0.9rem; }
   .greet-sentence-head { display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; padding: 0 6px; }
   .greet-another { background: transparent; border: 1px solid var(--border); color: var(--text-muted); border-radius: 99px; width: 30px; height: 30px; font-size: 16px; cursor: pointer; }
   .greet-sent .greet-pt { font-size: 17px; }
+  .grammar-sentence { box-shadow: none; padding: 0.9rem 0.9rem 0.8rem; }
   .greet-sent + .greet-sent { margin-top: 0.4rem; }
-  .greet-hint { font-size: 12px; color: var(--text-dim); text-align: center; margin: 1rem 0 0.6rem; }
+  .greet-hint { font-size: 12px; color: var(--text-muted); text-align: center; margin: 0.2rem 0 0; }
   /* Numbers & times (2026-10-11) */
   .numbers-section { flex-direction: column; gap: 0.6rem; }
   .tool-card { display: block; cursor: default; }
@@ -817,9 +819,11 @@
   <!-- Daily greeting (2026-10-11) - first thing in <body> so it exists before
        the script below runs (the Japanese build learnt that the hard way). -->
   <div class="greet-overlay" id="greeting-overlay" onclick="if (event.target === this) dismissGreeting();">
-    <div class="greet-card">
-      <div id="greeting-lines"></div>
-      <div class="greet-sentence" id="greeting-sentence"></div>
+    <div class="greet-stack">
+      <div class="greet-card">
+        <div id="greeting-lines"></div>
+      </div>
+      <div class="greet-card greet-sentence" id="greeting-sentence"></div>
       <div class="greet-hint">Tap a line to hear it</div>
       <button class="start-btn" onclick="dismissGreeting()">Continuar</button>
     </div>
@@ -912,7 +916,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261011.011</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261011.012</div>
   </div>
 
 
@@ -1251,6 +1255,8 @@
   <div class="screen" id="screen-grammar">
     <div class="settings-title">Grammar</div>
     <div class="settings-sub">The rules, one card each. Most have a drill at the bottom.</div>
+    <!-- Example sentences (2026-10-11) - same generator as the greeting card. -->
+    <div class="greet-card greet-sentence grammar-sentence" id="grammar-sentence"></div>
     <div class="group-card cat-tile" onclick="startContractionDrill('grammar')" style="cursor:pointer;">
       <div class="cat-tile-top cat-tile-top-stack">
         <div class="group-name">Contractions drill</div>
@@ -1300,9 +1306,9 @@
 <!-- ?v= matches the version in Settings (2026-10-11): a new page always
      fetches the data files that go with it, never an older cached copy -
      bump it together with the footer version and sw.js CACHE_VERSION. -->
-<script src="vocab.js?v=261011.011"></script>
+<script src="vocab.js?v=261011.012"></script>
 <!-- Verbs, contractions and grammar notes (2026-10-11). -->
-<script src="grammar.js?v=261011.011"></script>
+<script src="grammar.js?v=261011.012"></script>
 <script>
 // =============================================================================
 // PORTUGUÊS DRILL (2026-10-10) - built from a copy of the Japanese drill app
@@ -5030,6 +5036,7 @@ function showGrammarScreen() {
   }
   setupCatBar(document.getElementById('contraction-swatch'), getCategoryBandCounts(GRAMMAR.contractions.map(contractionItem)));
   syncGrammarControls();
+  renderSentence('grammar-sentence');
   showScreen('grammar');
 }
 function syncGrammarControls() {
@@ -5568,8 +5575,8 @@ function generateSentence() {
   try { localStorage.setItem(SENTENCE_LAST_KEY, lines[0].pt); } catch (e) { /* fine */ }
   return lines;
 }
-function renderSentence() {
-  const el = document.getElementById('greeting-sentence');
+function renderSentence(elId) {
+  const el = document.getElementById(elId || 'greeting-sentence');
   if (!el) return;
   const lines = generateSentence();
   if (!lines) { el.style.display = 'none'; return; }
@@ -5577,7 +5584,7 @@ function renderSentence() {
   el.innerHTML = `<div class="greet-sentence-head"><span>${lines.length > 1 ? 'A short exchange' : 'A sentence'}</span>` +
     `<button type="button" class="greet-another" title="Another one" aria-label="Another sentence">↻</button></div>` +
     lines.map(l => `<div class="greet-line greet-sent" data-say="${escapeHtmlText(l.pt.replace(/^— /, ''))}"><div class="greet-pt">${escapeHtmlText(l.pt)}</div><div class="greet-en">${escapeHtmlText(l.en)}</div></div>`).join('');
-  el.querySelector('.greet-another').onclick = renderSentence;
+  el.querySelector('.greet-another').onclick = () => renderSentence(el.id);
   el.querySelectorAll('.greet-sent').forEach(l => { l.onclick = () => speakPortuguese(l.dataset.say); });
 }
 
