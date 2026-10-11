@@ -12,7 +12,7 @@
 // on activate this deletes every OTHER cache with its own prefix, and apps
 // published under the same github.io address share one cache store - a
 // shared prefix would let this app wipe the Japanese apps' offline copies.
-const CACHE_VERSION = 'pt-drill-v261011-009';
+const CACHE_VERSION = 'pt-drill-v261011-010';
 
 const PRECACHE_URLS = [
   './',
@@ -88,7 +88,7 @@ self.addEventListener('fetch', (event) => {
   });
 
   event.respondWith(
-    Promise.race([networkFetch, timeout]).catch(() => caches.match(event.request).then((cached) => {
+    Promise.race([networkFetch, timeout]).catch(() => caches.match(event.request, { ignoreSearch: true }).then((cached) => {
       if (cached) return cached;
       // No exact match cached - if this was a page navigation (not an
       // image/font/etc.), fall back to the cached app shell rather than

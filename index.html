@@ -906,7 +906,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261011.009</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261011.010</div>
   </div>
 
 
@@ -1291,9 +1291,12 @@
 </main>
 
 <!-- The course vocabulary (2026-10-08) - must load before the app script below. -->
-<script src="vocab.js"></script>
+<!-- ?v= matches the version in Settings (2026-10-11): a new page always
+     fetches the data files that go with it, never an older cached copy -
+     bump it together with the footer version and sw.js CACHE_VERSION. -->
+<script src="vocab.js?v=261011.010"></script>
 <!-- Verbs, contractions and grammar notes (2026-10-11). -->
-<script src="grammar.js"></script>
+<script src="grammar.js?v=261011.010"></script>
 <script>
 // =============================================================================
 // PORTUGUÊS DRILL (2026-10-10) - built from a copy of the Japanese drill app
