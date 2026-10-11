@@ -12,7 +12,7 @@
 // on activate this deletes every OTHER cache with its own prefix, and apps
 // published under the same github.io address share one cache store - a
 // shared prefix would let this app wipe the Japanese apps' offline copies.
-const CACHE_VERSION = 'pt-drill-v261011-007';
+const CACHE_VERSION = 'pt-drill-v261011-008';
 
 const PRECACHE_URLS = [
   './',
@@ -21,7 +21,7 @@ const PRECACHE_URLS = [
   './grammar.js',
   './instructions.html',
   './changelog.html',
-  './manifest.json',
+  './manifest-pt.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-512-maskable.png',
