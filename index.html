@@ -906,7 +906,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261011.005</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261011.007</div>
   </div>
 
 
@@ -1466,10 +1466,13 @@ function getThemePool(themeKey) {
     // newest week / two weeks of additions (by dateAdded).
     const taught = getCoreVocabPool();
     const byEn = (a, b) => a.en.toLowerCase() < b.en.toLowerCase() ? -1 : 1;
-    const range = appSettings.latestWordsRange || '1w';
+    const range = appSettings.latestWordsRange || 'batch';
     const dated = taught.filter(i => i.dateAdded);
     if (!dated.length) return [];
     const newest = dated.reduce((m, i) => (i.dateAdded > m ? i.dateAdded : m), '');
+    // 'batch' (Portuguese build): just the words from the newest date - a
+    // whole new vocabulary arrives at once here, so a week covers everything.
+    if (range === 'batch') return dated.filter(i => i.dateAdded === newest).sort(byEn);
     const from = new Date(newest + 'T00:00:00Z'); from.setUTCDate(from.getUTCDate() - (range === '2w' ? 13 : 6));
     const cutoff = from.toISOString().slice(0, 10);
     return dated.filter(i => i.dateAdded >= cutoff).sort(byEn);
@@ -2104,8 +2107,8 @@ function showVocabTileSelection(categoryKey) {
     if (categoryKey === 'theme-latest-words') {
       const row = document.createElement('div');
       row.className = 'level-filter-row latest-range-row';
-      const cur = appSettings.latestWordsRange || '1w';
-      [['1w', '1 week'], ['2w', '2 weeks']].forEach(([key, label]) => {
+      const cur = appSettings.latestWordsRange || 'batch';
+      [['batch', 'Latest batch'], ['1w', '1 week'], ['2w', '2 weeks']].forEach(([key, label]) => {
         const btn = document.createElement('button');
         btn.className = 'level-pill' + (key === cur ? ' active' : '');
         btn.textContent = label;
@@ -2140,7 +2143,7 @@ function showVocabTileSelection(categoryKey) {
 }
 
 function setLatestWordsRange(range) {
-  if ((appSettings.latestWordsRange || '1w') === range) return;
+  if ((appSettings.latestWordsRange || 'batch') === range) return;
   appSettings.latestWordsRange = range;
   saveSettings();
   // The word list changes underneath, so any picked tiles no longer line up.
