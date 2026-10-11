@@ -166,98 +166,263 @@ window.PT_DRILL_GRAMMAR = {
   ],
 
 
-  // SENTENCES (2026-10-11) - whole-sentence examples for the greeting card.
-  // Each pattern has hand-picked slot lists so every combination makes sense;
-  // the app builds verb forms from the verbs above and does the contractions
-  // (a + o = ao, em + a = na…) itself. Nouns that combine with a preposition
-  // carry their article (art: 'o' | 'a' | 'os' | 'as' | '' for none).
-  // English for each activity: [I/we/they form, he/she form] (routine) or
-  // the past sentence. near: true on a place / far: true on a direction keeps
-  // "ten minutes' walk" away from the toilet.
+  // SENTENCES (rebuilt 2026-10-11, modelled on the Japanese L3 generator):
+  // independent slots - who, when, where, with whom, how, what - mixed by the
+  // app, with simple sense rules so every combination is something a person
+  // would actually say. Verb forms come from the verbs above; contractions
+  // (ao, à, no, na, do, da…) and adjective agreement are done by the app.
+  //   art: 'o' | 'a' | 'os' | 'as' | '' (no article - most city names)
+  //   g / pl: gender and number, for agreement
   sentences: {
-    subjects: [
-      { pt: '', p: 0, en: 'I' },            // eu - usually dropped in Portuguese
-      { pt: '', p: 3, en: 'we' },           // nós - dropped too
-      { pt: 'O João', p: 2, en: 'João' },
-      { pt: 'A Ana', p: 2, en: 'Ana' },
-      { pt: 'Os meus amigos', p: 4, en: 'my friends' },
+    // WHO. p = person (0 eu, 2 ele/ela, 3 nós, 4 eles). eu and nós are dropped
+    // in the Portuguese, as people normally do.
+    people: [
+      { kind: 'me', p: 0, en: 'I', g: 'm' },
+      { kind: 'we', p: 3, en: 'we', g: 'm', pl: true },
+      { kind: 'name', pt: 'o João', p: 2, en: 'João', g: 'm' },
+      { kind: 'name', pt: 'a Ana', p: 2, en: 'Ana', g: 'f' },
+      { kind: 'name', pt: 'o Rui', p: 2, en: 'Rui', g: 'm' },
+      { kind: 'name', pt: 'a Marta', p: 2, en: 'Marta', g: 'f' },
+      { kind: 'name', pt: 'a Inês', p: 2, en: 'Inês', g: 'f' },
+      { kind: 'name', pt: 'o Pedro', p: 2, en: 'Pedro', g: 'm' },
+      { kind: 'family', pt: 'o meu irmão', p: 2, en: 'my brother', g: 'm' },
+      { kind: 'family', pt: 'a minha irmã', p: 2, en: 'my sister', g: 'f' },
+      { kind: 'family', pt: 'o meu pai', p: 2, en: 'my father', g: 'm' },
+      { kind: 'family', pt: 'a minha mãe', p: 2, en: 'my mother', g: 'f' },
+      { kind: 'family', pt: 'o meu primo', p: 2, en: 'my cousin', g: 'm' },
+      { kind: 'family', pt: 'a minha avó', p: 2, en: 'my grandmother', g: 'f', elderly: true },
+      { kind: 'family', pt: 'os meus pais', p: 4, en: 'my parents', g: 'm', pl: true },
+      { kind: 'friend', pt: 'o meu amigo', p: 2, en: 'my friend', g: 'm' },
+      { kind: 'friend', pt: 'a minha amiga', p: 2, en: 'my friend', g: 'f' },
+      { kind: 'friend', pt: 'os meus amigos', p: 4, en: 'my friends', g: 'm', pl: true },
+      { kind: 'colleague', pt: 'o meu colega', p: 2, en: 'my colleague', g: 'm' },
+      { kind: 'colleague', pt: 'a minha colega', p: 2, en: 'my colleague', g: 'f' },
     ],
-    routine: {
-      when: [
-        { pt: 'Todos os dias', en: 'Every day' },
-        { pt: 'Às vezes', en: 'Sometimes' },
-        { pt: 'De manhã', en: 'In the morning' },
-        { pt: 'Ao fim de semana', en: 'At weekends' },
-        { pt: 'À noite', en: 'In the evening' },
+    // WHO WITH - "com" + these (com o → com o; no contraction with com).
+    companions: [
+      { pt: 'com o meu irmão', en: 'with my brother', who: 'o meu irmão' },
+      { pt: 'com a minha irmã', en: 'with my sister', who: 'a minha irmã' },
+      { pt: 'com a Ana', en: 'with Ana', who: 'a Ana' },
+      { pt: 'com o João', en: 'with João', who: 'o João' },
+      { pt: 'com uns amigos', en: 'with some friends' },
+      { pt: 'com uma colega', en: 'with a colleague', work: true },
+      { pt: 'com os meus pais', en: 'with my parents', who: 'os meus pais' },
+      { pt: 'com a família', en: 'with the family' },
+    ],
+    // WHEN, by tense: hab (habitually - present), fut (plans - present or ir +
+    // infinitive), past. Flags: night, morning, weekend, weekday, long (a
+    // whole week/year - only for trips).
+    times: {
+      hab: [
+        { pt: 'Todos os dias', en: 'every day' },
+        { pt: 'Às vezes', en: 'sometimes' },
+        { pt: 'De manhã', en: 'in the morning', morning: true },
+        { pt: 'À tarde', en: 'in the afternoon' },
+        { pt: 'À noite', en: 'in the evening', night: true },
+        { pt: 'Ao fim de semana', en: 'at weekends', weekend: true },
+        { pt: 'Aos sábados', en: 'on Saturdays', weekend: true },
+        { pt: 'Aos domingos', en: 'on Sundays', weekend: true },
+        { pt: 'Às segundas-feiras', en: 'on Mondays', weekday: true },
+        { pt: 'Às sextas-feiras', en: 'on Fridays', weekday: true },
+        { pt: 'Muitas vezes', en: 'often' },
+        { pt: 'De vez em quando', en: 'now and then' },
       ],
-      activities: [
-        { verb: 'tomar', pt: 'um café', en: ['have a coffee', 'has a coffee'] },
-        { verb: 'apanhar', pt: 'o autocarro para o trabalho', en: ['catch the bus to work', 'catches the bus to work'] },
-        { verb: 'comer', pt: 'na esplanada', en: ['eat on the terrace', 'eats on the terrace'] },
-        { verb: 'ler', pt: 'o jornal', en: ['read the paper', 'reads the paper'] },
-        { verb: 'estudar', pt: 'português', en: ['study Portuguese', 'studies Portuguese'] },
-        { verb: 'jantar', pt: 'com amigos', en: ['have dinner with friends', 'has dinner with friends'] },
-        { verb: 'ir', pt: 'ao ginásio', en: ['go to the gym', 'goes to the gym'] },
-        { verb: 'trabalhar', pt: 'em casa', en: ['work from home', 'works from home'] },
-        { verb: 'beber', pt: 'um galão', en: ['have a milky coffee', 'has a milky coffee'] },
+      fut: [
+        { pt: 'Amanhã', en: 'tomorrow' },
+        { pt: 'Amanhã de manhã', en: 'tomorrow morning', morning: true },
+        { pt: 'Logo à noite', en: 'tonight', night: true },
+        { pt: 'Esta tarde', en: 'this afternoon' },
+        { pt: 'No sábado', en: 'on Saturday', weekend: true },
+        { pt: 'No domingo', en: 'on Sunday', weekend: true },
+        { pt: 'Na sexta-feira', en: 'on Friday', weekday: true },
+        { pt: 'Este fim de semana', en: 'this weekend', weekend: true },
+        { pt: 'Na próxima semana', en: 'next week', long: true },
+        { pt: 'Para o ano', en: 'next year', long: true },
       ],
-    },
-    going: {
-      when: [
-        { pt: 'Amanhã', en: 'Tomorrow' },
-        { pt: 'No sábado', en: 'On Saturday' },
-        { pt: 'Esta tarde', en: 'This afternoon' },
-        { pt: 'Logo à noite', en: 'Tonight' },
-        { pt: 'Na próxima semana', en: 'Next week' },
-      ],
-      places: [
-        { pt: 'praia', art: 'a', en: 'the beach' },
-        { pt: 'museu', art: 'o', en: 'the museum' },
-        { pt: 'mercado', art: 'o', en: 'the market' },
-        { pt: 'Porto', art: 'o', en: 'Porto' },
-        { pt: 'Lisboa', art: '', en: 'Lisbon' },
-        { pt: 'Sintra', art: '', en: 'Sintra' },
-        { pt: 'castelo', art: 'o', en: 'the castle' },
-        { pt: 'Baixa', art: 'a', en: 'the town centre' },
-        { pt: 'cinema', art: 'o', en: 'the cinema' },
-        { pt: 'Açores', art: 'os', en: 'the Azores' },
-      ],
-    },
-    past: {
-      when: [
-        { pt: 'Ontem', en: 'Yesterday' },
-        { pt: 'Ontem à noite', en: 'Last night' },
-        { pt: 'No sábado passado', en: 'Last Saturday' },
-        { pt: 'Na semana passada', en: 'Last week' },
-      ],
-      activities: [
-        { verb: 'jantar', pt: 'num restaurante perto do rio', en: 'had dinner at a restaurant near the river' },
-        { verb: 'comer', pt: 'bacalhau', en: 'ate salt cod' },
-        { verb: 'comer', pt: 'sardinhas assadas', en: 'ate grilled sardines' },
-        { verb: 'ver', pt: 'o pôr do sol no miradouro', en: 'watched the sunset from the viewpoint' },
-        { verb: 'comprar', pt: 'uma lembrança', en: 'bought a souvenir' },
-        { verb: 'apanhar', pt: 'o comboio para Sintra', en: 'caught the train to Sintra' },
-        { verb: 'ir', pt: 'ao museu', en: 'went to the museum' },
-        { verb: 'ficar', pt: 'em casa', en: 'stayed at home' },
-        { verb: 'tomar', pt: 'um café na esplanada', en: 'had a coffee on the terrace' },
-        { verb: 'beber', pt: 'vinho verde', en: 'drank vinho verde' },
+      past: [
+        { pt: 'Ontem', en: 'yesterday' },
+        { pt: 'Ontem à noite', en: 'last night', night: true },
+        { pt: 'Anteontem', en: 'the day before yesterday' },
+        { pt: 'Esta manhã', en: 'this morning', morning: true },
+        { pt: 'No sábado passado', en: 'last Saturday', weekend: true },
+        { pt: 'No domingo passado', en: 'last Sunday', weekend: true },
+        { pt: 'Na sexta-feira passada', en: 'last Friday', weekday: true },
+        { pt: 'Há dois dias', en: 'two days ago' },
+        { pt: 'Na semana passada', en: 'last week', long: true },
+        { pt: 'No verão passado', en: 'last summer', long: true },
       ],
     },
+    // WHERE TO (ir a…). kind: town (local, any day), culture (daytime),
+    // shop (daytime), night (evenings), work (weekdays), city (a trip -
+    // weekends / long times), far (a flight).
+    destinations: [
+      { pt: 'praia', art: 'a', en: 'the beach', kind: 'town', day: true },
+      { pt: 'museu', art: 'o', en: 'the museum', kind: 'culture' },
+      { pt: 'mercado', art: 'o', en: 'the market', kind: 'shop' },
+      { pt: 'supermercado', art: 'o', en: 'the supermarket', kind: 'shop' },
+      { pt: 'cinema', art: 'o', en: 'the cinema', kind: 'night' },
+      { pt: 'teatro', art: 'o', en: 'the theatre', kind: 'night' },
+      { pt: 'ginásio', art: 'o', en: 'the gym', kind: 'town' },
+      { pt: 'trabalho', art: 'o', en: 'work', kind: 'work' },
+      { pt: 'banco', art: 'o', en: 'the bank', kind: 'shop', weekday: true },
+      { pt: 'farmácia', art: 'a', en: 'the chemist', kind: 'shop' },
+      { pt: 'correios', art: 'os', en: 'the post office', kind: 'shop', weekday: true },
+      { pt: 'biblioteca', art: 'a', en: 'the library', kind: 'culture' },
+      { pt: 'castelo', art: 'o', en: 'the castle', kind: 'culture' },
+      { pt: 'jardim', art: 'o', en: 'the park', kind: 'town', day: true },
+      { pt: 'centro comercial', art: 'o', en: 'the shopping centre', kind: 'shop' },
+      { pt: 'restaurante', art: 'o', en: 'the restaurant', kind: 'night' },
+      { pt: 'Baixa', art: 'a', en: 'the town centre', kind: 'town' },
+      { pt: 'Porto', art: 'o', en: 'Porto', kind: 'city' },
+      { pt: 'Lisboa', art: '', en: 'Lisbon', kind: 'city' },
+      { pt: 'Sintra', art: '', en: 'Sintra', kind: 'city' },
+      { pt: 'Coimbra', art: '', en: 'Coimbra', kind: 'city' },
+      { pt: 'Braga', art: '', en: 'Braga', kind: 'city' },
+      { pt: 'Algarve', art: 'o', en: 'the Algarve', kind: 'city' },
+      { pt: 'Açores', art: 'os', en: 'the Azores', kind: 'far' },
+      { pt: 'Madeira', art: 'a', en: 'Madeira', kind: 'far' },
+    ],
+    // HOW - de + transport (no article), or a pé. local: fine in town;
+    // trip: fine for cities; flight: only for 'far'.
+    transport: [
+      { pt: 'de comboio', en: 'by train', trip: true },
+      { pt: 'de autocarro', en: 'by bus', local: true, trip: true },
+      { pt: 'de metro', en: 'on the metro', local: true },
+      { pt: 'de carro', en: 'by car', local: true, trip: true },
+      { pt: 'de táxi', en: 'by taxi', local: true },
+      { pt: 'a pé', en: 'on foot', local: true },
+      { pt: 'de bicicleta', en: 'by bike', local: true },
+      { pt: 'de avião', en: 'by plane', flight: true },
+    ],
+    // WHERE AT (em + …) for activities.
+    places: {
+      home: { pt: 'casa', art: '', en: 'at home', bare: 'em casa' },
+      cafe: { pt: 'café', art: 'o', en: 'at the café' },
+      terrace: { pt: 'esplanada', art: 'a', en: 'on the terrace' },
+      restaurant: { pt: 'restaurante', art: 'o', en: 'at the restaurant' },
+      beach: { pt: 'praia', art: 'a', en: 'on the beach' },
+      park: { pt: 'jardim', art: 'o', en: 'in the park' },
+      train: { pt: 'comboio', art: 'o', en: 'on the train' },
+      office: { pt: 'escritório', art: 'o', en: 'at the office' },
+      library: { pt: 'biblioteca', art: 'a', en: 'at the library' },
+      market: { pt: 'mercado', art: 'o', en: 'at the market' },
+      kitchen: { pt: 'cozinha', art: 'a', en: 'in the kitchen' },
+    },
+    // WHAT - verbs with sensible objects. en: [base, he/she, past, -ing].
+    // places: where it makes sense to do it (keys of places above). An object
+    // can carry its own English forms and places: [pt, en, forms, places].
+    // rare: not something you'd do every day (no 'todos os dias').
+    activities: [
+      { verb: 'comer', en: ['eat', 'eats', 'ate', 'eating'], places: ['home', 'restaurant', 'terrace', 'cafe', 'beach'],
+        objs: [['bacalhau', 'salt cod'], ['sardinhas', 'sardines'], ['um pastel de nata', 'a custard tart'], ['uma francesinha', 'a francesinha'],
+          ['uma sopa', 'a soup'], ['uma salada', 'a salad'], ['peixe grelhado', 'grilled fish'], ['arroz de marisco', 'seafood rice'], ['uma tosta mista', 'a toastie'], ['fruta', 'fruit']] },
+      { verb: 'beber', en: ['drink', 'drinks', 'drank', 'drinking'], places: ['home', 'cafe', 'terrace', 'restaurant'],
+        objs: [['um café', 'a coffee'], ['uma bica', 'an espresso'], ['um galão', 'a milky coffee'], ['um chá', 'a tea'], ['uma cerveja', 'a beer'],
+          ['um copo de vinho', 'a glass of wine'], ['vinho verde', 'vinho verde'], ['um sumo de laranja', 'an orange juice'], ['água', 'water']] },
+      { verb: 'comprar', rare: true, en: ['buy', 'buys', 'bought', 'buying'], places: ['market'],
+        objs: [['pão', 'bread'], ['fruta', 'fruit'], ['um bilhete', 'a ticket'], ['uma lembrança', 'a souvenir'], ['um livro', 'a book'],
+          ['uns sapatos', 'some shoes'], ['um casaco', 'a coat'], ['um guarda-chuva', 'an umbrella'], ['uns postais', 'some postcards'], ['flores', 'flowers']] },
+      { verb: 'ler', en: ['read', 'reads', 'read', 'reading'], places: ['home', 'cafe', 'train', 'park', 'beach', 'library'],
+        objs: [['o jornal', 'the paper'], ['um livro', 'a book'], ['uma revista', 'a magazine'], ['as notícias', 'the news']] },
+      { verb: 'ver', en: ['watch', 'watches', 'watched', 'watching'], places: ['home'],
+        objs: [['um filme', 'a film'], ['televisão', 'TV'], ['o jogo', 'the match'], ['uma série', 'a series'], ['as notícias', 'the news']] },
+      { verb: 'escrever', en: ['write', 'writes', 'wrote', 'writing'], places: ['home', 'cafe', 'train', 'office'],
+        objs: [['uma mensagem', 'a message'], ['um postal', 'a postcard'], ['um email', 'an email'], ['uma carta', 'a letter']] },
+      { verb: 'estudar', en: ['study', 'studies', 'studied', 'studying'], places: ['home', 'library', 'cafe'],
+        objs: [['português', 'Portuguese'], ['japonês', 'Japanese'], ['inglês', 'English'], ['história', 'history'], ['para o exame', 'for the exam']] },
+      { verb: 'ouvir', en: ['listen to', 'listens to', 'listened to', 'listening to'], places: ['home', 'train', 'cafe'],
+        objs: [['música', 'music'], ['a rádio', 'the radio'], ['um podcast', 'a podcast'], ['fado', 'fado']] },
+      { verb: 'fazer', places: [],
+        objs: [['o jantar', 'dinner', ['make', 'makes', 'made', 'making'], ['home', 'kitchen']], ['compras', 'the shopping', ['do', 'does', 'did', 'doing'], ['market']],
+          ['exercício', 'some exercise', ['do', 'does', 'did', 'doing'], ['park', 'home']], ['uma caminhada', 'a walk', ['go for', 'goes for', 'went for', 'going for'], ['park', 'beach']],
+          ['um bolo', 'a cake', ['make', 'makes', 'made', 'making'], ['home', 'kitchen']], ['os trabalhos de casa', 'the homework', ['do', 'does', 'did', 'doing'], ['home', 'library']]] },
+      { verb: 'tomar', en: ['have', 'has', 'had', 'having'], places: ['home', 'cafe', 'terrace'],
+        objs: [['o pequeno-almoço', 'breakfast'], ['um café', 'a coffee'], ['um duche', 'a shower', null, ['home']], ['um chá', 'a tea']] },
+      { verb: 'visitar', rare: true, en: ['visit', 'visits', 'visited', 'visiting'], places: [],
+        objs: [['os avós', 'the grandparents'], ['um museu', 'a museum'], ['o castelo', 'the castle'], ['uma amiga', 'a friend'], ['a família', 'the family']] },
+      { verb: 'cozinhar', en: ['cook', 'cooks', 'cooked', 'cooking'], places: ['home', 'kitchen'],
+        objs: [['bacalhau', 'salt cod'], ['o jantar', 'dinner'], ['uma sopa', 'a soup'], ['arroz', 'rice']] },
+    ],
+    // ROUTINE CLOCKS - reflexive verbs (levantar-se, deitar-se), where the
+    // pronoun goes after the verb in Portugal: levanto-me, levantamo-nos.
+    reflexives: [
+      { inf: 'levantar', en: ['get up', 'gets up', 'got up'], hours: [6, 7, 7, 8, 9] },
+      { inf: 'deitar', en: ['go to bed', 'goes to bed', 'went to bed'], hours: [22, 22, 23, 23, 0] },
+    ],
+    // JOBS - masculine / feminine, and where the job is (em + workplace).
+    jobs: [
+      { m: 'enfermeiro', f: 'enfermeira', en: 'a nurse', at: { pt: 'hospital', art: 'um' }, atEn: 'in a hospital' },
+      { m: 'médico', f: 'médica', en: 'a doctor', at: { pt: 'centro de saúde', art: 'um' }, atEn: 'at a health centre' },
+      { m: 'professor', f: 'professora', en: 'a teacher', at: { pt: 'escola', art: 'uma' }, atEn: 'in a school' },
+      { m: 'engenheiro', f: 'engenheira', en: 'an engineer', at: { pt: 'empresa de software', art: 'uma' }, atEn: 'for a software company' },
+      { m: 'advogado', f: 'advogada', en: 'a lawyer', at: { pt: 'escritório no centro', art: 'um' }, atEn: 'in an office in the centre' },
+      { m: 'cozinheiro', f: 'cozinheira', en: 'a cook', at: { pt: 'restaurante', art: 'um' }, atEn: 'in a restaurant' },
+      { m: 'empregado de mesa', f: 'empregada de mesa', en: 'a waiter', enF: 'a waitress', at: { pt: 'café na Baixa', art: 'um' }, atEn: 'in a café downtown' },
+      { m: 'farmacêutico', f: 'farmacêutica', en: 'a pharmacist', at: { pt: 'farmácia', art: 'uma' }, atEn: 'in a chemist' },
+      { m: 'gestor', f: 'gestora', en: 'a manager', at: { pt: 'banco', art: 'um' }, atEn: 'at a bank' },
+    ],
+    // DESCRIPTIONS - things in context, with adjectives that suit them.
+    // Adjectives are given masculine singular; the app makes them agree.
+    // be: 'ser' (what it's like) or 'estar' (how it is right now). good:
+    // true/false decides "e" (and) or "mas" (but) between two halves.
+    describe: [
+      { ctx: 'hotel', items: [
+        { pt: 'hotel', art: 'o', en: 'the hotel', adj: [['caro', 'expensive', 'ser', false], ['barato', 'cheap', 'ser', true], ['novo', 'new', 'ser', true], ['velho', 'old', 'ser', false]] },
+        { pt: 'quarto', art: 'o', en: 'the room', adj: [['pequeno', 'small', 'ser', false], ['grande', 'big', 'ser', true], ['limpo', 'clean', 'estar', true], ['confortável', 'comfortable', 'ser', true]] },
+      ] },
+      { ctx: 'restaurant', items: [
+        { pt: 'restaurante', art: 'o', en: 'the restaurant', adj: [['caro', 'expensive', 'ser', false], ['barato', 'cheap', 'ser', true], ['cheio', 'full', 'estar', false], ['pequeno', 'small', 'ser', false]] },
+        { pt: 'comida', art: 'a', en: 'the food', adj: [['delicioso', 'delicious', 'ser', true], ['bom', 'good', 'ser', true], ['frio', 'cold', 'estar', false]] },
+        { pt: 'empregados', art: 'os', en: 'the waiters', adj: [['simpático', 'friendly', 'ser', true]] },
+      ] },
+      { ctx: 'town', items: [
+        { pt: 'cidade', art: 'a', en: 'the city', adj: [['bonito', 'beautiful', 'ser', true], ['grande', 'big', 'ser', true], ['antigo', 'old', 'ser', true]] },
+        { pt: 'ruas', art: 'as', en: 'the streets', adj: [['estreito', 'narrow', 'ser', false], ['bonito', 'pretty', 'ser', true], ['cheio', 'full', 'estar', false]] },
+        { pt: 'museu', art: 'o', en: 'the museum', adj: [['interessante', 'interesting', 'ser', true], ['fechado', 'closed', 'estar', false], ['grande', 'big', 'ser', true]] },
+      ] },
+      { ctx: 'travel', items: [
+        { pt: 'comboio', art: 'o', en: 'the train', adj: [['rápido', 'fast', 'ser', true], ['atrasado', 'late', 'estar', false], ['cheio', 'full', 'estar', false]] },
+        { pt: 'autocarro', art: 'o', en: 'the bus', adj: [['lento', 'slow', 'ser', false], ['vazio', 'empty', 'estar', true], ['atrasado', 'late', 'estar', false]] },
+        { pt: 'bilhetes', art: 'os', en: 'the tickets', adj: [['barato', 'cheap', 'ser', true], ['caro', 'expensive', 'ser', false]] },
+      ] },
+      { ctx: 'cafe', items: [
+        { pt: 'café', art: 'o', en: 'the coffee', adj: [['forte', 'strong', 'ser', true], ['frio', 'cold', 'estar', false], ['ótimo', 'great', 'ser', true]] },
+        { pt: 'pastéis de nata', art: 'os', en: 'the custard tarts', adj: [['delicioso', 'delicious', 'ser', true], ['quente', 'warm', 'estar', true]] },
+        { pt: 'esplanada', art: 'a', en: 'the terrace', adj: [['cheio', 'full', 'estar', false], ['agradável', 'pleasant', 'ser', true]] },
+      ] },
+    ],
+    // WEATHER -> what people do about it.
+    weather: [
+      { pt: 'Está sol', en: "It's sunny", good: true },
+      { pt: 'Está calor', en: "It's hot", good: true },
+      { pt: 'Está frio', en: "It's cold", good: false },
+      { pt: 'Está a chover', en: "It's raining", good: false },
+      { pt: 'Está muito vento', en: "It's very windy", good: false },
+    ],
+    weatherGood: [['vamos à praia', "we're going to the beach"], ['vamos jantar na esplanada', "we're having dinner on the terrace"], ['vou dar um passeio', "I'm going for a walk"], ['vamos ao jardim', "we're going to the park"]],
+    weatherBad: [['fico em casa', "I'm staying at home"], ['vamos ao cinema', "we're going to the cinema"], ['vou ao museu', "I'm going to the museum"], ['vamos apanhar um táxi', "we're getting a taxi"]],
+    // LIKES - nouns (no article: generic) and infinitives.
     likes: [
-      { pt: 'bacalhau', en: 'salt cod' },
-      { pt: 'sardinhas', en: 'sardines' },
-      { pt: 'pastéis de nata', en: 'custard tarts' },
-      { pt: 'vinho verde', en: 'vinho verde' },
-      { pt: 'café', en: 'coffee' },
-      { pt: 'chá', en: 'tea' },
-      { pt: 'marisco', en: 'seafood' },
-      { pt: 'futebol', en: 'football' },
-      { pt: 'ir à praia', en: 'going to the beach' },
-      { pt: 'cozinhar', en: 'cooking' },
-      { pt: 'viajar', en: 'travelling' },
-      { pt: 'ler', en: 'reading' },
-      { pt: 'acordar cedo', en: 'getting up early' },
+      ['bacalhau', 'salt cod'], ['sardinhas', 'sardines'], ['pastéis de nata', 'custard tarts'], ['vinho verde', 'vinho verde'],
+      ['café', 'coffee'], ['chá', 'tea'], ['marisco', 'seafood'], ['futebol', 'football'], ['fado', 'fado'], ['ir à praia', 'going to the beach'],
+      ['cozinhar', 'cooking'], ['viajar', 'travelling'], ['ler', 'reading'], ['acordar cedo', 'getting up early'],
+      ['andar de comboio', 'travelling by train'], ['dançar', 'dancing'], ['ir ao cinema', 'going to the cinema'], ['nadar', 'swimming'],
     ],
+    // PREFER X TO Y - only between things of the same sort.
+    prefer: [
+      [['bacalhau', 'salt cod'], ['sardinhas', 'sardines'], ['marisco', 'seafood'], ['carne', 'meat'], ['peixe', 'fish']],
+      [['café', 'coffee'], ['chá', 'tea'], ['sumo', 'juice']],
+      [['vinho tinto', 'red wine'], ['vinho branco', 'white wine'], ['cerveja', 'beer'], ['vinho verde', 'vinho verde']],
+      [['o mar', 'the sea'], ['a montanha', 'the mountains'], ['o campo', 'the countryside'], ['a cidade', 'the city']],
+      [['o verão', 'summer'], ['o inverno', 'winter'], ['a primavera', 'spring'], ['o outono', 'autumn']],
+      [['ler', 'reading'], ['ver televisão', 'watching TV'], ['sair à noite', 'going out at night'], ['ficar em casa', 'staying in']],
+    ],
+    hometowns: [
+      { pt: 'Porto', art: 'o', en: 'Porto' }, { pt: 'Lisboa', art: '', en: 'Lisbon' }, { pt: 'Coimbra', art: '', en: 'Coimbra' },
+      { pt: 'Escócia', art: 'a', en: 'Scotland' }, { pt: 'Inglaterra', art: 'a', en: 'England' }, { pt: 'Brasil', art: 'o', en: 'Brazil' },
+      { pt: 'Manchester', art: '', en: 'Manchester' }, { pt: 'Algarve', art: 'o', en: 'the Algarve' },
+    ],
+    // ORDERING, ASKING THE WAY, OPENING TIMES (from the first version).
     orders: [
       { pt: 'uma bica', en: 'an espresso' },
       { pt: 'um galão', en: 'a milky coffee' },
