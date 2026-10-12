@@ -916,7 +916,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261011.013</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261012.002</div>
   </div>
 
 
@@ -1306,9 +1306,9 @@
 <!-- ?v= matches the version in Settings (2026-10-11): a new page always
      fetches the data files that go with it, never an older cached copy -
      bump it together with the footer version and sw.js CACHE_VERSION. -->
-<script src="vocab.js?v=261011.013"></script>
+<script src="vocab.js?v=261012.002"></script>
 <!-- Verbs, contractions and grammar notes (2026-10-11). -->
-<script src="grammar.js?v=261011.013"></script>
+<script src="grammar.js?v=261012.002"></script>
 <script>
 // =============================================================================
 // PORTUGUÊS DRILL (2026-10-10) - built from a copy of the Japanese drill app
@@ -2867,7 +2867,7 @@ let appSettings = { theme: 'dark', hintPenalty: false, strictAccents: false, wor
 // lastSeenChangelog doesn't match this value sees the flag until they open
 // Settings, which clears it (see showSettingsScreen()) - reading the
 // changelog itself is optional, opening Settings is what counts as "noticed".
-const LATEST_CHANGELOG_ENTRY = '2026-10-11d';
+const LATEST_CHANGELOG_ENTRY = '2026-10-12b';
 try {
   const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
   if (savedSettings && typeof savedSettings === 'object') {
