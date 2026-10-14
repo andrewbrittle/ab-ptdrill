@@ -258,6 +258,9 @@
     user-select: none;
   }
   .group-card:hover { border-color: var(--border-hover); }
+  .install-card { align-items: center; gap: 12px; cursor: default; }
+  .install-card .install-why { margin-top: 4px; }
+  .install-btn { flex-shrink: 0; padding: 8px 16px; border-radius: 99px; border: 1px solid var(--accent); background: var(--accent-dim); color: var(--accent); font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
   .group-card.selected { border-color: var(--accent); background: var(--accent-dim); }
   /* Used for the "Highlight the meaning instead of sound" toggle specifically
      - while Reversed mode is on, that toggle has no effect (reversed always
@@ -449,6 +452,12 @@
   .opt.wrong { background: var(--red-dim); border-color: var(--red); color: var(--red); font-weight: 700; }
   .opt:disabled { cursor: default; }
   .opt .opt-rd { display: block; font-size: 13px; font-weight: 600; opacity: 0.85; }
+  /* Answers in Portuguese (reversed vocab, verb forms, contractions, numbers):
+     bold, full colour, sized by length - see optPtSize (from the Japanese
+     app's kana answers, 2026-10-14). */
+  .opt .opt-rd.opt-pt { font-weight: 700; opacity: 1; line-height: 1.25; }
+  .opt .sound-spelling { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-top: 2px; }
+  .opt .sound-spelling:empty { display: none; }
   .opt-num {
     position: absolute; top: 4px; left: 6px;
     font-size: 10px; font-weight: 600; color: var(--text-dim);
@@ -726,8 +735,15 @@
   .vocab-search-pill {
     flex: 1; min-width: 0; display: flex; align-items: center;
     border: 1px solid var(--accent); border-radius: 99px;
-    background: transparent; padding-left: 14px;
+    background: transparent; padding-left: 14px; padding-right: 4px;
   }
+  /* × to clear (from the Japanese app, 2026-10-14) - only while there's text. */
+  .vocab-search-clear {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%; border: none;
+    background: var(--border); color: var(--text-muted); cursor: pointer; padding: 0;
+  }
+  .vocab-search-clear:hover { color: var(--text); }
   .vocab-search-input {
     flex: 1; min-width: 0; background: transparent; border: none; outline: none;
     color: var(--text); font-size: 13px; font-weight: 600;
@@ -737,8 +753,8 @@
   .vocab-search-input::placeholder { color: var(--text-dim); font-weight: 500; }
   .vocab-search-btn {
     flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    width: 32px; height: 32px; margin: 3px; border-radius: 50%; border: none;
-    background: transparent; color: var(--text-muted); cursor: pointer;
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--accent);
+    background: transparent; color: var(--accent); cursor: pointer;
     transition: all 0.15s;
   }
   .vocab-search-btn:hover { color: var(--accent); background: var(--accent-dim); }
@@ -858,6 +874,17 @@
       <a href="./changelog.html" target="_blank" id="whats-new-link" style="display:inline-block; font-size:13px; font-weight:600; color:var(--text-muted); text-decoration:none; border:1px solid var(--border); border-radius:99px; padding:8px 18px; background:transparent;">What's new →</a>
     </div>
 
+    <!-- Install card (from the Japanese app, 2026-10-14): only shown when the
+         app is open as a web page rather than installed - see refreshInstallCard(). -->
+    <div class="group-card install-card" id="install-card" style="display:none;">
+      <div class="group-info">
+        <div class="group-name">Install the app</div>
+        <div class="group-count" id="install-card-steps"></div>
+        <div class="group-count install-why">Installed, it opens full screen from its own icon and works offline.</div>
+      </div>
+      <button type="button" class="install-btn" id="install-btn" onclick="runInstallPrompt()" style="display:none;">Install</button>
+    </div>
+
     <div class="group-card" id="theme-toggle-card" onclick="toggleTheme()" style="cursor:pointer;">
       <div class="group-info">
         <div class="group-name">Light theme</div>
@@ -916,7 +943,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261012.002</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261014.001</div>
   </div>
 
 
@@ -1073,14 +1100,17 @@
 
     <div class="level-filter-row andrew-row" id="vocab-andrew-filter-row">
       <div class="vocab-search-pill">
-        <input type="text" id="vocab-search-input" class="vocab-search-input" placeholder="Search Portuguese or English…" onkeydown="handleVocabSearchKeydown(event)">
-        <button class="vocab-search-btn" onclick="submitVocabSearch()" title="Search" aria-label="Search">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="7"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
+        <input type="text" id="vocab-search-input" class="vocab-search-input" placeholder="Search Portuguese or English…" onkeydown="handleVocabSearchKeydown(event)" oninput="syncVocabSearchClear()">
+        <button type="button" class="vocab-search-clear" id="vocab-search-clear" onclick="clearVocabSearch()" title="Clear" aria-label="Clear search" style="display:none;">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>
         </button>
       </div>
+      <button class="vocab-search-btn" onclick="submitVocabSearch()" title="Search" aria-label="Search">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
     </div>
     <div class="vocab-search-message" id="vocab-search-message" style="display:none;"></div>
 
@@ -1112,6 +1142,13 @@
           <div class="random-choice-desc">20 words you haven't been tested on yet</div>
         </div>
         <div class="cat-bar" id="theme-untested-vocab-swatch"></div>
+      </div>
+      <div class="group-card cat-tile" data-random-key="sounds" onclick="selectRandomChoice('sounds')" style="cursor:pointer;">
+        <div class="cat-tile-top cat-tile-top-stack">
+          <div class="group-name">Sounds alike</div>
+          <div class="random-choice-desc">Hear a word, pick which of two it was: avó or avô, pão or pau, caro or carro. With sound off, read the English and pick the spelling. The switches below don't apply.</div>
+        </div>
+        <div class="cat-bar" id="theme-sounds-swatch"></div>
       </div>
 
       <div class="group-card" id="reversed-mode-toggle-card" onclick="toggleVocabReversed()" style="cursor:pointer;">
@@ -1306,9 +1343,9 @@
 <!-- ?v= matches the version in Settings (2026-10-11): a new page always
      fetches the data files that go with it, never an older cached copy -
      bump it together with the footer version and sw.js CACHE_VERSION. -->
-<script src="vocab.js?v=261012.002"></script>
+<script src="vocab.js?v=261014.001"></script>
 <!-- Verbs, contractions and grammar notes (2026-10-11). -->
-<script src="grammar.js?v=261012.002"></script>
+<script src="grammar.js?v=261014.001"></script>
 <script>
 // =============================================================================
 // PORTUGUÊS DRILL (2026-10-10) - built from a copy of the Japanese drill app
@@ -1742,6 +1779,29 @@ let lastVocabSearchResults = null; // { query, items } - see resolveVocabCategor
 // Accent-blind (Portuguese build): "cafe" finds café, "nao" finds não.
 function vocabSearchWords(str) {
   return str ? str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z0-9]+/).filter(Boolean) : [];
+}
+// The × only shows while there's something to clear.
+// Portuguese answer size: as big as fits in a half-width option.
+function optPtSize(text) {
+  const n = String(text || '').length;
+  return n <= 10 ? 20 : n <= 14 ? 17 : n <= 18 ? 15 : 13;
+}
+function optPtHtml(idx, text) {
+  return `<span class="opt-num">${idx + 1}</span><span class="opt-rd opt-pt" style="font-size:${optPtSize(text)}px">${escapeHtmlText(text)}</span>`;
+}
+function syncVocabSearchClear() {
+  const input = document.getElementById('vocab-search-input');
+  const x = document.getElementById('vocab-search-clear');
+  if (input && x) x.style.display = input.value ? 'flex' : 'none';
+}
+function clearVocabSearch() {
+  const input = document.getElementById('vocab-search-input');
+  const msgEl = document.getElementById('vocab-search-message');
+  if (!input) return;
+  input.value = '';
+  if (msgEl) msgEl.style.display = 'none';
+  syncVocabSearchClear();
+  input.focus();
 }
 function handleVocabSearchKeydown(e) {
   if (e.key === 'Enter') submitVocabSearch();
@@ -2867,7 +2927,7 @@ let appSettings = { theme: 'dark', hintPenalty: false, strictAccents: false, wor
 // lastSeenChangelog doesn't match this value sees the flag until they open
 // Settings, which clears it (see showSettingsScreen()) - reading the
 // changelog itself is optional, opening Settings is what counts as "noticed".
-const LATEST_CHANGELOG_ENTRY = '2026-10-12b';
+const LATEST_CHANGELOG_ENTRY = '2026-10-14a';
 try {
   const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
   if (savedSettings && typeof savedSettings === 'object') {
@@ -3077,7 +3137,44 @@ function applyAllSettingsUI() {
   applySettingsButtonUpdateFlag();
 }
 
+// INSTALL CARD (from the Japanese app, 2026-10-14). A browser reports whether
+// the page is running as an installed home-screen app (display-mode
+// standalone, or Safari's navigator.standalone). When it isn't, Settings
+// shows how to install for this device. Android / desktop Chrome offer their
+// own install prompt (beforeinstallprompt), so there the card gets a button.
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstallPrompt = e; refreshInstallCard(); });
+window.addEventListener('appinstalled', () => { deferredInstallPrompt = null; refreshInstallCard(); });
+function appIsInstalled() {
+  try {
+    return window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches
+      || window.matchMedia('(display-mode: minimal-ui)').matches || window.navigator.standalone === true;
+  } catch (e) { return false; }
+}
+function refreshInstallCard() {
+  const card = document.getElementById('install-card');
+  if (!card) return;
+  if (appIsInstalled() || location.protocol === 'file:') { card.style.display = 'none'; return; }
+  const ua = navigator.userAgent || '';
+  const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const android = /Android/.test(ua);
+  let steps;
+  if (ios) steps = 'Tap the Share button (the square with an arrow, at the bottom in Safari or top right in Chrome), scroll down and tap <strong>Add to Home Screen</strong>, then Add.';
+  else if (android && deferredInstallPrompt) steps = 'Tap <strong>Install</strong>, or use the browser menu (⋮) → Install app.';
+  else if (android) steps = 'In Chrome or Vivaldi, open the menu (⋮), then <strong>Install app</strong> or <strong>Add to Home screen</strong>.';
+  else if (deferredInstallPrompt) steps = 'Click <strong>Install</strong>, or use the install icon at the right of the address bar.';
+  else steps = 'On a phone, open this page and use the browser\'s Add to Home Screen. On a computer, look for an install icon at the right of the address bar (Chrome or Edge).';
+  document.getElementById('install-card-steps').innerHTML = steps;
+  document.getElementById('install-btn').style.display = deferredInstallPrompt ? 'inline-block' : 'none';
+  card.style.display = 'flex';
+}
+function runInstallPrompt() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.finally(() => { deferredInstallPrompt = null; refreshInstallCard(); });
+}
 function showSettingsScreen() {
+  refreshInstallCard();
   // Opening Settings at all is what clears the what's-new flag - reading
   // the changelog itself is optional, the cog going green is just meant to
   // say "there's something to notice", not "you owe us a read receipt".
@@ -3412,7 +3509,7 @@ function tryRestoreDrillSession() {
 }
 
 function isTrackedItem(q) {
-  return !!(q && (q.disp === 'word' || q.disp === 'verb' || q.disp === 'contraction' || q.disp === 'number' || q.disp === 'time'));
+  return !!(q && (q.disp === 'word' || q.disp === 'verb' || q.disp === 'contraction' || q.disp === 'number' || q.disp === 'time' || q.disp === 'sound'));
 }
 
 // Kana characters always mean the same sound, so the character itself is a
@@ -3822,6 +3919,7 @@ function refreshRandomView() {
   setupCatBar(document.getElementById('theme-all-vocab-swatch'), getCategoryBandCounts(getCoreVocabPool()));
   setupCatBar(document.getElementById('theme-weakest-vocab-swatch'), getCategoryBandCounts(getWeakestVocabItems(20)));
   setupCatBar(document.getElementById('theme-untested-vocab-swatch'), getCategoryBandCounts(getUntestedVocabItems()));
+  setupCatBar(document.getElementById('theme-sounds-swatch'), getCategoryBandCounts(soundScoreItems()));
   // Weakest needs something already tested, Untested needs something not yet
   // tested - dim whichever has nothing in it rather than a Start that does nothing.
   const empty = { weakest: !getWeakestVocabItems(1).length, untested: !getUntestedVocabItems().length };
@@ -3850,6 +3948,74 @@ function startSelectedRandom() {
   if (randomChoice === 'all') startRandomMatchEverything();
   else if (randomChoice === 'weakest') startWeakestVocab();
   else if (randomChoice === 'untested') startUntestedVocab();
+  else if (randomChoice === 'sounds') startSoundDrill();
+}
+
+// ==== SOUNDS ALIKE (2026-10-14, from the Japanese app's small-っ drill) ====
+// Pairs of real words that differ by one sound (grammar.js soundPairs).
+// Sound on: hear one, pick which - the buttons show the English, never the
+// spelling, and are always in the same order. Sound off: read the English of
+// one, pick its spelling. Scored per word ('sound|avó'), separate from vocab.
+// (Read from GRAMMAR on each call: refreshRandomView runs during init,
+// before a top-level const down here would exist.)
+function soundPairs() { return GRAMMAR.soundPairs || []; }
+function soundScoreItems() {
+  const out = [];
+  soundPairs().forEach(p => { out.push({ jp: 'sound', en: p.a[0] }); out.push({ jp: 'sound', en: p.b[0] }); });
+  return out;
+}
+function buildSoundDeck() {
+  const words = [];
+  soundPairs().forEach(p => {
+    const pair = [{ pt: p.a[0], en: p.a[1] }, { pt: p.b[0], en: p.b[1] }];
+    pair.forEach(w => words.push({ w, pair, note: p.note }));
+  });
+  const picks = weightedSampleWithoutReplacement(words, 20, x => selectionWeight(decayedScore(kanaScores['sound|' + x.w.pt])));
+  return shuffle(picks).map(({ w, pair, note }) => ({
+    disp: 'sound', groupKey: 'sound', scoreKey: 'sound|' + w.pt,
+    char: w.pt, answer: w.pt, en: w.en, pair, note,
+  }));
+}
+function startSoundDrill() {
+  lastSettingsScreen = 'match-settings';
+  startDrill(buildSoundDeck(), buildSoundDeck);
+}
+function renderSoundQuestion(q, charDisplay, container) {
+  const speakBtn = document.getElementById('speak-btn');
+  if (speakBtn) speakBtn.style.display = 'none';
+  const listening = soundAllowed();
+  if (listening) {
+    const say = () => speakPortuguese(q.answer);
+    charDisplay.innerHTML = `<button type="button" class="listen-play" aria-label="Play again">${LISTEN_ICON}</button>`;
+    charDisplay.querySelector('.listen-play').onclick = say;
+    document.getElementById('q-prompt').textContent = 'Which word did you hear?';
+    setTimeout(() => { if (deck[current] === q && !answered) say(); }, 120);
+  } else {
+    charDisplay.textContent = q.en;
+    charDisplay.style.fontSize = promptFontSize(q.en);
+    document.getElementById('q-prompt').textContent = 'Which one means this?';
+  }
+  q.pair.forEach((w, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt sound-opt';
+    btn.innerHTML = listening
+      ? `<span class="opt-num">${idx + 1}</span><span class="opt-rd opt-pt" style="font-size:17px">${escapeHtmlText(w.en)}</span><span class="sound-spelling"></span>`
+      : optPtHtml(idx, w.pt) + '<span class="sound-spelling"></span>';
+    btn.dataset.value = w.pt;
+    btn.dataset.pt = w.pt;
+    btn.dataset.en = w.en;
+    btn.onclick = () => choose(btn, w.pt, q.answer, q.char);
+    container.appendChild(btn);
+  });
+}
+// After answering: each button shows both its spelling and its meaning, and
+// tapping one plays it, so the two can be compared.
+function revealSoundPair() {
+  document.querySelectorAll('#q-options .sound-opt').forEach(b => {
+    const sp = b.querySelector('.sound-spelling');
+    if (sp) sp.textContent = soundAllowed() ? b.dataset.pt : b.dataset.en;
+    if (soundAllowed()) { b.disabled = false; b.onclick = () => speakPortuguese(b.dataset.pt); }
+  });
 }
 
 
@@ -4011,6 +4177,12 @@ function renderQuestion() {
   container.classList.remove('long-options');
   const promptEl = document.getElementById('q-prompt');
 
+  if (q.disp === 'sound') {
+    badge.textContent = 'Sounds alike';
+    if (contextCard) contextCard.style.display = 'none';
+    renderSoundQuestion(q, charDisplay, container);
+    return;
+  }
   if (q.disp === 'verb' || q.disp === 'contraction' || q.disp === 'number' || q.disp === 'time') {
     badge.textContent = { verb: 'Verbs', contraction: 'Contractions', number: 'Numbers', time: 'Times' }[q.disp];
     if (contextCard) contextCard.style.display = 'none';
@@ -4049,7 +4221,7 @@ function renderQuestion() {
   q.options.forEach((o, idx) => {
     const btn = document.createElement('button');
     btn.className = 'opt';
-    btn.innerHTML = `<span class="opt-num">${idx + 1}</span><span class="opt-rd">${escapeHtmlText(o[field])}</span>`;
+    btn.innerHTML = field === 'jp' ? optPtHtml(idx, o.jp) : `<span class="opt-num">${idx + 1}</span><span class="opt-rd">${escapeHtmlText(o[field])}</span>`;
     btn.dataset.value = o[field];
     btn.onclick = () => choose(btn, o[field], q.answer, q.char);
     container.appendChild(btn);
@@ -4081,6 +4253,7 @@ function choose(btn, selectedVal, answer, char) {
   const isCorrect = selectedVal === answer;
   recordKanaResult(q, isCorrect);
   revealListenWord(q);
+  if (q.disp === 'sound') revealSoundPair();
   // Forward questions: name the Portuguese word alongside the meaning, so a
   // listening answer still shows what was said.
   const pair = (q.disp !== 'word' || answer === q.char) ? '' : ` — ${escapeHtmlText(q.char)}`;
@@ -4871,7 +5044,7 @@ function renderGrammarQuestion(q, charDisplay, container, promptEl) {
   q.options.forEach((o, idx) => {
     const btn = document.createElement('button');
     btn.className = 'opt';
-    btn.innerHTML = `<span class="opt-num">${idx + 1}</span><span class="opt-rd">${escapeHtmlText(o.jp)}</span>`;
+    btn.innerHTML = optPtHtml(idx, o.jp);
     btn.dataset.value = o.jp;
     btn.onclick = () => choose(btn, o.jp, q.answer, q.char);
     container.appendChild(btn);
@@ -5576,7 +5749,7 @@ function enBe(subj) { return subj.p === 0 ? 'am' : subj.p === 2 ? 'is' : 'are'; 
 function enSubj(subj) { return subj.en; }
 // "I am going" -> "I'm going" etc. for readability.
 function enTidy(s) {
-  return s.replace(/\bI am\b/g, "I'm").replace(/\bwe are\b/g, "we're").replace(/\bWe are\b/g, "We're").replace(/\s+/g, ' ').trim();
+  return s.replace(/^(He|She|It) is\b/, "$1's").replace(/^They are\b/, "They're").replace(/\bI am\b/g, "I'm").replace(/\bwe are\b/g, "we're").replace(/\bWe are\b/g, "We're").replace(/\s+/g, ' ').trim();
 }
 
 // --- slot pickers -------------------------------------------------------------
@@ -5622,7 +5795,8 @@ function sActivity(opts = {}) {
     !(/jantar/.test(obj[0]) && t.morning) && !(/pequeno-almoço/.test(obj[0]) && (t.night || /tarde/.test(t.pt))) &&
     !(act.rare && tense === 'hab' && (/Todos/.test(t.pt) || t.morning || t.night || t.weekday));
   const time = opts.noTime ? null : sTime(tense, fits);
-  const subj = opts.subj || sSubject(s => !(s.elderly && act.verb === 'estudar'));
+  const subj = opts.subj || sSubject(s => !(s.elderly && (act.verb === 'estudar' || obj[0] === 'os avós')));
+  if (subj.elderly && obj[0] === 'os avós') return null;
   const forms = obj[2] || act.en;
   let placeKeys = obj[3] || act.places;
   placeKeys = placeKeys.filter(k => !(time && time.night && NIGHT_ONLY_BAD.includes(k)) && !(k === 'office' && time && time.weekend));
@@ -5632,7 +5806,7 @@ function sActivity(opts = {}) {
   const vpt = tense === 'hab' ? vForm(act.verb, 'pres', subj.p) : tense === 'past' ? vForm(act.verb, 'pret', subj.p) : vForm('ir', 'pres', subj.p) + ' ' + act.verb;
   const ptRest = [vpt, obj[0], place && ptPrepJoin('em', place), comp && comp.pt].filter(Boolean).join(' ');
   const enRest = [enVerb(forms, tense, subj), obj[1], place && place.en, comp && comp.en].filter(Boolean).join(' ');
-  return sAssemble(time, subj, ptRest, enRest);
+  return { ...sAssemble(time, subj, ptRest, enRest), act, obj, forms, place, comp, time, tense, subj };
 }
 // Going somewhere: ir a + place, maybe how, maybe with whom.
 function destOk(d, t, tense) {
@@ -5660,7 +5834,7 @@ function sMotion(opts = {}) {
     const goForms = ['go to', 'goes to', 'went to', 'going to'];
     const enV = tense === 'fut' ? enBe(subj) + ' going to' : enVerb(goForms, tense, subj);
     const enRest = [enV, d.en, tr && tr.en, comp && comp.en].filter(Boolean).join(' ');
-    return { ...sAssemble(time, subj, ptRest, enRest), dest: d, subj, tense, time };
+    return { ...sAssemble(time, subj, ptRest, enRest), dest: d, subj, tense, time, tr, comp };
   }
   return null;
 }
@@ -5826,7 +6000,121 @@ function sOpening() {
   return [{ pt: '— A que horas ' + vb + ' ' + ptArticle(place) + '?', en: 'What time does ' + place.en + (opens ? ' open?' : ' close?') },
     { pt: '— ' + sCap(vb) + ' ' + ptClock('a', h, m) + '.', en: (opens ? 'It opens at ' : 'It closes at ') + enClock(h, m) + '.' }];
 }
-const SENTENCE_PATTERNS = [[sActivity, 4], [sMotion, 3], [sQA, 4], [sRoutine, 1.5], [sJob, 1], [sDescribe, 1.5], [sWeather, 1], [sLikes, 1.5], [sOrder, 0.8], [sWhere, 0.8], [sOpening, 0.6]];
+// QUESTIONS FROM A SENTENCE (2026-10-14). A plan or event is built from its
+// slots (who, when, where, with whom, how, what), then one slot is asked
+// about and answered the short way people do: "Quando é que o teu pai vai à
+// farmácia?" - "Vai na segunda-feira." Asking about someone's family turns
+// o meu into o teu; asking "you" uses tu (vocês for a group); "é que" after
+// the question word is the everyday Portuguese way. Yes/no questions are
+// answered by repeating the verb: "Vai, sim."
+const POSS_YOUR = [[/^o meu /, 'o teu '], [/^a minha /, 'a tua '], [/^os meus /, 'os teus '], [/^as minhas /, 'as tuas ']];
+function askWho(subj) {
+  if (subj.kind === 'me') return { pt: '', p: 1, en: 'you', be: 'are', does: 'do' };
+  if (subj.kind === 'we') return { pt: 'vocês', p: 4, en: 'you', be: 'are', does: 'do' };
+  let pt = subj.pt;
+  POSS_YOUR.forEach(([re, r]) => { pt = pt.replace(re, r); });
+  const pl = subj.p === 4;
+  return { pt, p: subj.p, en: subj.en.replace(/^my /, 'your '), be: pl ? 'are' : 'is', does: pl ? 'do' : 'does' };
+}
+function answerWho(subj) {
+  if (subj.kind === 'me') return { p: 0, en: 'I' };
+  if (subj.kind === 'we') return { p: 3, en: 'we' };
+  return { p: subj.p, en: subj.p === 4 ? 'they' : subj.g === 'f' ? 'she' : 'he' };
+}
+const sQ = (word, who, rest) => sCap([word, word && 'é que', who.pt, rest].filter(Boolean).join(' ')) + '?';
+// English question verb: "is your father going to eat" / "did you eat" /
+// "does Ana eat". ing: use the -ing form for plans instead ("is he going",
+// "are you getting") - for motion, where "going to go" sounds wrong.
+function enQV(who, tense, base, ing) {
+  if (tense === 'past') return 'did ' + who.en + ' ' + base;
+  if (tense === 'hab') return who.does + ' ' + who.en + ' ' + base;
+  return who.be + ' ' + who.en + ' ' + (ing || 'going to ' + base);
+}
+const enQ = (parts) => sCap(parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim()) + '?';
+// English answer: "He's going to eat salt cod", "I went", "She goes".
+function enA(ans, tense, forms, ing, rest) {
+  const third = ans.p === 2;
+  let v;
+  if (tense === 'past') v = forms[2];
+  else if (tense === 'hab') v = third ? forms[1] : forms[0];
+  else v = (ans.p === 0 ? 'am' : third ? 'is' : 'are') + ' ' + (ing || 'going to ' + forms[0]);
+  return enTidy(sCap([ans.en, v, rest].filter(Boolean).join(' '))) + '.';
+}
+const enYes = (ans, tense) => 'Yes, ' + ans.en + ' ' + (tense === 'past' ? 'did' : tense === 'hab' ? (ans.p === 2 ? 'does' : 'do') : (ans.p === 0 ? 'am' : ans.p === 2 ? 'is' : 'are')) + '.';
+function ptTenseForm(inf, tense, p) {
+  if (tense === 'past') return vForm(inf, 'pret', p);
+  if (tense === 'hab') return vForm(inf, 'pres', p);
+  return vForm('ir', 'pres', p) + (inf === 'ir' ? '' : ' ' + inf);
+}
+function sAsk() {
+  const subjFilter = s => ['me', 'we', 'family', 'friend', 'name'].includes(s.kind);
+  const subj = sSubject(subjFilter);
+  const who = askWho(subj), ans = answerWho(subj);
+  const tense = sPick(['fut', 'fut', 'past', 'past', 'hab']);
+  if (sChance(0.55)) {
+    // Going somewhere.
+    const m = sMotion({ subj, tense });
+    if (!m || !m.time) return null;
+    const go = ['go', 'goes', 'went'];
+    const dest = ptPrepJoin('a', m.dest), time = sLowerStart(m.time.pt);
+    const qv = vForm('ir', tense === 'past' ? 'pret' : 'pres', who.p);
+    const av = sCap(vForm('ir', tense === 'past' ? 'pret' : 'pres', ans.p));
+    const toDest = 'to ' + m.dest.en;
+    const slots = ['when', 'where', 'yes'];
+    if (m.comp) slots.push('with', 'with');
+    if (m.tr) slots.push('how', 'how');
+    const slot = sPick(slots);
+    if (slot === 'when') return [
+      { pt: '— ' + sQ('quando', who, qv + ' ' + dest), en: enQ(['when', enQV(who, tense, 'go', 'going'), toDest]) },
+      { pt: '— ' + av + ' ' + time + '.', en: enA(ans, tense, go, 'going', m.time.en) }];
+    if (slot === 'where') return [
+      { pt: '— ' + sQ('onde', who, qv + ' ' + time), en: enQ(['where', enQV(who, tense, 'go', 'going'), m.time.en]) },
+      sChance(0.5) ? { pt: '— ' + sCap(dest) + '.', en: sCap(toDest) + '.' } : { pt: '— ' + av + ' ' + dest + '.', en: enA(ans, tense, go, 'going', toDest) }];
+    if (slot === 'with') return [
+      { pt: '— ' + sQ('com quem', who, qv + ' ' + dest + ' ' + time), en: enQ(['who', enQV(who, tense, 'go', 'going'), toDest, 'with', m.time.en]) },
+      { pt: '— ' + sCap(m.comp.pt) + '.', en: sCap(m.comp.en) + '.' }];
+    if (slot === 'how') return [
+      { pt: '— ' + sQ('como', who, qv + ' ' + dest), en: enQ(['how', enQV(who, tense, 'get', 'getting'), toDest]) },
+      { pt: '— ' + av + ' ' + m.tr.pt + '.', en: enA(ans, tense, go, 'going', m.tr.en) }];
+    return [
+      { pt: '— ' + sCap([who.pt, qv, dest, time].filter(Boolean).join(' ')) + '?', en: enQ([enQV(who, tense, 'go', 'going'), toDest, m.time.en]) },
+      { pt: '— ' + av + ', sim.', en: enYes(ans, tense) }];
+  }
+  // Doing something.
+  const a = sActivity({ subj, tense });
+  if (!a || !a.time) return null;
+  const time = sLowerStart(a.time.pt);
+  const objPt = a.obj[0], objEn = a.obj[1];
+  const slots = ['what', 'what', 'when', 'yes'];
+  if (a.place) slots.push('where', 'where');
+  if (a.comp) slots.push('with');
+  const slot = sPick(slots);
+  const qVerb = ptTenseForm(a.act.verb, tense, who.p);
+  const aVerb = sCap(ptTenseForm(a.act.verb, tense, ans.p));
+  const placePt = a.place ? ptPrepJoin('em', a.place) : '';
+  const ansRest = [objEn, a.place && a.place.en, a.comp && a.comp.en].filter(Boolean).join(' ');
+  if (slot === 'what') {
+    const qf = ptTenseForm('fazer', tense, who.p);
+    const rest = [objPt, placePt, a.comp && a.comp.pt].filter(Boolean).join(' ');
+    return [
+      { pt: '— ' + sQ('o que', who, qf + ' ' + time), en: enQ(['what', enQV(who, tense, 'do'), a.time.en]) },
+      { pt: '— ' + aVerb + ' ' + rest + '.', en: enA(ans, tense, a.forms, '', ansRest) }];
+  }
+  if (slot === 'when') return [
+    { pt: '— ' + sQ('quando', who, qVerb + ' ' + objPt), en: enQ(['when', enQV(who, tense, a.forms[0]), objEn]) },
+    { pt: '— ' + sCap(time) + '.', en: sCap(a.time.en) + '.' }];
+  if (slot === 'where') return [
+    { pt: '— ' + sQ('onde', who, qVerb + ' ' + objPt + ' ' + time), en: enQ(['where', enQV(who, tense, a.forms[0]), objEn, a.time.en]) },
+    { pt: '— ' + sCap(placePt) + '.', en: sCap(a.place.en) + '.' }];
+  if (slot === 'with') return [
+    { pt: '— ' + sQ('com quem', who, qVerb + ' ' + objPt + ' ' + time), en: enQ(['who', enQV(who, tense, a.forms[0]), objEn, 'with', a.time.en]) },
+    { pt: '— ' + sCap(a.comp.pt) + '.', en: sCap(a.comp.en) + '.' }];
+  const shortV = sCap(tense === 'fut' ? vForm('ir', 'pres', ans.p) : tense === 'past' ? vForm(a.act.verb, 'pret', ans.p) : vForm(a.act.verb, 'pres', ans.p));
+  return [
+    { pt: '— ' + sCap([who.pt, qVerb, objPt, time].filter(Boolean).join(' ')) + '?', en: enQ([enQV(who, tense, a.forms[0]), objEn, a.time.en]) },
+    { pt: '— ' + shortV + ', sim.', en: enYes(ans, tense) }];
+}
+const SENTENCE_PATTERNS = [[sAsk, 3], [sActivity, 4], [sMotion, 3], [sQA, 4], [sRoutine, 1.5], [sJob, 1], [sDescribe, 1.5], [sWeather, 1], [sLikes, 1.5], [sOrder, 0.8], [sWhere, 0.8], [sOpening, 0.6]];
 const recentSentences = [];
 function generateSentence() {
   if (!SENT) return null;

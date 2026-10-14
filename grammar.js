@@ -470,6 +470,30 @@ window.PT_DRILL_GRAMMAR = {
   // GRAMMAR NOTES - one card each on the Grammar screen. html is shown as-is
   // (simple markup: p, b, i, table.gtable, ul). drill (optional) adds a button:
   // { type: 'verbs', tenses: [...] } or { type: 'contractions' }.
+  // SOUNDS ALIKE (2026-10-14) - pairs of real words that differ by one sound
+  // an English ear tends to miss. The drill plays one and you pick which.
+  // a / b: [Portuguese, English]. note: shown after answering.
+  soundPairs: [
+    { a: ['avó', 'grandmother'], b: ['avô', 'grandfather'], note: 'ó is open (like "aw"), ô is closed (like "oh").' },
+    { a: ['só', 'only'], b: ['sou', 'I am'], note: 'só is open (like "saw"); sou is a closed "so".' },
+    { a: ['pode', 'he/she can'], b: ['pôde', 'he/she could'], note: 'pode has an open o; pôde (past) has a closed ô.' },
+    { a: ['sé', 'cathedral'], b: ['se', 'if'], note: 'sé is a full open "eh"; se is almost swallowed.' },
+    { a: ['mas', 'but'], b: ['mais', 'more'], note: 'mas is a short "mush"; mais has the "eye" glide ("mysh").' },
+    { a: ['pais', 'parents'], b: ['país', 'country'], note: 'pais is one syllable ("pysh"); país is two, stressed on the í ("pa-EESH").' },
+    { a: ['pau', 'stick'], b: ['pão', 'bread'], note: 'ão is nasal - through the nose; au is not.' },
+    { a: ['mau', 'bad'], b: ['mão', 'hand'], note: 'ão is nasal - through the nose; au is not.' },
+    { a: ['com', 'with'], b: ['cão', 'dog'], note: 'com is a nasal "o"; cão is the nasal "ow" (ão).' },
+    { a: ['vi', 'I saw'], b: ['vim', 'I came'], note: 'vim ends in a nasal "ee", with no real m sound.' },
+    { a: ['caro', 'expensive'], b: ['carro', 'car'], note: 'One r is a quick tap; rr is rolled or throaty, like a French r.' },
+    { a: ['muro', 'wall'], b: ['murro', 'punch'], note: 'One r is a quick tap; rr is rolled or throaty.' },
+    { a: ['vela', 'candle'], b: ['velha', 'old (woman)'], note: 'lh is like the "lli" in "million".' },
+    { a: ['sono', 'sleep'], b: ['sonho', 'dream'], note: 'nh is like the "ny" in "canyon".' },
+    { a: ['uma', 'one / a'], b: ['unha', 'nail'], note: 'nh is like the "ny" in "canyon".' },
+    { a: ['casa', 'house'], b: ['caça', 'hunt'], note: 's between vowels is a "z"; ç is always an "s".' },
+    { a: ['doze', 'twelve'], b: ['doce', 'sweet'], note: 'z is a "z"; c before e is an "s".' },
+    { a: ['falamos', 'we speak'], b: ['falámos', 'we spoke'], note: 'In Portugal the past has an open á ("fa-LAH-mush"); the present is closed ("fa-LUH-mush").' },
+  ],
+
   notes: [
     {
       id: 'present', title: 'Present tense: the regular endings',
