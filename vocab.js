@@ -1086,7 +1086,7 @@ window.PT_DRILL_SECTIONS = [
 window.PT_DRILL_GROUPS = [
   { key: 'theme-latest-words', label: 'Latest words', latestWords: true },
   { key: 'theme-trip-essentials', label: 'Trip essentials', note: 'Start here for Portugal', tagQuery: { any: ['greetings', 'phrases', 'signs'] } },
-  { key: 'theme-sentence-glue', label: 'Sentence glue', note: 'The small words that lose you a sentence', tagQuery: { any: ['expressions', 'states', 'quantities', 'time-expressions', 'little-words', 'question-word'] } },
+  { key: 'theme-sentence-glue', label: 'Sentence glue', note: 'The words that hold sentences together', tagQuery: { any: ['expressions', 'states', 'quantities', 'time-expressions', 'little-words', 'question-word'] } },
   { key: 'theme-eating-out', label: 'Eating & drinking out', tagQuery: { any: ['cafe', 'restaurant', 'food'] } },
   { key: 'theme-getting-around', label: 'Getting around town', tagQuery: { any: ['transport', 'directions', 'position', 'town', 'shops'] } },
   { key: 'theme-core-words', label: 'Core words', tagQuery: { any: ['little-words', 'question-word', 'verbs', 'adjectives'] } },
