@@ -494,6 +494,38 @@ window.PT_DRILL_GRAMMAR = {
     { a: ['falamos', 'we speak'], b: ['falámos', 'we spoke'], note: 'In Portugal the past has an open á ("fa-LAH-mush"); the present is closed ("fa-LUH-mush").' },
   ],
 
+  // DESK SHEETS (2026-10-15) - printable pages of words to build sentences
+  // from (Grammar page -> Desk sheets). Pages 1 and 2 take
+  // their words from `sentences` above; these lists fill the rest.
+  deskSheets: {
+    often: [['sempre', 'always'], ['muitas vezes', 'often'], ['às vezes', 'sometimes'], ['de vez em quando', 'now and then'], ['raramente', 'rarely'], ['nunca', 'never']],
+    frames: [['Queria…', "I'd like…"], ['Pode trazer-me…?', 'Could you bring me…?'], ['Para mim…', 'For me…'], ['Tem…?', 'Do you have…?'],
+      ['Mais um / uma…', 'One more…'], ['Pode dar-me…?', 'Could you give me…?'], ['Posso ver…?', 'Can I see…?']],
+    order: {
+      'At the café': [['uma bica', 'an espresso'], ['um galão', 'a milky coffee'], ['uma meia de leite', 'a white coffee'], ['um chá', 'a tea'],
+        ['um sumo de laranja', 'an orange juice'], ['uma água sem gás', 'a still water'], ['um pastel de nata', 'a custard tart'],
+        ['uma tosta mista', 'a ham & cheese toastie'], ['um croissant', 'a croissant'], ['uma torrada', 'a slice of toast']],
+      'At the restaurant': [['a ementa', 'the menu'], ['o prato do dia', 'the dish of the day'], ['uma sopa', 'a soup'], ['peixe grelhado', 'grilled fish'],
+        ['bacalhau', 'salt cod'], ['uma salada', 'a salad'], ['um copo de vinho tinto', 'a glass of red wine'], ['uma imperial', 'a small beer'],
+        ['uma garrafa de água', 'a bottle of water'], ['a conta', 'the bill'], ['uma mesa para dois', 'a table for two']],
+    },
+    where: [['a estação', 'the station'], ['o museu', 'the museum'], ['a farmácia', 'the chemist'], ['o multibanco', 'the cash machine'],
+      ['a casa de banho', 'the toilet'], ['a paragem do autocarro', 'the bus stop'], ['o mercado', 'the market'], ['o hotel', 'the hotel'],
+      ['a praia', 'the beach'], ['o metro', 'the metro'], ['o supermercado', 'the supermarket'], ['a bilheteira', 'the ticket office'],
+      ['a igreja', 'the church'], ['a praça', 'the square']],
+    cost: [['isto', 'this'], ['este / esta', 'this one'], ['o bilhete', 'the ticket'], ['um bilhete para o Porto', 'a ticket to Porto'],
+      ['ida e volta', 'a return'], ['os postais', 'the postcards'], ['este casaco', 'this coat'], ['o quarto', 'the room'],
+      ['por noite', 'per night'], ['por pessoa', 'per person'], ['a entrada', 'entry']],
+    polite: [['se faz favor', 'please'], ['obrigado / obrigada', 'thank you'], ['com licença', 'excuse me (passing)'], ['desculpe', 'sorry / excuse me'],
+      ['só isso', "that's all"], ['está ótimo', "it's great"], ['pode repetir?', 'could you repeat?'], ['mais devagar', 'more slowly'],
+      ['não percebo', "I don't understand"], ['até logo', 'see you later']],
+    hear: [['Mais alguma coisa?', 'Anything else?'], ['É para levar?', 'To take away?'], ['Para comer aqui?', 'To eat here?'],
+      ['Quer fatura com contribuinte?', 'Receipt with your tax number?'], ['Cartão ou dinheiro?', 'Card or cash?'], ['Já escolheu?', 'Have you chosen?'],
+      ['Quantas pessoas?', 'How many people?'], ['Está tudo bem?', 'Is everything OK?'], ['Sente-se onde quiser.', 'Sit wherever you like.'],
+      ['Fica ali, à esquerda.', "It's over there, on the left."], ['É logo ali.', "It's just there."], ['Siga sempre em frente.', 'Keep going straight on.'],
+      ['Não temos.', "We haven't got any."], ['Está esgotado.', "It's sold out."]],
+  },
+
   notes: [
     {
       id: 'present', title: 'Present tense: the regular endings',
