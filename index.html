@@ -869,6 +869,16 @@
     align-items: center; gap: 4px; min-width: 0;
   }
   .kana-ref-card.empty { background: transparent; border-color: transparent; }
+  /* Confidence tint on word cards (restored 2026-10-16 - lost in the
+     Portuguese build's CSS clean-up, as the class names are built in code). */
+  .kana-ref-card.score-neg3 { background: var(--conf-neg3); }
+  .kana-ref-card.score-neg2 { background: var(--conf-neg2); }
+  .kana-ref-card.score-neg1 { background: var(--conf-neg1); }
+  .kana-ref-card.score-neutral { background: var(--conf-neutral); }
+  .kana-ref-card.score-pos1 { background: var(--conf-pos1); }
+  .kana-ref-card.score-pos2 { background: var(--conf-pos2); }
+  .kana-ref-card.score-pos3 { background: var(--conf-pos3); }
+  .kana-ref-card.score-pos4 { background: var(--conf-pos4); }
   .kana-ref-card.selected { border-color: var(--accent); background: var(--accent-dim); cursor: pointer; }
   /* (2026-10-07) Thicker "selected" edge - the 1px gold line was easy to miss.
      1px border + 2px inset ring = 3px, the same weight Colours tiles use,
@@ -1004,7 +1014,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261015.003</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261016.001</div>
   </div>
 
 
@@ -1426,9 +1436,9 @@
 <!-- ?v= matches the version in Settings (2026-10-11): a new page always
      fetches the data files that go with it, never an older cached copy -
      bump it together with the footer version and sw.js CACHE_VERSION. -->
-<script src="vocab.js?v=261015.003"></script>
+<script src="vocab.js?v=261016.001"></script>
 <!-- Verbs, contractions and grammar notes (2026-10-11). -->
-<script src="grammar.js?v=261015.003"></script>
+<script src="grammar.js?v=261016.001"></script>
 <script>
 // =============================================================================
 // PORTUGUÊS DRILL (2026-10-10) - built from a copy of the Japanese drill app
