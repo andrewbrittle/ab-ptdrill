@@ -286,7 +286,8 @@
      so Select all naturally reclaims the full row on its own. */
   .tile-select-actions-row { display: flex; gap: 0.75rem; }
   .tile-select-actions-row .group-card { flex: 1; min-width: 0; padding-left: 1rem; padding-right: 1rem; }
-  .tile-select-actions-row .group-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Labels carry numbers now (Select all 45 / Random 20 of 155), so they may wrap on a narrow phone rather than being cut off. */
+  .tile-select-actions-row .group-name { white-space: normal; font-size: 14px; line-height: 1.25; }
 
   .group-info { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
 
@@ -638,6 +639,15 @@
   .say-answer { font-size: 30px; font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; }
   /* Verbs & Grammar (2026-10-11) */
   .verb-tense-row { flex-wrap: wrap; }
+  .verb-all-card { cursor: default; margin-bottom: 0.6rem; }
+  .theme-note { margin: -2px 0 6px; }
+  /* Verb group headings toggle the whole group (2026-10-16). */
+  .verb-group-label { cursor: pointer; display: flex; align-items: center; gap: 6px; user-select: none; }
+  .verb-group-label .vg-tick { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--text-dim); display: inline-flex; align-items: center; justify-content: center; font-size: 10px; color: transparent; }
+  .verb-group-label.all .vg-tick { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .verb-group-label.some .vg-tick { border-color: var(--accent); }
+  .verb-group-label.all, .verb-group-label.some { color: var(--accent); }
+  .verb-group-bar { margin-bottom: 0.45rem; }
   .verb-group-label { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-dim); margin: 0.9rem 0 0.4rem; }
   .grammar-note { font-size: 15px; line-height: 1.55; color: var(--text-muted); margin: 0.75rem 0 1rem; }
   .grammar-note p { margin: 0 0 0.75rem; }
@@ -1014,7 +1024,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261016.001</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261016.003</div>
   </div>
 
 
@@ -1260,9 +1270,21 @@
     <div class="settings-title">Verbs</div>
     <div class="settings-sub" id="verb-selection-sub">Tap verbs to pick them, then drill 20 forms from the tenses above.</div>
     <div class="level-filter-row verb-tense-row" id="verb-tense-row"></div>
+    <!-- Confidence across every verb form in the chosen tenses (2026-10-16). -->
+    <div class="group-card cat-tile verb-all-card">
+      <div class="cat-tile-top">
+        <div class="group-name">All verbs</div>
+        <div class="group-count" id="verb-all-count"></div>
+      </div>
+      <div class="cat-bar" id="verb-all-swatch"></div>
+    </div>
     <div class="tile-select-actions-row">
-      <div class="group-card" onclick="toggleSelectAllVerbs()" style="cursor:pointer;">
+      <div class="group-card" id="verb-select-all-card" onclick="toggleSelectAllVerbs()" style="cursor:pointer;">
         <div class="group-info"><div class="group-name" id="verb-select-all-label">Select all</div></div>
+        <div style="font-size:20px; color:var(--text-muted);">→</div>
+      </div>
+      <div class="group-card" id="verb-random-card" onclick="toggleRandomVerbs()" style="cursor:pointer;">
+        <div class="group-info"><div class="group-name" id="verb-random-label">Random 20</div></div>
         <div style="font-size:20px; color:var(--text-muted);">→</div>
       </div>
     </div>
@@ -1281,7 +1303,7 @@
       </div>
       <div class="toggle"></div>
     </div>
-    <button class="start-btn" id="verb-drill-btn" onclick="drillSelectedVerbs()" disabled>Drill 20 forms</button>
+    <button class="start-btn" id="verb-drill-btn" onclick="drillSelectedVerbs()" disabled>Pick some verbs to drill</button>
   </div>
 
   <!-- Numbers screen (2026-10-11) - see NUMBERS & TIMES in the script. -->
@@ -1436,9 +1458,9 @@
 <!-- ?v= matches the version in Settings (2026-10-11): a new page always
      fetches the data files that go with it, never an older cached copy -
      bump it together with the footer version and sw.js CACHE_VERSION. -->
-<script src="vocab.js?v=261016.001"></script>
+<script src="vocab.js?v=261016.003"></script>
 <!-- Verbs, contractions and grammar notes (2026-10-11). -->
-<script src="grammar.js?v=261016.001"></script>
+<script src="grammar.js?v=261016.003"></script>
 <script>
 // =============================================================================
 // PORTUGUÊS DRILL (2026-10-10) - built from a copy of the Japanese drill app
@@ -2291,7 +2313,7 @@ function showVocabTileSelection(categoryKey) {
   buildVocabTileGrid(categoryKey);
   refreshKanaScoreShading('vocab-tile-grid');
   updateSelectAllVocabTilesLabel();
-  document.getElementById('vocab-tile-drill-btn').disabled = vocabTileSelected[categoryKey].size === 0;
+  syncVocabDrillBtn();
   syncVocabTileModeToggles(categoryKey);
   // noMeaningMode categories hide the meaning toggle specifically (there's
   // no distinct "meaning" to highlight - see its own definition above) but
@@ -2299,12 +2321,10 @@ function showVocabTileSelection(categoryKey) {
   // reading, not meaning - syncVocabTileModeToggles above already set their
   // selected/disabled state correctly, this just layers the extra display
   // rule on top for the one card that needs it.
-  // Themes are reliably too big to make "Select all" worth offering, so it's
-  // dropped there entirely rather than just being a pain to use. Everywhere
-  // else keeps it, however large - see getRandomPickSize for the random-pick
-  // side, which is the part that actually scales with category size.
+  // Select all everywhere, Groups included; the random pick depends only on
+  // size (see syncVocabDrillBtn's comment for the rule).
   const selectAllCard = document.getElementById('vocab-tile-select-all-card');
-  if (selectAllCard) selectAllCard.style.display = cat.isTheme ? 'none' : 'flex';
+  if (selectAllCard) selectAllCard.style.display = 'flex';
   const randomCard = document.getElementById('vocab-tile-random20-card');
   if (randomCard) randomCard.style.display = currentRandomPickSize(categoryKey) ? 'flex' : 'none';
   updateRandomVocabTilesLabel();
@@ -2627,7 +2647,7 @@ function toggleVocabTile(categoryKey, idx, tileEl) {
     tileEl.classList.add('selected');
     tileEl.style.borderColor = '';
   }
-  document.getElementById('vocab-tile-drill-btn').disabled = set.size === 0;
+  syncVocabDrillBtn();
   updateSelectAllVocabTilesLabel();
 }
 
@@ -2645,7 +2665,7 @@ function toggleSelectAllVocabTiles() {
   else { set.clear(); for (let i = 0; i < total; i++) set.add(i); }
   buildVocabTileGrid(categoryKey);
   refreshKanaScoreShading('vocab-tile-grid');
-  document.getElementById('vocab-tile-drill-btn').disabled = set.size === 0;
+  syncVocabDrillBtn();
   updateSelectAllVocabTilesLabel();
   updateRandomVocabTilesLabel();
 }
@@ -2670,7 +2690,7 @@ function getRandomPickSize(total) {
 function currentRandomPickSize(categoryKey) {
   const cat = resolveVocabCategory(categoryKey);
   if (!cat) return 0;
-  return cat.isTheme ? 20 : getRandomPickSize(cat.items.length);
+  return getRandomPickSize(cat.items.length);
 }
 
 // "Select random N" - N depends on category size (see currentRandomPickSize).
@@ -2697,7 +2717,7 @@ function toggleRandomVocabTiles() {
   }
   buildVocabTileGrid(categoryKey);
   refreshKanaScoreShading('vocab-tile-grid');
-  document.getElementById('vocab-tile-drill-btn').disabled = set.size === 0;
+  syncVocabDrillBtn();
   updateSelectAllVocabTilesLabel();
   updateRandomVocabTilesLabel();
 }
@@ -2706,6 +2726,19 @@ function toggleRandomVocabTiles() {
 // and only pick up the gold "selected" fill while their action is genuinely
 // the one currently active - doubles as the answer to "which mode am I in",
 // without needing to read either label closely.
+// One rule for every word list - topics, Groups and verbs alike (2026-10-16,
+// Andrew: "make all of these categories consistent"): Select all is always
+// there; a random pick is offered on top once a list is big enough to want
+// one - 21-30 items: Random 10; over 30: Random 20 (getRandomPickSize). Every
+// button says what it does, with numbers.
+function syncVocabDrillBtn() {
+  const btn = document.getElementById('vocab-tile-drill-btn');
+  const set = vocabTileSelected[vocabTileCategory];
+  if (!btn || !set) return;
+  const n = set.size;
+  btn.disabled = n === 0;
+  btn.textContent = n === 0 ? 'Pick some words to drill' : `Drill ${n} word${n === 1 ? '' : 's'}`;
+}
 function updateSelectAllVocabTilesLabel() {
   const categoryKey = vocabTileCategory;
   const total = resolveVocabCategory(categoryKey).items.length;
@@ -2718,7 +2751,7 @@ function updateSelectAllVocabTilesLabel() {
 function updateRandomVocabTilesLabel() {
   const active = !!vocabTileRandomMode[vocabTileCategory];
   const label = document.getElementById('vocab-tile-random20-label');
-  if (label) label.textContent = active ? 'Deselect all' : ('Random ' + currentRandomPickSize(vocabTileCategory));
+  if (label) label.textContent = active ? 'Deselect all' : `Random ${currentRandomPickSize(vocabTileCategory)}`;
   const card = document.getElementById('vocab-tile-random20-card');
   if (card) card.classList.toggle('selected', active);
 }
@@ -3020,7 +3053,7 @@ let appSettings = { theme: 'dark', hintPenalty: false, strictAccents: false, wor
 // lastSeenChangelog doesn't match this value sees the flag until they open
 // Settings, which clears it (see showSettingsScreen()) - reading the
 // changelog itself is optional, opening Settings is what counts as "noticed".
-const LATEST_CHANGELOG_ENTRY = '2026-10-15b';
+const LATEST_CHANGELOG_ENTRY = '2026-10-16a';
 try {
   const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
   if (savedSettings && typeof savedSettings === 'object') {
@@ -3961,8 +3994,10 @@ function renderGroupCards() {
     card.dataset.themeKey = key;
     card.style.cursor = 'pointer';
     card.onclick = () => showVocabTileSelection(key);
-    card.innerHTML = `<div class="cat-tile-top${g.note ? ' cat-tile-top-stack' : ''}"><div class="group-name">${escapeHtmlText(g.label)}</div>` +
-      (g.note ? `<div class="random-choice-desc">${escapeHtmlText(g.note)}</div>` : '') + '</div><div class="cat-bar"></div>';
+    // Word count on the card, as on the topic cards (2026-10-16) - filled in
+    // by refreshThemeCategorySwatches, since Latest words changes size.
+    card.innerHTML = `<div class="cat-tile-top"><div class="group-name">${escapeHtmlText(g.label)}</div><div class="group-count theme-count"></div></div>` +
+      (g.note ? `<div class="random-choice-desc theme-note">${escapeHtmlText(g.note)}</div>` : '') + '<div class="cat-bar"></div>';
     view.appendChild(card);
   });
 }
@@ -3972,6 +4007,8 @@ function refreshThemeCategorySwatches() {
   document.querySelectorAll('#match-theme-view .group-card[data-theme-key]').forEach(card => {
     const bar = card.querySelector('.cat-bar');
     if (bar) setupCatBar(bar, getCategoryBandCounts(getThemePool(card.dataset.themeKey)));
+    const cnt = card.querySelector('.theme-count');
+    if (cnt) { const n = resolveVocabCategory(card.dataset.themeKey).items.length; cnt.textContent = `${n} word${n === 1 ? '' : 's'}`; }
   });
   // All vocabulary / Weakest 20 / Untested 20 aren't theme-pool-backed (see
   // the comments on those cards), so they're not covered by the
@@ -5234,8 +5271,18 @@ function buildVerbTileGrid() {
     if (!verbs.length) return;
     const label = document.createElement('div');
     label.className = 'verb-group-label';
-    label.textContent = VERB_GROUP_LABELS[group];
+    const picked = verbs.filter(v => verbSelected.has(v.inf)).length;
+    if (picked === verbs.length) label.classList.add('all'); else if (picked) label.classList.add('some');
+    label.innerHTML = `<span class="vg-tick">✓</span>${escapeHtmlText(VERB_GROUP_LABELS[group])} · ${verbs.length}`;
+    label.title = 'Tap to select or deselect the whole group';
+    label.dataset.group = group;
+    label.onclick = () => toggleVerbGroup(group);
     container.appendChild(label);
+    // Confidence bar for the group, in the chosen tenses.
+    const bar = document.createElement('div');
+    bar.className = 'cat-bar verb-group-bar';
+    container.appendChild(bar);
+    setupCatBar(bar, getCategoryBandCounts(verbCells(verbs, currentVerbTenses())));
     const grid = document.createElement('div');
     grid.className = 'kanji-tile-grid';
     verbs.forEach(v => {
@@ -5248,7 +5295,9 @@ function buildVerbTileGrid() {
       tile.onclick = () => {
         if (Date.now() < verbPressSuppressClickUntil) return; // the long press already opened the table
         if (verbSelected.has(v.inf)) verbSelected.delete(v.inf); else verbSelected.add(v.inf);
+        verbRandomActive = false;
         tile.classList.toggle('selected', verbSelected.has(v.inf));
+        syncVerbGroupHeadings();
         syncVerbControls();
       };
       attachVerbLongPress(tile, v.inf);
@@ -5257,11 +5306,62 @@ function buildVerbTileGrid() {
     container.appendChild(grid);
   });
 }
+// Same rule as the word lists (see syncVocabDrillBtn): Select all always,
+// plus Random 10 / Random 20 by size. A drill is always up to 20 forms,
+// weakest first, from the verbs and tenses picked - the button says so.
+let verbRandomActive = false;
+// Tap a group heading: select the whole group, or clear it if it's all
+// selected already. Groups combine - -er then -ir gives both.
+function syncVerbGroupHeadings() {
+  document.querySelectorAll('#verb-tile-grid .verb-group-label').forEach(label => {
+    const group = label.dataset.group;
+    const verbs = GRAMMAR.verbs.filter(v => v.group === group);
+    const picked = verbs.filter(v => verbSelected.has(v.inf)).length;
+    label.classList.toggle('all', picked === verbs.length);
+    label.classList.toggle('some', picked > 0 && picked < verbs.length);
+  });
+}
+function toggleVerbGroup(group) {
+  const verbs = GRAMMAR.verbs.filter(v => v.group === group);
+  const allOn = verbs.every(v => verbSelected.has(v.inf));
+  verbs.forEach(v => { if (allOn) verbSelected.delete(v.inf); else verbSelected.add(v.inf); });
+  verbRandomActive = false;
+  buildVerbTileGrid();
+  syncVerbControls();
+}
+function toggleRandomVerbs() {
+  if (verbRandomActive) { verbSelected.clear(); verbRandomActive = false; }
+  else {
+    verbSelected.clear();
+    shuffle(GRAMMAR.verbs).slice(0, getRandomPickSize(GRAMMAR.verbs.length)).forEach(v => verbSelected.add(v.inf));
+    verbRandomActive = true;
+  }
+  buildVerbTileGrid();
+  syncVerbControls();
+}
 function syncVerbControls() {
+  const total = GRAMMAR.verbs.length, n = verbSelected.size;
+  const tenses = currentVerbTenses();
   const btn = document.getElementById('verb-drill-btn');
-  if (btn) btn.disabled = !verbSelected.size;
+  if (btn) {
+    btn.disabled = !n;
+    const forms = Math.min(20, verbCells(GRAMMAR.verbs.filter(v => verbSelected.has(v.inf)), tenses).length);
+    btn.textContent = n ? `Drill ${forms} forms from ${n} verb${n === 1 ? '' : 's'}` : 'Pick some verbs to drill';
+  }
+  const allSelected = n === total && !verbRandomActive;
   const all = document.getElementById('verb-select-all-label');
-  if (all) all.textContent = verbSelected.size === GRAMMAR.verbs.length ? 'Deselect all' : 'Select all';
+  if (all) all.textContent = allSelected ? 'Deselect all' : 'Select all';
+  const allCard = document.getElementById('verb-select-all-card');
+  if (allCard) allCard.classList.toggle('selected', allSelected);
+  const pick = getRandomPickSize(total);
+  const rCard = document.getElementById('verb-random-card');
+  if (rCard) { rCard.style.display = pick ? 'flex' : 'none'; rCard.classList.toggle('selected', verbRandomActive); }
+  const rLabel = document.getElementById('verb-random-label');
+  if (rLabel) rLabel.textContent = verbRandomActive ? 'Deselect all' : `Random ${pick}`;
+  const cells = verbCells(GRAMMAR.verbs, tenses);
+  setupCatBar(document.getElementById('verb-all-swatch'), getCategoryBandCounts(cells));
+  const cnt = document.getElementById('verb-all-count');
+  if (cnt) cnt.textContent = `${total} verbs · ${cells.length.toLocaleString('en-GB')} forms`;
   const typeCard = document.getElementById('verb-type-card');
   if (typeCard) {
     typeCard.classList.toggle('selected', !!appSettings.grammarType);
@@ -5270,11 +5370,12 @@ function syncVerbControls() {
   const sayCard = document.getElementById('verb-say-card');
   if (sayCard) sayCard.classList.toggle('selected', !!appSettings.grammarSay);
   const sub = document.getElementById('verb-selection-sub');
-  if (sub) sub.textContent = 'Tap verbs to pick them, then drill 20 forms from the tenses above. Hold a verb to see its table.';
+  if (sub) sub.textContent = 'Pick tenses above and verbs below. A drill is up to 20 forms, weakest first. Hold a verb to see its table.';
 }
 function toggleSelectAllVerbs() {
-  if (verbSelected.size === GRAMMAR.verbs.length) verbSelected.clear();
+  if (verbSelected.size === GRAMMAR.verbs.length && !verbRandomActive) verbSelected.clear();
   else GRAMMAR.verbs.forEach(v => verbSelected.add(v.inf));
+  verbRandomActive = false;
   buildVerbTileGrid();
   syncVerbControls();
 }
