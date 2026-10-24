@@ -174,7 +174,11 @@
      why it's deliberately not gold/hinted at all. */
   .app-heading .app-heading-tap { color: var(--text); cursor: pointer; }
 
-  .nav-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .app-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .head-btns { display: flex; gap: 8px; }
+  .nav-row { display: flex; align-items: center; justify-content: flex-start; gap: 8px; }
+  .nav-row .nav-pills { flex-shrink: 1; min-width: 0; }
+  @media (max-width: 380px) { header { padding-left: 12px !important; padding-right: 12px !important; } .nav-pills { gap: 4px; } .nav-pill { padding: 5px 8px; } }
 
   .settings-btn {
     flex-shrink: 0;
@@ -462,6 +466,67 @@
   .opt .opt-rd.opt-pt { font-weight: 700; opacity: 1; line-height: 1.25; }
   .opt .sound-spelling { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-top: 2px; }
   .opt .sound-spelling:empty { display: none; }
+  /* SENTENCE BUILDER (2026-10-24, from the Japanese app) - the desk-sheet
+     columns, tappable. */
+  #screen-sb { max-width: none; --sbw: 118px; }
+  .sb-head { max-width: 640px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 0.5rem; align-items: center; }
+  .sb-strip { position: sticky; top: 0; z-index: 5; max-width: 760px; width: 100%; margin: 0 auto; box-sizing: border-box; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+  .sb-prompt { font-size: 16px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+  .sb-pt { font-weight: 700; font-size: 20px; line-height: 1.6; }
+  .sb-empty { font-size: 13px; color: var(--text-dim); padding: 6px 0; }
+  .sb-en { font-size: 14px; color: var(--text-muted); font-style: italic; margin-top: 2px; line-height: 1.5; }
+  .sb-notes { font-size: 12.5px; color: var(--slot-5); margin-top: 4px; }
+  .sb-chunk { display: inline-block; margin: 2px 0 4px; line-height: 1.3; border-bottom: 3px solid var(--slot); padding: 0 1px; }
+  .sb-chunk.sb-verb-only { color: var(--text-dim); font-weight: 500; }
+  .sb-chunk.sb-wrong, .sb-chunk.sb-extra { text-decoration: line-through; opacity: 0.6; }
+  .sb-chunk.sb-right { box-shadow: inset 0 -3px 0 var(--green); }
+  .sb-chunk.sb-ending { text-decoration: underline wavy var(--slot-5); text-underline-offset: 4px; }
+  .sb-answer { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); cursor: pointer; }
+  .sb-verdict { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+  .sb-verdict.good { color: var(--green); font-weight: 700; }
+  .sb-buttons { margin-top: 8px; }
+  .sb-stats { font-size: 11.5px; color: var(--text-dim); margin-top: 6px; }
+  .sb-scroll { width: 100%; overflow-x: auto; padding-bottom: 6px; }
+  .sb-cols { display: flex; gap: 6px; align-items: flex-start; width: max-content; margin: 0 auto; }
+  .sb-col { flex: 0 0 var(--sbw); }
+  .sb-card { cursor: pointer; user-select: none; -webkit-user-select: none; }
+  .sb-card .ds-pt { font-size: 14px; }
+  .sb-card .ds-en { color: var(--text-dim); font-weight: 400; }
+  .sb-card.sb-picked { background: color-mix(in srgb, var(--slot) 28%, var(--bg)); border-color: var(--slot); box-shadow: 0 0 0 1.5px var(--slot); }
+  .sb-card.sb-ok { box-shadow: 0 0 0 2px var(--green); }
+  .sb-card.sb-should { outline: 2px dashed var(--green); outline-offset: -2px; }
+  .sb-forms { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
+  .sb-forms-head { font-size: 10.5px; color: var(--text-muted); line-height: 1.25; }
+  .sb-form { font-size: 14px; font-weight: 700; padding: 5px 4px; border-radius: 7px; border: 1px solid var(--border); border-left: 3px solid var(--slot); background: var(--bg); color: var(--text); cursor: pointer; font-family: inherit; }
+  .sb-form.active { background: color-mix(in srgb, var(--slot) 28%, var(--bg)); border-color: var(--slot); }
+  .sb-form.sb-should { outline: 2px dashed var(--green); outline-offset: -2px; }
+  .sb-hint { font-size: 11px; color: var(--text-dim); padding: 4px 2px; }
+  .sbp-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.8rem 0.9rem; display: flex; flex-direction: column; gap: 6px; }
+  .sbp-title { font-size: 13.5px; font-weight: 700; margin-bottom: 2px; }
+  .sbp-row { display: grid; grid-template-columns: 7.5rem 1fr 2.6rem; align-items: center; gap: 8px; font-size: 12.5px; }
+  .sbp-label { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sbp-bar { height: 8px; border-radius: 99px; background: var(--surface2); overflow: hidden; }
+  .sbp-bar span { display: block; height: 100%; background: var(--slot); border-radius: 99px; }
+  .sbp-pct { text-align: right; font-weight: 700; color: var(--text-muted); }
+  .sbp-few .sbp-bar span { opacity: 0.35; }
+  .sbp-note { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+  .sb-tip { font-size: 11px; color: var(--text-dim); text-align: center; max-width: 640px; margin: 0 auto; }
+  @media (min-width: 900px) and (min-height: 520px) {
+    #screen-sb { --sbw: clamp(118px, 10.5vw, 160px); }
+    .sb-card .ds-pt { font-size: clamp(14px, 1.2vw, 18px); }
+    .sb-pt { font-size: clamp(20px, 1.8vw, 26px); }
+  }
+  /* Phone on its side: a slimmer strip, so more of the columns show. */
+  @media (max-height: 500px) {
+    .sb-strip { padding: 6px 10px; }
+    .sb-prompt { font-size: 14px; margin-bottom: 2px; }
+    .sb-pt { font-size: 17px; line-height: 1.45; }
+    .sb-empty, .sb-verdict { font-size: 12px; padding: 0; margin-top: 2px; }
+    .sb-buttons { margin-top: 4px; }
+    .sb-buttons .ds-btn { padding: 4px 14px; }
+    .sb-stats { display: none; }
+    #screen-sb .sb-head .settings-title { display: none; }
+  }
   /* DESK SHEETS (2026-10-15, from the Japanese app) - on screen the pages
      scroll sideways; printed, each .ds-page is one A4 landscape sheet. */
   #screen-desk-sheets { max-width: none; }
@@ -777,7 +842,9 @@
      using the shared .level-filter-row class (hiragana/katakana/numbers/
      counter pills) is untouched - those can have many more pills and
      wrapping is still the right behaviour there. */
-  #vocab-level-filter-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 6px; }
+  /* Wraps again (2026-10-24): with Verbs added the pills no longer fit one
+     phone-width line, and a pill hidden off the edge is easy to miss. */
+  #vocab-level-filter-row, #verbs-level-row { flex-wrap: wrap; gap: 6px; }
   #vocab-level-filter-row::-webkit-scrollbar { display: none; }
   /* Slightly tighter than the shared .level-pill padding (18px sides) -
      four pills (Collections/Level 1/Level 2/Untaught) were just barely
@@ -788,8 +855,8 @@
      Scoped to this row only - every other .level-filter-row (hiragana/
      katakana/numbers/counters) keeps the default padding, since those
      wrap onto multiple lines instead and don't have this problem. */
-  #vocab-level-filter-row .level-pill { padding: 6px 14px; }
-  #vocab-level-filter-row .level-pill.level-pill-icon { padding: 5px 10px; display: inline-flex; align-items: center; justify-content: center; }
+  #vocab-level-filter-row .level-pill, #verbs-level-row .level-pill { padding: 6px 14px; }
+  #vocab-level-filter-row .level-pill.level-pill-icon, #verbs-level-row .level-pill.level-pill-icon { padding: 5px 10px; display: inline-flex; align-items: center; justify-content: center; }
   /* Random page (2026-10-07) - single-choice cards, then toggles, then Start */
   #match-random-view .group-card.cat-tile.selected { border-color: var(--accent); }
   .random-choice-desc { font-size: 12px; font-weight: 600; color: var(--text-dim); }
@@ -931,17 +998,25 @@
 
 
 <header>
-  <div class="app-heading"><span class="app-heading-tap" onclick="showGreeting()">Português</span> <span>drill</span></div>
+  <!-- Header (2026-10-24, following the Japanese app): sound and settings up
+       on the heading line; the tabs in Portuguese on their own row, page
+       titles in English. Verbs moved into Palavras (a pill beside Basics /
+       Travel / Life) to make room for Frases, the sentence-building tab. -->
+  <div class="app-heading-row">
+    <div class="app-heading"><span class="app-heading-tap" onclick="showGreeting()">Português</span> <span>drill</span></div>
+    <div class="head-btns">
+      <!-- Global sound switch (2026-10-02) - off = the app makes no sound at
+           all (see soundAllowed), so it never cuts into music. -->
+      <button class="settings-btn" id="sound-btn" onclick="toggleSoundOn()" title="Sound on" aria-label="Sound on"></button>
+      <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings" aria-label="Settings">⚙</button>
+    </div>
+  </div>
   <div class="nav-row">
-    <button class="settings-btn" id="settings-btn" onclick="toggleSettings()" title="Settings" aria-label="Settings">⚙</button>
-    <!-- Global sound switch (2026-10-02) - off = the app makes no sound at
-         all (see soundAllowed), so it never cuts into music. -->
-    <button class="settings-btn" id="sound-btn" onclick="toggleSoundOn()" title="Sound on" aria-label="Sound on"></button>
     <div class="nav-pills">
-      <button class="nav-pill active" id="nav-match" onclick="tryResumeMatch()">Vocab</button>
-      <button class="nav-pill" id="nav-verbs" onclick="showVerbsScreen()">Verbs</button>
-      <button class="nav-pill" id="nav-numbers" onclick="showNumbersScreen()">Numbers</button>
-      <button class="nav-pill" id="nav-grammar" onclick="showGrammarScreen()">Grammar</button>
+      <button class="nav-pill active" id="nav-match" onclick="tryResumeMatch()" lang="pt-PT">Palavras</button>
+      <button class="nav-pill" id="nav-build" onclick="showBuildPage()" lang="pt-PT">Frases</button>
+      <button class="nav-pill" id="nav-numbers" onclick="showNumbersScreen()" lang="pt-PT">Números</button>
+      <button class="nav-pill" id="nav-grammar" onclick="showGrammarScreen()" lang="pt-PT">Gramática</button>
     </div>
   </div>
 </header>
@@ -1027,7 +1102,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261016.005</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261024.001</div>
   </div>
 
 
@@ -1270,7 +1345,10 @@
 
   <!-- Verbs screen (2026-10-11) - see VERBS & GRAMMAR in the script. -->
   <div class="screen" id="screen-verbs">
-    <div class="settings-title">Verbs</div>
+    <!-- Verbs live under Palavras now (2026-10-24): same title and pill row
+         as the word lists, with Verbs lit. See renderSectionPills. -->
+    <div class="settings-title">Vocab</div>
+    <div class="level-filter-row" id="verbs-level-row"></div>
     <div class="settings-sub" id="verb-selection-sub">Tap verbs to pick them, then drill 20 forms from the tenses above.</div>
     <div class="level-filter-row verb-tense-row" id="verb-tense-row"></div>
     <!-- Confidence across every verb form in the chosen tenses (2026-10-16). -->
@@ -1400,9 +1478,25 @@
     <div class="ds-scroll"><div id="desk-sheets"></div></div>
   </div>
 
-  <div class="screen" id="screen-grammar">
-    <div class="settings-title">Grammar</div>
-    <div class="settings-sub">The rules, one card each. Most have a drill at the bottom.</div>
+  <!-- FRASES (2026-10-24): the sentence tab - building your own sentences.
+       The builder and challenge share one screen (screen-sb); part scores,
+       the example sentence and the desk sheets live here too. -->
+  <div class="screen" id="screen-build">
+    <div class="settings-title">Sentences</div>
+    <div class="settings-sub">Put sentences together yourself: pick a word from each column and the sentence builds as you go.</div>
+    <div class="group-card cat-tile" onclick="showSentenceBuilder(false)" style="cursor:pointer;">
+      <div class="cat-tile-top cat-tile-top-stack">
+        <div class="group-name">Sentence builder</div>
+        <div class="random-choice-desc">Who, verb, what, where, with whom, when - one card from each, and pick the verb form yourself. The English follows along.</div>
+      </div>
+    </div>
+    <div class="group-card cat-tile" onclick="showSentenceBuilder(true)" style="cursor:pointer;">
+      <div class="cat-tile-top cat-tile-top-stack">
+        <div class="group-name">Sentence challenge</div>
+        <div class="random-choice-desc">An English sentence to build in Portuguese. It's checked part by part, with one more go before the answer. Scored by part, never touching your word greens.</div>
+      </div>
+    </div>
+    <div id="sb-parts-panel"></div>
     <!-- Example sentences (2026-10-11) - same generator as the greeting card. -->
     <div class="greet-card greet-sentence grammar-sentence" id="grammar-sentence"></div>
     <div class="group-card cat-tile" onclick="showDeskSheets()" style="cursor:pointer;">
@@ -1411,6 +1505,20 @@
         <div class="random-choice-desc">Printable pages of words to build your own sentences from: pick one from each column</div>
       </div>
     </div>
+  </div>
+
+  <div class="screen" id="screen-sb">
+    <div class="sb-head">
+      <div class="settings-title" id="sb-title">Sentence builder</div>
+    </div>
+    <div class="sb-strip" id="sb-strip"></div>
+    <div class="sb-scroll"><div class="sb-cols" id="sb-cols"></div></div>
+    <div class="sb-tip">Works best with your phone turned sideways. Challenges keep a score for each part of the sentence (on the Sentences page); they never touch your word greens.</div>
+  </div>
+
+  <div class="screen" id="screen-grammar">
+    <div class="settings-title">Grammar</div>
+    <div class="settings-sub">The rules, one card each. Most have a drill at the bottom.</div>
     <div class="group-card cat-tile" onclick="startContractionDrill('grammar')" style="cursor:pointer;">
       <div class="cat-tile-top cat-tile-top-stack">
         <div class="group-name">Contractions drill</div>
@@ -1460,9 +1568,9 @@
 <!-- ?v= matches the version in Settings (2026-10-11): a new page always
      fetches the data files that go with it, never an older cached copy -
      bump it together with the footer version and sw.js CACHE_VERSION. -->
-<script src="vocab.js?v=261016.003"></script>
+<script src="vocab.js?v=261024.001"></script>
 <!-- Verbs, contractions and grammar notes (2026-10-11). -->
-<script src="grammar.js?v=261016.003"></script>
+<script src="grammar.js?v=261024.001"></script>
 <script>
 // =============================================================================
 // PORTUGUÊS DRILL (2026-10-10) - built from a copy of the Japanese drill app
@@ -2807,7 +2915,7 @@ function drillVocabTileSelection() {
 // doubles up. showScreen already redraws each screen when it's shown, so
 // going back just shows the screen again.
 var navStack = [], navCurrent = null, navGoingBack = false; // var: showScreen runs at start-up
-const NAV_ROOTS = ['match-settings', 'verbs', 'numbers', 'grammar'];
+const NAV_ROOTS = ['match-settings', 'verbs', 'build', 'numbers', 'grammar'];
 const NAV_TRANSIENT = ['drill', 'results'];
 function navRecord(id) {
   // At start-up the first page is shown by the HTML itself, not showScreen,
@@ -2834,13 +2942,14 @@ function navBack() {
   try { if (target === 'settings') showSettingsScreen(); else showScreen(target); } finally { navGoingBack = false; }
   renderNavBack();
 }
-const NAV_HOME = { 'grammar-note': 'grammar', 'desk-sheets': 'grammar' };
+const NAV_HOME = { 'grammar-note': 'grammar', 'desk-sheets': 'build', 'sb': 'build' };
 function toggleSettings() {
   if (navCurrent === 'settings' && navStack.length) navBack();
   else if (navCurrent !== 'settings') showSettingsScreen();
 }
 function navLabel(id) {
   if (id === 'match-settings') return ({ theme: 'Groups', random: 'Random' })[currentMatchLevel] || 'Vocab';
+  if (id === 'verbs') return 'Verbs';
   if (id === 'drill') return 'Drill';
   if (id === 'results') return 'Results';
   const t = document.querySelector('#screen-' + id + ' .settings-title');
@@ -2862,6 +2971,7 @@ function renderNavBack() {
 }
 
 function showScreen(id) {
+  if (id === 'verbs' || id === 'match-settings') lastVocabRoot = id;
   navRecord(id);
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
   document.getElementById('screen-' + id).classList.add('visible');
@@ -2874,8 +2984,9 @@ function showScreen(id) {
   if (id !== 'settings') {
     const origin = (id === 'drill' || id === 'results') ? lastSettingsScreen : id;
     const pillId = origin === 'numbers' ? 'nav-numbers'
-      : origin === 'verbs' ? 'nav-verbs'
-      : (origin === 'grammar' || origin === 'grammar-note' || origin === 'desk-sheets') ? (grammarNoteBack === 'verbs' && origin === 'grammar-note' ? 'nav-verbs' : 'nav-grammar')
+      : origin === 'verbs' ? 'nav-match'
+      : (origin === 'build' || origin === 'sb' || origin === 'desk-sheets') ? 'nav-build'
+      : (origin === 'grammar' || origin === 'grammar-note') ? (grammarNoteBack === 'verbs' && origin === 'grammar-note' ? 'nav-match' : 'nav-grammar')
       : 'nav-match';
     const p = document.getElementById(pillId); if (p) p.classList.add('active');
   }
@@ -2888,13 +2999,14 @@ function showScreen(id) {
     navMatch.classList.add('sub-screen');
     navMatch.onclick = id === 'vocab-reference' ? closeVocabReference : tryResumeMatch;
   } else {
-    navMatch.textContent = 'Vocab';
+    navMatch.textContent = 'Palavras';
     navMatch.classList.remove('sub-screen');
     navMatch.onclick = tryResumeMatch;
   }
   if (id === 'vocab-tile-selection' && vocabTileCategory) refreshKanaScoreShading('vocab-tile-grid');
   else if (id === 'verbs') { buildVerbTileGrid(); syncVerbControls(); }
   else if (id === 'numbers') syncNumbersControls();
+  else if (id === 'build') { const panel = document.getElementById('sb-parts-panel'); if (panel) panel.innerHTML = sbPartsPanelHtml(); }
   else if (id === 'grammar') setupCatBar(document.getElementById('contraction-swatch'), getCategoryBandCounts(GRAMMAR.contractions.map(contractionItem)));
   // Groups bars refresh here too (2026-10-10): they used to update only when
   // the Groups pill itself was tapped, so coming back from a drill showed the
@@ -3123,7 +3235,7 @@ let appSettings = { theme: 'dark', hintPenalty: false, strictAccents: false, wor
 // lastSeenChangelog doesn't match this value sees the flag until they open
 // Settings, which clears it (see showSettingsScreen()) - reading the
 // changelog itself is optional, opening Settings is what counts as "noticed".
-const LATEST_CHANGELOG_ENTRY = '2026-10-16b';
+const LATEST_CHANGELOG_ENTRY = '2026-10-24a';
 try {
   const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
   if (savedSettings && typeof savedSettings === 'object') {
@@ -3720,8 +3832,13 @@ function getScoreKey(q) {
 
 // halfCredit (Portuguese build): a typed answer with the right letters but
 // slipped accents - counts, at half the boost, like a hinted answer.
-function recordKanaResult(q, correct, halfCredit) {
+// production (2026-10-24, from the Japanese app's principle "scoring must
+// never punish trying the hard thing"): a typed or said-out-loud answer that
+// misses never lowers the score - a right one still raises it - so the hard
+// modes are never a risk to your greens.
+function recordKanaResult(q, correct, halfCredit, production) {
   if (!isTrackedItem(q)) return;
+  if (production && !correct) return;
   const key = getScoreKey(q);
   const isConsistencyItem = (q.disp === 'number' || q.disp === 'time' || q.disp === 'counter');
   // Numbers/time track many sub-answers under one key (numbers-consistency /
@@ -4040,7 +4157,7 @@ const SECTION_KEYS = SECTIONS.map(s => s.key);
 function renderSectionPills() {
   const row = document.getElementById('vocab-level-filter-row');
   if (!row) return;
-  row.querySelectorAll('[data-section]').forEach(p => p.remove());
+  row.querySelectorAll('[data-section], [data-verbs]').forEach(p => p.remove());
   SECTIONS.forEach(sec => {
     const btn = document.createElement('button');
     btn.className = 'level-pill';
@@ -4048,6 +4165,34 @@ function renderSectionPills() {
     btn.textContent = sec.label;
     btn.onclick = () => setMatchLevel(sec.key);
     row.appendChild(btn);
+  });
+  // Verbs (2026-10-24): a pill here rather than a tab of its own.
+  const vb = document.createElement('button');
+  vb.className = 'level-pill';
+  vb.dataset.verbs = '1';
+  vb.textContent = 'Verbs';
+  vb.onclick = showVerbsScreen;
+  row.appendChild(vb);
+  renderVerbsLevelRow();
+}
+// The same pill row on the Verbs screen, with Verbs lit: the other pills
+// go back to the word lists.
+function renderVerbsLevelRow() {
+  const src = document.getElementById('vocab-level-filter-row');
+  const row = document.getElementById('verbs-level-row');
+  if (!src || !row) return;
+  row.innerHTML = '';
+  src.querySelectorAll('button').forEach(b => {
+    const c = b.cloneNode(true);
+    c.removeAttribute('id');
+    c.classList.toggle('active', !!b.dataset.verbs);
+    c.classList.remove('showing-theme-colours');
+    if (b.dataset.verbs) c.onclick = null;
+    else {
+      const level = b.dataset.section || (b.id === 'level-pill-random' ? 'random' : 'theme');
+      c.onclick = () => { showScreen('match-settings'); setMatchLevel(level); };
+    }
+    row.appendChild(c);
   });
 }
 
@@ -4559,7 +4704,7 @@ function chooseTypedPortuguese(rawInput, q) {
   if (wrongArticle) notes.push(`Check the article: ${escapeHtmlText(wrongArticle)}`);
   const noteHtml = notes.map(n => `<div class="feedback-standard-note">${n}</div>`).join('');
 
-  recordKanaResult(q, isCorrect, !!(match && match.accentSlip));
+  recordKanaResult(q, isCorrect, !!(match && match.accentSlip), true);
   revealListenWord(q);
   fillContractionBlank(q);
   const fb = document.getElementById('q-feedback');
@@ -4848,8 +4993,11 @@ function showMatchSettings() {
   showScreen('match-settings');
 }
 
+// The Palavras tab goes back to whichever of the word lists or Verbs was
+// last open (2026-10-24 - Verbs moved under Palavras).
+var lastVocabRoot = 'match-settings';
 function tryResumeMatch() {
-  showMatchSettings();
+  if (lastVocabRoot === 'verbs') showVerbsScreen(); else showMatchSettings();
 }
 
 
@@ -5217,7 +5365,7 @@ function markSayAnswer(q, ok, btn) {
   answered = true;
   document.querySelectorAll('#q-options .opt').forEach(b => { b.disabled = true; });
   btn.classList.add(ok ? 'correct' : 'wrong');
-  recordKanaResult(q, ok);
+  recordKanaResult(q, ok, false, true);
   if (ok) score++;
   else { wrong++; noteMissed(q); }
   finishAnswer();
@@ -5482,7 +5630,6 @@ function showGrammarScreen() {
   }
   setupCatBar(document.getElementById('contraction-swatch'), getCategoryBandCounts(GRAMMAR.contractions.map(contractionItem)));
   syncGrammarControls();
-  renderSentence('grammar-sentence');
   showScreen('grammar');
 }
 function syncGrammarControls() {
@@ -6026,9 +6173,12 @@ function enTidy(s) {
 }
 
 // --- slot pickers -------------------------------------------------------------
+// "I" comes up more often (2026-10-24): sentences about your own life stick.
+// Family is already a third of the people list.
 function sSubject(filter) {
   const pool = SENT.people.filter(s => !filter || filter(s));
-  return sPick(pool);
+  const weighted = pool.concat(pool.filter(s => s.kind === 'me'), pool.filter(s => s.kind === 'me'));
+  return sPick(weighted);
 }
 // Portuguese subject words: dropped for eu / nós.
 function ptSubj(subj) { return subj.pt || ''; }
@@ -6517,6 +6667,379 @@ function showDeskSheets() {
   showScreen('desk-sheets');
   window.scrollTo(0, 0);
 }
+// ==== SENTENCE BUILDER + CHALLENGE (2026-10-24, from the Japanese app) ====
+// Principles carried over (see HANDOVER-sentence-builder.md): words stick in
+// sentences, not lists; producing is its own skill, so building is
+// low-pressure (pick a card per column); scores are kept per PART of the
+// sentence, at the first check only, and never touch the word greens.
+// Portuguese twist: the verb changes for the person and the tense, so once a
+// verb is picked the column offers its forms - for the person picked in Who
+// and one easily confused with it - and choosing the right one is the test.
+// Doing mode for now: who · verb (+ form) · what · where · with whom · when.
+const SB_SLOTS = [
+  { id: 'who', role: 'Who' }, { id: 'verb', role: 'Verb' }, { id: 'what', role: 'What' },
+  { id: 'where', role: 'Where' }, { id: 'with', role: 'With whom' }, { id: 'when', role: 'When' },
+];
+const SB_PERSON_EN = ['I', 'you', 'he / she', 'we', 'they'];
+const SB_PERSON_LABEL = ['eu', 'tu', 'ele / ela', 'nós', 'eles / elas'];
+const SB_DECOY = [2, 2, 0, 4, 3]; // the person each one is most easily mixed up with
+const SB_TENSE_FROM_GROUP = { hab: 'pres', fut: 'fut', past: 'pret' };
+let sbChallenge = false, sbSel = {}, sbTarget = null, sbTry = 0, sbDone = false, sbResult = null, sbCols = null;
+let sbStats = { right: 0, total: 0 };
+const sbNorm = t => String(t || '').toLowerCase().trim();
+
+// --- cards ---------------------------------------------------------------
+function sbWhoPool() {
+  const pool = [{ pt: 'eu', en: 'I', p: 0, g: 'm', kind: 'me' }, { pt: 'tu', en: 'you', p: 1, g: 'm' }, { pt: 'nós', en: 'we', p: 3, g: 'm', kind: 'we' }];
+  SENT.people.filter(x => x.pt).forEach(x => pool.push({ pt: x.pt, en: x.en, p: x.p, g: x.g, kind: x.kind }));
+  return pool;
+}
+function sbWhoCard(subj) {
+  if (subj.kind === 'me') return sbWhoPool()[0];
+  if (subj.kind === 'we') return sbWhoPool()[2];
+  return sbWhoPool().find(c => c.pt === subj.pt);
+}
+const sbVerbCard = act => ({ pt: act.verb, en: (act.en ? act.en[0] : 'do / make'), act });
+const sbWhatCard = o => ({ pt: o[0], en: o[1], forms: o[2] || null });
+const sbPlaceCard = pl => ({ pt: ptPrepJoin('em', pl), en: pl.en });
+const sbWhenCard = (t, group) => ({ pt: sLowerStart(t.pt), en: t.en, group });
+function sbWithPool() {
+  return [{ pt: 'sozinho', en: 'on my own', g: 'm' }, { pt: 'sozinha', en: 'on my own', g: 'f' }].concat(SENT.companions.map(c => ({ pt: c.pt, en: c.en })));
+}
+const sbFormAmbiguous = (inf, p) => vForm(inf, 'pres', p) === vForm(inf, 'pret', p);
+function sbFormText(inf, tense, p) {
+  if (tense === 'fut') return vForm('ir', 'pres', p) + ' ' + inf;
+  return vForm(inf, tense, p);
+}
+// The forms offered for a verb: the person in Who (eu if Who is empty -
+// Portuguese often leaves it out) and the person it's most often confused
+// with, in the present, the past and going-to. Pairs swap places by verb so
+// position gives nothing away.
+function sbFormsFor(inf, p) {
+  const q = SB_DECOY[p], flip = (inf.length + p) % 2;
+  const out = [];
+  ['pres', 'pret', 'fut'].forEach(t => {
+    const pair = [{ pt: sbFormText(inf, t, p), tense: t, p }, { pt: sbFormText(inf, t, q), tense: t, p: q }];
+    (flip ? pair.reverse() : pair).forEach(f => { if (!out.some(o => o.pt === f.pt)) out.push(f); });
+  });
+  return out;
+}
+
+// --- the sentence, in Portuguese and English ------------------------------
+function sbVerbEn(sel, p) {
+  const forms = (sel.what && sel.what.forms) || (sel.verb && sel.verb.act.en) || ['do', 'does', 'did', 'doing'];
+  const f = sel.form;
+  if (!f) return '(' + forms[0] + ')';
+  let tense = f.tense;
+  // nós: comemos / lemos are both "we eat" and "we ate" - the time decides.
+  if (tense !== 'fut' && sbFormAmbiguous(sel.verb.pt, f.p)) tense = sel.when && sel.when.group === 'past' ? 'pret' : 'pres';
+  if (tense === 'pret') return forms[2];
+  if (tense === 'pres') return p === 2 ? forms[1] : forms[0];
+  return (p === 0 ? 'am' : p === 2 ? 'is' : 'are') + ' going to ' + forms[0];
+}
+function sbPersonOf(sel) {
+  if (sel.who) return sel.who.p;
+  return sel.form ? sel.form.p : 0;
+}
+// [{slot, pt}] in sentence order - the form stands in for the verb.
+function sbChunks(sel) {
+  const out = [];
+  if (sel.who) out.push({ slot: 0, pt: sel.who.pt });
+  if (sel.form) out.push({ slot: 1, pt: sel.form.pt });
+  else if (sel.verb) out.push({ slot: 1, pt: sel.verb.pt, verbOnly: true });
+  [2, 3, 4, 5].forEach(i => { const c = sel[SB_SLOTS[i].id]; if (c) out.push({ slot: i, pt: c.pt }); });
+  return out;
+}
+function sbPtOf(sel) {
+  const t = sbChunks(sel).map(c => c.pt).join(' ');
+  return t ? sCap(t) + '.' : '';
+}
+function sbEnOf(sel) {
+  if (!Object.keys(sel).length) return '';
+  const p = sbPersonOf(sel);
+  const subj = sel.who ? sel.who.en : (sel.form ? SB_PERSON_EN[p] : '');
+  const parts = [subj, (sel.verb || sel.form) ? sbVerbEn(sel, p) : '', sel.what && sel.what.en, sel.where && sel.where.en, sel.with && sel.with.en, sel.when && sel.when.en];
+  return enTidy(sCap(parts.filter(Boolean).join(' '))) + '.';
+}
+// Gentle notes in the free builder: mismatches a teacher would point out.
+function sbNotes(sel) {
+  const notes = [];
+  const f = sel.form;
+  if (f && sel.who && f.p !== sel.who.p) {
+    notes.push(`${f.pt} is the ${SB_PERSON_LABEL[f.p]} form - for ${sel.who.pt}: ${sbFormText(sel.verb.pt, f.tense, sel.who.p)}`);
+  } else if (f && !sel.who && f.p !== 0 && f.p !== 3) {
+    notes.push(`${f.pt} needs someone in Who (${SB_PERSON_LABEL[f.p]})`);
+  }
+  if (f && sel.when) {
+    const want = SB_TENSE_FROM_GROUP[sel.when.group];
+    const amb = f.tense !== 'fut' && sbFormAmbiguous(sel.verb.pt, f.p);
+    if (amb && sel.when.group !== 'fut') { /* comemos: right for now and for the past */ }
+    else if (sel.when.group === 'past' && f.tense !== 'pret') notes.push(`${sel.when.pt} is the past - ${sbFormText(sel.verb.pt, 'pret', sbPersonOf(sel))}`);
+    else if (sel.when.group === 'hab' && f.tense !== 'pres') notes.push(`${sel.when.pt} is a habit - the present: ${sbFormText(sel.verb.pt, 'pres', sbPersonOf(sel))}`);
+    else if (sel.when.group === 'fut' && f.tense === 'pret') notes.push(`${sel.when.pt} hasn't happened yet - ${sbFormText(sel.verb.pt, want, sbPersonOf(sel))}`);
+  }
+  if (sel.with && /^sozinh/.test(sel.with.pt) && sel.who) {
+    const fem = sel.who.g === 'f', pl = sel.who.p === 3 || sel.who.p === 4;
+    const right = (fem ? 'sozinha' : 'sozinho') + (pl ? 's' : '');
+    if (sel.with.pt !== right) notes.push(`for ${sel.who.pt}: ${right}`);
+  }
+  return notes;
+}
+
+// --- a challenge: a sentence from the generator, as cards ----------------
+function sbNewTarget() {
+  for (let i = 0; i < 30; i++) {
+    const a = sActivity();
+    if (!a || !a.time) continue;
+    const who = sbWhoCard(a.subj);
+    if (!who) continue;
+    const tense = SB_TENSE_FROM_GROUP[a.tense];
+    const sel = {
+      who, verb: sbVerbCard(a.act), form: { pt: sbFormText(a.act.verb, tense, who.p), tense, p: who.p },
+      what: sbWhatCard(a.obj), when: sbWhenCard(a.time, a.tense),
+    };
+    if (a.place) sel.where = sbPlaceCard(a.place);
+    if (a.comp) sel.with = sbWithPool().find(c => c.pt === a.comp.pt) || { pt: a.comp.pt, en: a.comp.en };
+    return { sel, pt: sbPtOf(sel), en: sbEnOf(sel), whoOptional: who.p === 0 || who.p === 3 };
+  }
+  return null;
+}
+// Columns: a fresh pick of cards, always including the challenge's answer.
+function sbBuildColumns() {
+  const T = sbTarget && sbTarget.sel;
+  const withAns = (list, ans, n) => {
+    let pick = shuffle(list).slice(0, n);
+    if (ans && !pick.some(c => c.pt === ans.pt)) pick[pick.length - 1] = list.find(c => c.pt === ans.pt) || ans;
+    return pick;
+  };
+  const whoPool = sbWhoPool();
+  const who = whoPool.slice(0, 3).concat(withAns(whoPool.slice(3), T && T.who && T.who.p !== 0 && T.who.p !== 3 ? T.who : null, 6));
+  const when = ['hab', 'fut', 'past'].map(g => ({ group: g, items: withAns(SENT.times[g].map(t => sbWhenCard(t, g)), T && T.when.group === g ? T.when : null, 5) }));
+  sbCols = { who, verbs: SENT.activities.map(sbVerbCard), where: Object.values(SENT.places).map(sbPlaceCard), with: sbWithPool(), when };
+}
+
+// --- part scores ---------------------------------------------------------
+const SB_PART_DEFS = [['who', 'Who', 1], ['verb', 'Verb', 2], ['ending', 'Verb ending', 2], ['what', 'What', 3], ['where', 'Where', 4], ['with', 'With whom', 5], ['when', 'When', 6]];
+const SB_PARTS_KEY = 'ptDrillSentenceParts';
+let sbParts = {};
+try { sbParts = JSON.parse(localStorage.getItem(SB_PARTS_KEY)) || {}; } catch (e) { sbParts = {}; }
+function sbRecordPart(id, ok) {
+  const e = sbParts[id] || { r: [], n: 0 };
+  e.r.push(ok ? 1 : 0);
+  if (e.r.length > 20) e.r = e.r.slice(-20);
+  e.n++;
+  sbParts[id] = e;
+}
+function sbSaveParts() { try { localStorage.setItem(SB_PARTS_KEY, JSON.stringify(sbParts)); } catch (e) { /* fine */ } }
+function sbPartStats() {
+  return SB_PART_DEFS.map(([id, label, slot]) => {
+    const e = sbParts[id];
+    const pct = e && e.r.length ? Math.round(100 * e.r.reduce((a, b) => a + b, 0) / e.r.length) : null;
+    return { id, label, slot, pct, n: e ? e.n : 0 };
+  });
+}
+function sbWeakestPart() {
+  const ok = sbPartStats().filter(x => x.n >= 5 && x.pct !== null).sort((a, b) => a.pct - b.pct);
+  return ok.length && ok[0].pct < 100 ? ok[0] : null;
+}
+function sbPartsPanelHtml() {
+  const stats = sbPartStats().filter(x => x.n > 0);
+  if (!stats.length) return '';
+  const rows = stats.map(x => {
+    const few = x.n < 5;
+    return `<div class="sbp-row${few ? ' sbp-few' : ''}" style="--slot:var(--slot-${x.slot})"><span class="sbp-label">${x.label}</span>` +
+      `<span class="sbp-bar"><span style="width:${x.pct}%"></span></span><span class="sbp-pct">${few ? '–' : x.pct + '%'}</span></div>`;
+  }).join('');
+  const weak = sbWeakestPart();
+  return `<div class="sbp-panel"><div class="sbp-title">Challenge parts - right first time</div>${rows}` +
+    `<div class="sbp-note">${weak ? `Most room to grow: <strong>${weak.label}</strong>. ` : ''}Over your last 20 tries of each part; a dash until there have been 5.</div></div>`;
+}
+
+// --- screen --------------------------------------------------------------
+function showBuildPage() {
+  const panel = document.getElementById('sb-parts-panel');
+  if (panel) panel.innerHTML = sbPartsPanelHtml();
+  renderSentence('grammar-sentence');
+  showScreen('build');
+}
+function showSentenceBuilder(challenge) {
+  sbChallenge = !!challenge;
+  // Every entry starts clean (a finished challenge once locked the builder).
+  sbSel = {}; sbTarget = null; sbTry = 0; sbDone = false; sbResult = null;
+  const t = document.getElementById('sb-title');
+  if (t) t.textContent = sbChallenge ? 'Sentence challenge' : 'Sentence builder';
+  if (sbChallenge) sbNewChallenge(); else { sbBuildColumns(); sbRender(); }
+  showScreen('sb');
+  window.scrollTo(0, 0);
+}
+function sbNewChallenge() {
+  sbTarget = sbNewTarget();
+  sbSel = {}; sbTry = 0; sbDone = false; sbResult = null;
+  sbBuildColumns();
+  sbRender();
+}
+function sbShuffle() { sbBuildColumns(); sbSel = {}; sbRender(); }
+function sbClear() { if (sbDone) return; sbSel = {}; sbResult = null; sbRender(); }
+const sbLocked = id => sbResult && sbResult[id] === 'right';
+function sbPick(id, card) {
+  if (sbDone || sbLocked(id)) return;
+  const same = sbSel[id] && sbSel[id].pt === card.pt;
+  if (same) delete sbSel[id]; else sbSel[id] = card;
+  if (sbResult) delete sbResult[id];
+  if (id === 'verb') {
+    // A new verb: its own forms and things to do.
+    delete sbSel.form;
+    if (sbSel.what && !(sbSel.verb && sbSel.verb.act.objs.some(o => o[0] === sbSel.what.pt))) delete sbSel.what;
+    if (sbResult) { delete sbResult.ending; delete sbResult.what; }
+  }
+  sbRender();
+  if (!same) speakPortuguese(card.pt);
+}
+function sbPickForm(f) {
+  if (sbDone || sbLocked('ending')) return;
+  sbSel.form = (sbSel.form && sbSel.form.pt === f.pt) ? undefined : f;
+  if (!sbSel.form) delete sbSel.form;
+  if (sbResult) delete sbResult.ending;
+  sbRender();
+  if (sbSel.form) speakPortuguese(f.pt);
+}
+function sbSay() { const t = sbPtOf(sbSel); if (t) speakPortuguese(t); }
+function sbSayTarget() { if (sbTarget) speakPortuguese(sbTarget.pt); }
+// Check: each part right / wrong / missing / extra; right verb with the
+// wrong form is its own message.
+function sbCheck() {
+  if (!sbTarget || sbDone) return;
+  sbTry++;
+  const T = sbTarget.sel, S = sbSel, res = {};
+  const prev = sbResult || {};
+  SB_SLOTS.forEach(({ id }) => {
+    if (prev[id] === 'right') { res[id] = 'right'; return; }
+    const t = T[id], s = S[id];
+    if (id === 'who' && sbTarget.whoOptional) { if (s) res[id] = s.pt === t.pt ? 'right' : 'wrong'; return; }
+    if (!t && !s) return;
+    if (!t) { res[id] = 'extra'; return; }
+    if (!s) { res[id] = 'missing'; return; }
+    res[id] = s.pt === t.pt ? 'right' : 'wrong';
+  });
+  if (res.verb === 'right') res.ending = prev.ending === 'right' || (S.form && S.form.pt === T.form.pt) ? 'right' : 'ending';
+  if (sbTry === 1) {
+    const counted = Object.keys(res);
+    sbStats.total += counted.length; sbStats.right += counted.filter(k => res[k] === 'right').length;
+    Object.entries(res).forEach(([id, r]) => {
+      if (id === 'ending') sbRecordPart('ending', r === 'right');
+      else sbRecordPart(id, r === 'right');
+    });
+    sbSaveParts();
+  }
+  // Wrong picks come off, so the second go starts from what's right.
+  if (sbTry < 2) Object.keys(res).forEach(id => {
+    if (res[id] === 'wrong' || res[id] === 'extra') { delete sbSel[id]; if (id === 'verb') { delete sbSel.form; delete sbSel.what; } }
+    if (res[id] === 'ending') delete sbSel.form;
+  });
+  sbResult = res;
+  const allRight = Object.values(res).every(r => r === 'right');
+  if (allRight || sbTry >= 2) { sbDone = true; sbSayTarget(); }
+  sbRender();
+}
+function sbRender() {
+  const top = document.getElementById('sb-strip'), colsEl = document.getElementById('sb-cols');
+  if (!top || !colsEl) return;
+  const chunks = sbChunks(sbSel);
+  const mark = c => {
+    const id = c.slot === 1 && sbResult && sbResult.ending === 'ending' ? 'ending' : SB_SLOTS[c.slot].id;
+    return sbResult && sbResult[id] ? ' sb-' + sbResult[id] : '';
+  };
+  let html = '';
+  if (sbChallenge && sbTarget) html += `<div class="sb-prompt">"${escapeHtmlText(sbTarget.en)}"</div>`;
+  if (chunks.length) {
+    html += `<div class="sb-pt">${chunks.map((c, k) => {
+      const txt = k === 0 ? sCap(c.pt) : c.pt;
+      return `<span class="sb-chunk${c.verbOnly ? ' sb-verb-only' : ''}${mark(c)}" style="--slot:var(--slot-${c.slot + 1})">${escapeHtmlText(txt)}</span>`;
+    }).join(' ')}.</div>`;
+    if (!sbChallenge) html += `<div class="sb-en">"${escapeHtmlText(sbEnOf(sbSel))}"</div>`;
+  } else html += `<div class="sb-empty">${sbChallenge ? 'Tap a card in each column you need - skip the ones you don\'t.' : 'Tap a card from each column to build a sentence.'}</div>`;
+  const notes = !sbChallenge ? sbNotes(sbSel) : [];
+  if (notes.length) html += `<div class="sb-notes">${notes.map(escapeHtmlText).join(' · ')}</div>`;
+  if (sbChallenge && sbResult) {
+    if (sbDone) {
+      const ids = Object.keys(sbResult), n = ids.length, r = ids.filter(k => sbResult[k] === 'right').length;
+      html += `<div class="sb-answer" onclick="sbSayTarget()"><div class="sb-pt">${escapeHtmlText(sbTarget.pt)}</div></div>` +
+        `<div class="sb-verdict${r === n ? ' good' : ''}">${r === n ? (sbTry === 1 ? 'All right first time!' : 'All right on the second go.') : `${r} of ${n} parts right - the answer is above.`}</div>`;
+    } else {
+      const label = id => (SB_SLOTS.find(x => x.id === id) || {}).role || id;
+      const missing = Object.keys(sbResult).filter(k => sbResult[k] === 'missing').map(label);
+      const wrongN = Object.values(sbResult).filter(r => r === 'wrong' || r === 'extra').length;
+      const bits = [wrongN ? `${wrongN} part${wrongN === 1 ? '' : 's'} not right (taken off)` : '',
+        sbResult.ending === 'ending' ? 'right verb - check the form' : '', missing.length ? 'missing: ' + missing.join(', ') : ''].filter(Boolean);
+      html += `<div class="sb-verdict">${bits.join(' · ')} - one more go.</div>`;
+    }
+  }
+  const btn = (label, fn, main) => `<button type="button" class="ds-btn${main ? ' ds-btn-main' : ''}" onclick="${fn}">${label}</button>`;
+  html += '<div class="ds-buttons sb-buttons">';
+  if (chunks.length) html += btn('🔊 Hear it', 'sbSay()');
+  if (sbChallenge) html += sbDone ? btn('Next →', 'sbNewChallenge()', true) : btn(sbTry ? 'Check again' : 'Check', 'sbCheck()', true) + btn('Clear', 'sbClear()');
+  else html += btn('Clear', 'sbClear()') + btn('Shuffle words', 'sbShuffle()');
+  html += '</div>';
+  if (sbChallenge && sbStats.total) {
+    const weak = sbWeakestPart();
+    html += `<div class="sb-stats">This session: ${sbStats.right} of ${sbStats.total} parts right first time${weak ? ` · most room to grow: ${weak.label} (${weak.pct}%)` : ''}</div>`;
+  }
+  top.innerHTML = html;
+
+  // Columns
+  const T = sbDone && sbTarget ? sbTarget.sel : null;
+  colsEl.innerHTML = '';
+  const column = (i, note, fill) => {
+    const col = document.createElement('div');
+    col.className = 'ds-col sb-col';
+    col.style.setProperty('--slot', `var(--slot-${i + 1})`);
+    col.innerHTML = `<div class="ds-head"><div class="ds-head-top"><span class="ds-num">${i + 1}</span><span class="ds-role">${SB_SLOTS[i].role}</span></div></div>` +
+      (note ? `<div class="ds-note">${escapeHtmlText(note)}</div>` : '');
+    fill(col);
+    colsEl.appendChild(col);
+  };
+  const card = (col, id, it) => {
+    const el = document.createElement('div');
+    const picked = sbSel[id] && sbSel[id].pt === it.pt;
+    const isAns = T && T[id] && T[id].pt === it.pt;
+    el.className = 'ds-card sb-card' + (picked ? ' sb-picked' : '') + (picked && sbResult && sbResult[id] === 'right' ? ' sb-ok' : '') + (isAns && !picked ? ' sb-should' : '');
+    const len = it.pt.length;
+    el.innerHTML = `<div class="ds-pt${len >= 20 ? ' xlong' : len >= 14 ? ' long' : ''}">${escapeHtmlText(it.pt)}</div><div class="ds-en">${escapeHtmlText(it.en)}</div>`;
+    el.onclick = () => sbPick(id, it);
+    col.appendChild(el);
+  };
+  const groupHead = (col, text) => { const h = document.createElement('div'); h.className = 'ds-group-head'; h.innerHTML = `<span class="ds-pt">${escapeHtmlText(text)}</span>`; col.appendChild(h); };
+  column(0, 'eu and nós can be left out', col => sbCols.who.forEach(c => card(col, 'who', c)));
+  column(1, 'then pick the form', col => {
+    sbCols.verbs.forEach(c => card(col, 'verb', c));
+    if (!sbSel.verb) return;
+    const p = sbSel.who ? sbSel.who.p : 0;
+    const box = document.createElement('div');
+    box.className = 'sb-forms';
+    box.innerHTML = `<div class="sb-forms-head">${escapeHtmlText(sbSel.verb.pt)} - now, past, going to</div>`;
+    sbFormsFor(sbSel.verb.pt, p).forEach(f => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      const isAns = T && T.form.pt === f.pt && !(sbSel.form && sbSel.form.pt === f.pt);
+      b.className = 'sb-form' + (sbSel.form && sbSel.form.pt === f.pt ? ' active' : '') + (isAns ? ' sb-should' : '');
+      b.textContent = f.pt;
+      b.onclick = () => sbPickForm(f);
+      box.appendChild(b);
+    });
+    col.appendChild(box);
+  });
+  column(2, '', col => {
+    if (!sbSel.verb) { col.insertAdjacentHTML('beforeend', '<div class="sb-hint">Pick a verb first - the things you can do with it show here.</div>'); return; }
+    sbSel.verb.act.objs.map(sbWhatCard).forEach(c => card(col, 'what', c));
+  });
+  column(3, 'em + o = no, em + a = na', col => sbCols.where.forEach(c => card(col, 'where', c)));
+  column(4, 'sozinha for a woman', col => sbCols.with.forEach(c => card(col, 'with', c)));
+  column(5, 'match the verb to the time', col => sbCols.when.forEach(g => {
+    groupHead(col, { hab: 'Habits → now', fut: 'Plans → going to', past: 'Done → past' }[g.group]);
+    g.items.forEach(c => card(col, 'when', c));
+  }));
+}
+
 function renderSentence(elId) {
   const el = document.getElementById(elId || 'greeting-sentence');
   if (!el) return;
