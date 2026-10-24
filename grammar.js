@@ -349,6 +349,15 @@ window.PT_DRILL_GRAMMAR = {
       { inf: 'levantar', en: ['get up', 'gets up', 'got up'], hours: [6, 7, 7, 8, 9] },
       { inf: 'deitar', en: ['go to bed', 'goes to bed', 'went to bed'], hours: [22, 22, 23, 23, 0] },
     ],
+    // BEING (2026-10-24) - how people are, for the Being mode of the sentence
+    // builder: [masculine singular, English, 'ser' | 'estar']. estar = how
+    // someone is right now; ser = what they're like. The app makes them agree.
+    beingPeople: [
+      ['cansado', 'tired', 'estar'], ['contente', 'pleased', 'estar'], ['doente', 'ill', 'estar'], ['ocupado', 'busy', 'estar'],
+      ['triste', 'sad', 'estar'], ['atrasado', 'late', 'estar'], ['pronto', 'ready', 'estar'], ['com fome', 'hungry', 'estar'],
+      ['alto', 'tall', 'ser'], ['baixo', 'short', 'ser'], ['simpático', 'friendly', 'ser'], ['divertido', 'fun', 'ser'],
+      ['português', 'Portuguese', 'ser'], ['inglês', 'English', 'ser'], ['escocês', 'Scottish', 'ser'],
+    ],
     // JOBS - masculine / feminine, and where the job is (em + workplace).
     jobs: [
       { m: 'enfermeiro', f: 'enfermeira', en: 'a nurse', at: { pt: 'hospital', art: 'um' }, atEn: 'in a hospital' },
