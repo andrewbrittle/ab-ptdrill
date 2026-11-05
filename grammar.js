@@ -349,6 +349,21 @@ window.PT_DRILL_GRAMMAR = {
       { inf: 'levantar', en: ['get up', 'gets up', 'got up'], hours: [6, 7, 7, 8, 9] },
       { inf: 'deitar', en: ['go to bed', 'goes to bed', 'went to bed'], hours: [22, 22, 23, 23, 0] },
     ],
+    // GIVING (2026-11-05) - verb + what + to whom (a + o = ao, a + a = à…).
+    // en: [base, he/she, past, -ing]. The person given to comes from people.
+    giving: [
+      { verb: 'dar', en: ['give', 'gives', 'gave', 'giving'], objs: [['um presente', 'a present'], ['flores', 'flowers'], ['um livro', 'a book'], ['dinheiro', 'some money'], ['um beijinho', 'a kiss']] },
+      { verb: 'oferecer', en: ['give', 'gives', 'gave', 'giving'], objs: [['um vinho do Porto', 'a bottle of port'], ['chocolates', 'chocolates'], ['uma camisola', 'a jumper'], ['um livro', 'a book']] },
+      { verb: 'mandar', en: ['send', 'sends', 'sent', 'sending'], objs: [['uma mensagem', 'a message'], ['um email', 'an email'], ['um postal', 'a postcard'], ['uma foto', 'a photo']] },
+      { verb: 'emprestar', en: ['lend', 'lends', 'lent', 'lending'], objs: [['o carro', 'the car'], ['um guarda-chuva', 'an umbrella'], ['dinheiro', 'some money'], ['um livro', 'a book']] },
+      { verb: 'mostrar', en: ['show', 'shows', 'showed', 'showing'], objs: [['as fotos', 'the photos'], ['a cidade', 'the city'], ['a casa', 'the house'], ['o bilhete', 'the ticket', 'service']] },
+      { verb: 'escrever', en: ['write', 'writes', 'wrote', 'writing'], objs: [['uma carta', 'a letter'], ['um postal', 'a postcard'], ['um email', 'an email']] },
+      // pedir X a alguém = ask someone for X (the English turns round).
+      { verb: 'pedir', en: ['ask', 'asks', 'asked', 'asking'], askFor: true, objs: [['a conta', 'the bill', 'service'], ['ajuda', 'help', 'any'], ['informações', 'some information', 'service'], ['um conselho', 'some advice']] },
+    ],
+    // People you give things to besides family and friends (objects marked
+    // 'service' go only to these; 'any' to either).
+    serviceRecipients: [['o empregado', 'the waiter'], ['a rececionista', 'the receptionist'], ['o revisor', 'the ticket inspector'], ['o motorista', 'the driver']],
     // BEING (2026-10-24) - how people are, for the Being mode of the sentence
     // builder: [masculine singular, English, 'ser' | 'estar']. estar = how
     // someone is right now; ser = what they're like. The app makes them agree.
@@ -677,6 +692,31 @@ window.PT_DRILL_GRAMMAR = {
 <li>Adjectives agree with the noun: <i>o vinho tinto, a casa pequena, os bolos bons</i>. Adjectives ending in -e don't change for gender: <i>grande, quente</i>.</li>
 <li>Plurals usually add <b>-s</b>. Endings to know: -m → -ns (<i>homens</i>), -l → -is (<i>espanhóis</i>), -r / -z → -res / -zes (<i>mulheres, luzes</i>), and -ão → -ões / -ães / -ãos (<i>estações, pães, mãos</i>) - the -ão plurals have to be learnt.</li>
 </ul>`,
+    },
+    {
+      id: 'parts', title: 'Words built from parts: padaria, padeiro',
+      html: `
+<p>Many Portuguese words are a familiar word plus an ending. Know the endings and a shop sign or a job you've never seen often explains itself.</p>
+<p><b>-aria</b> - the shop that sells it:</p>
+<table class="gtable"><tr><th>word</th><th>shop</th></tr>
+<tr><td>o pão (bread)</td><td>a pad<b>aria</b> - the bakery</td></tr>
+<tr><td>o livro (book)</td><td>a livr<b>aria</b> - the bookshop</td></tr>
+<tr><td>o sapato (shoe)</td><td>a sapat<b>aria</b> - the shoe shop</td></tr>
+<tr><td>o pastel (pastry)</td><td>a pastel<b>aria</b> - the cake shop / café</td></tr>
+<tr><td>o peixe (fish)</td><td>a peix<b>aria</b> - the fishmonger's</td></tr>
+<tr><td>a fruta (fruit)</td><td>a frut<b>aria</b> - the greengrocer's</td></tr></table>
+<p><b>-eiro / -eira</b> - the person who does it:</p>
+<table class="gtable"><tr><th>word</th><th>person</th></tr>
+<tr><td>o pão</td><td>o pad<b>eiro</b> / a pad<b>eira</b> - the baker</td></tr>
+<tr><td>a carta (letter)</td><td>o cart<b>eiro</b> - the postman</td></tr>
+<tr><td>a cozinha (kitchen)</td><td>o cozinh<b>eiro</b> / a cozinh<b>eira</b> - the cook</td></tr>
+<tr><td>o jardim (garden)</td><td>o jardin<b>eiro</b> - the gardener</td></tr>
+<tr><td>o cabelo (hair)</td><td>o cabeleireiro - the hairdresser</td></tr></table>
+<p><b>-inho / -inha</b> - little, or just friendly. Very Portuguese: <i>um bocad<b>inho</b></i> (a little bit), <i>um beij<b>inho</b></i> (a kiss on the cheek), <i>devagar<b>inho</b></i> (nice and slowly), <i>obrigad<b>inho</b></i>. The opposite, <b>-ão</b>, makes it big: <i>um garraf<b>ão</b></i> (a big bottle).</p>
+<p><b>-mente</b> = -ly, added to the feminine form: <i>rápida → rapida<b>mente</b></i>, <i>normal<b>mente</b></i>, <i>final<b>mente</b></i>.</p>
+<p><b>-ção</b> = -tion, and always feminine: <i>a informa<b>ção</b></i>, <i>a dire<b>ção</b></i> (direction), <i>a esta<b>ção</b></i>. The plural is <b>-ções</b>: <i>as estações</i>.</p>
+<p><b>des-</b> = un- / dis-: <i>ligar → <b>des</b>ligar</i> (switch on / off), <i>fazer → <b>des</b>fazer</i> (undo, unpack), <i>conhecido → <b>des</b>conhecido</i> (unknown).</p>
+<p><b>Put together</b>: <i>o guarda-chuva</i> (keeps-rain: umbrella), <i>o guarda-roupa</i> (wardrobe), <i>o saca-rolhas</i> (pulls-corks: corkscrew), <i>o pequeno-almoço</i> (small lunch: breakfast).</p>`,
     },
   ],
 };

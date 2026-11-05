@@ -501,6 +501,8 @@
   .sb-form.active { background: color-mix(in srgb, var(--slot) 28%, var(--bg)); border-color: var(--slot); }
   .sb-form.sb-should { outline: 2px dashed var(--green); outline-offset: -2px; }
   .sb-hint { font-size: 11px; color: var(--text-dim); padding: 4px 2px; }
+  #grammar-table-list { display: flex; flex-direction: column; gap: 8px; }
+  .grammar-tables-head { text-align: left; margin-bottom: 0.4rem; }
   #sb-mode-row { justify-content: center; }
   #sb-mode-row .level-pill:disabled { opacity: 0.35; cursor: default; }
   .sb-prompt-pt { cursor: pointer; }
@@ -1112,7 +1114,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261024.004</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261105.001</div>
   </div>
 
 
@@ -1529,6 +1531,7 @@
       <div class="level-filter-row" id="sb-mode-row">
         <button type="button" class="level-pill" data-mode="do" onclick="sbSetMode('do')">Doing</button>
         <button type="button" class="level-pill" data-mode="go" onclick="sbSetMode('go')">Going</button>
+        <button type="button" class="level-pill" data-mode="give" onclick="sbSetMode('give')">Giving</button>
         <button type="button" class="level-pill" data-mode="being" onclick="sbSetMode('being')">Being</button>
       </div>
     </div>
@@ -1563,6 +1566,10 @@
     </div>
     <div class="section-divider"></div>
     <div id="grammar-note-list"></div>
+    <!-- Tables (2026-11-05): the pattern tables in one place. ptTables(). -->
+    <div class="section-divider"></div>
+    <div class="settings-sub grammar-tables-head"><strong>Tables</strong> - the patterns at a glance</div>
+    <div id="grammar-table-list"></div>
   </div>
 
   <!-- Grammar note / verb table screen (2026-10-11) -->
@@ -1589,9 +1596,9 @@
 <!-- ?v= matches the version in Settings (2026-10-11): a new page always
      fetches the data files that go with it, never an older cached copy -
      bump it together with the footer version and sw.js CACHE_VERSION. -->
-<script src="vocab.js?v=261024.004"></script>
+<script src="vocab.js?v=261105.001"></script>
 <!-- Verbs, contractions and grammar notes (2026-10-11). -->
-<script src="grammar.js?v=261024.004"></script>
+<script src="grammar.js?v=261105.001"></script>
 <script>
 // =============================================================================
 // PORTUGUÊS DRILL (2026-10-10) - built from a copy of the Japanese drill app
@@ -3256,7 +3263,7 @@ let appSettings = { theme: 'dark', hintPenalty: false, strictAccents: false, wor
 // lastSeenChangelog doesn't match this value sees the flag until they open
 // Settings, which clears it (see showSettingsScreen()) - reading the
 // changelog itself is optional, opening Settings is what counts as "noticed".
-const LATEST_CHANGELOG_ENTRY = '2026-10-24b';
+const LATEST_CHANGELOG_ENTRY = '2026-11-05a';
 try {
   const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
   if (savedSettings && typeof savedSettings === 'object') {
@@ -5229,6 +5236,11 @@ function regularForm(v, tense, p) {
     else if (stem.endsWith('g')) form = stem.slice(0, -1) + 'guei';
     else if (stem.endsWith('ç')) form = stem.slice(0, -1) + 'cei';
   }
+  // Present, eu, -cer / -ger: ofereço, conheço, protejo (2026-11-05).
+  if (tense === 'pres' && p === 0 && pat === 'er') {
+    if (stem.endsWith('c')) form = stem.slice(0, -1) + 'ço';
+    else if (stem.endsWith('g')) form = stem.slice(0, -1) + 'jo';
+  }
   return form;
 }
 // One cell: the shown form plus any other accepted spellings ("ouço|oiço").
@@ -5637,6 +5649,68 @@ function drillSelectedVerbs() {
 
 // ---------- Grammar screen + note / table screen ----------
 let grammarNoteBack = 'grammar';
+// ==== TABLES (2026-11-05, from the Japanese app's Tables section) ====
+// The small pattern tables you want at a glance, gathered at the bottom of
+// the Grammar page. Verb, number and time tables are built by the app's own
+// engines (so they always match the drills); the rest are written out here.
+function ptTables() {
+  const P = ['eu', 'tu', 'ele / ela', 'nós', 'eles / elas'];
+  const verbTable = (tenses, verbs) => {
+    let h = '';
+    tenses.forEach(([t, label]) => {
+      h += `<p><b>${label}</b></p><table class="gtable"><tr><th></th>${verbs.map(v => `<th>${v}</th>`).join('')}</tr>`;
+      P.forEach((who, p) => { h += `<tr><td>${who}</td>${verbs.map(v => `<td>${escapeHtmlText(vForm(v, t, p))}</td>`).join('')}</tr>`; });
+      h += '</table>';
+    });
+    return h;
+  };
+  const art = ['o', 'a', 'os', 'as', 'um', 'uma'];
+  let contr = `<table class="gtable"><tr><th></th>${art.map(a => `<th>${a}</th>`).join('')}</tr>`;
+  ['a', 'de', 'em', 'por'].forEach(prep => { contr += `<tr><td><b>${prep}</b></td>${art.map(a => `<td>${PT_PREP_JOIN[prep][a]}</td>`).join('')}</tr>`; });
+  contr += '</table><p><i>Vou <b>ao</b> mercado · Sou <b>do</b> Porto · Estou <b>na</b> praia · Passo <b>pela</b> ponte.</i> With <b>um / uma</b>, only <b>em</b> joins up in everyday writing (<i>num café, numa rua</i>); <i>de um</i> can be <i>dum</i> in speech.</p>' +
+    '<p>The same goes for <b>este / esse / aquele</b> and <b>isto / isso / aquilo</b>: <i>deste, nesta, naquele, daquilo</i> - see "This and that".</p>';
+  let nums = '<table class="gtable"><tr><th></th><th></th><th></th><th></th></tr>';
+  for (let i = 0; i <= 20; i += 4) {
+    nums += '<tr>' + [i, i + 1, i + 2, i + 3].filter(n => n <= 20).map(n => `<td><b>${n}</b> ${numToPortuguese(n)}</td>`).join('') + '</tr>';
+  }
+  nums += '</table><table class="gtable">';
+  [30, 40, 50, 60, 70, 80, 90].forEach((n, k, a) => { if (k % 2 === 0) nums += '<tr>' + a.slice(k, k + 2).map(x => `<td><b>${x}</b> ${numToPortuguese(x)}</td>`).join('') + '</tr>'; });
+  nums += '</table><table class="gtable">';
+  [100, 101, 200, 300, 500, 1000, 2000, 2026].forEach((n, k, a) => { if (k % 2 === 0) nums += '<tr>' + a.slice(k, k + 2).map(x => `<td><b>${x}</b> ${numToPortuguese(x)}</td>`).join('') + '</tr>'; });
+  nums += '</table><p><b>um / uma</b> and <b>dois / duas</b> agree: <i>uma cerveja, duas bicas</i>. 100 on its own is <i>cem</i>; 101 and up use <i>cento</i>.</p>';
+  let times = '<table class="gtable"><tr><th></th><th>everyday</th></tr>';
+  [[9, 0], [9, 15], [9, 30], [9, 45], [13, 0], [12, 0], [0, 0], [20, 10], [21, 50]].forEach(([h, m]) => {
+    times += `<tr><td><b>${formatTimeShown(h, m, 'none', 'everyday')}</b></td><td>${escapeHtmlText(timeToPortuguese(h, m, 'none', 'everyday'))}</td></tr>`;
+  });
+  times += '</table><p><b>At</b> a time: <i>à uma</i>, <i>às duas</i>, <i>ao meio-dia</i>. Timetables and announcements use the 24-hour clock: <i>' + escapeHtmlText(timeToPortuguese(21, 50, 'none', 'timetable')) + '</i>.</p>';
+  return [
+    { id: 'tbl-endings', title: 'Verb endings: -ar, -er, -ir', html: '<p>Regular verbs, built by the app\'s own verb engine. Going to = <i>vou falar</i>; right now = <i>estou a falar</i>.</p>' + verbTable([['pres', 'Present - I speak, I eat'], ['pret', 'Past - I spoke, I ate'], ['imp', 'Was / used to - I used to speak']], ['falar', 'comer', 'abrir']) },
+    { id: 'tbl-irregular', title: 'The irregular verbs that matter most', html: '<p>Present, then past.</p>' + verbTable([['pres', 'Present']], ['ser', 'estar', 'ter', 'ir']) + verbTable([['pres', 'Present']], ['fazer', 'poder', 'querer', 'ver']) + verbTable([['pret', 'Past']], ['ir', 'estar', 'ter', 'fazer']) + '<p><b>ser</b> has the same past as <b>ir</b>: <i>fui</i> is both "I was" and "I went".</p>' },
+    { id: 'tbl-contractions', title: 'a, de, em, por + the', html: contr },
+    { id: 'tbl-ser-estar', title: 'ser and estar side by side', html: verbTable([['pres', 'Present'], ['imp', 'Was (describing) - era / estava']], ['ser', 'estar']) +
+      '<table class="gtable"><tr><th>ser - what it is</th><th>estar - how it is now</th></tr>' +
+      '<tr><td>who or what: <i>sou inglês, é médica</i></td><td>feelings, states: <i>estou cansado</i></td></tr>' +
+      '<tr><td>what it\'s like: <i>o hotel é grande</i></td><td>right now: <i>o café está frio</i></td></tr>' +
+      '<tr><td>time, dates: <i>são três horas</i></td><td>the weather: <i>está sol, está frio</i></td></tr>' +
+      '<tr><td>where events take place: <i>o jantar é aqui</i></td><td>where things and people are: <i>estou no hotel</i></td></tr></table>' +
+      '<p>Where a building is (permanent) is usually <b>ficar</b>: <i>Onde fica a estação?</i></p>' },
+    { id: 'tbl-possessives', title: 'my, your, his, our…', html:
+      '<table class="gtable"><tr><th></th><th>o …</th><th>a …</th><th>os …</th><th>as …</th></tr>' +
+      '<tr><td>my</td><td>o meu</td><td>a minha</td><td>os meus</td><td>as minhas</td></tr>' +
+      '<tr><td>your (tu)</td><td>o teu</td><td>a tua</td><td>os teus</td><td>as tuas</td></tr>' +
+      '<tr><td>your (polite) / his / her</td><td>o seu</td><td>a sua</td><td>os seus</td><td>as suas</td></tr>' +
+      '<tr><td>our</td><td>o nosso</td><td>a nossa</td><td>os nossos</td><td>as nossas</td></tr></table>' +
+      '<p>They agree with the <b>thing</b>, not the owner: <i>a minha mãe</i>, <i>o meu pai</i>. For his / her / their, Portugal usually says <b>dele, dela, deles</b> after the noun: <i>o carro dele</i> (his car), <i>a casa dela</i> (her house) - <i>o seu</i> tends to mean "your" (polite).</p>' },
+    { id: 'tbl-this-that', title: 'This and that: este, esse, aquele', html:
+      '<table class="gtable"><tr><th></th><th>o …</th><th>a …</th><th>os …</th><th>as …</th><th>thing</th></tr>' +
+      '<tr><td>this (here)</td><td>este</td><td>esta</td><td>estes</td><td>estas</td><td>isto</td></tr>' +
+      '<tr><td>that (near you)</td><td>esse</td><td>essa</td><td>esses</td><td>essas</td><td>isso</td></tr>' +
+      '<tr><td>that (over there)</td><td>aquele</td><td>aquela</td><td>aqueles</td><td>aquelas</td><td>aquilo</td></tr></table>' +
+      '<p>They join up with <b>de</b> and <b>em</b>: <i>deste, desta, nisto, naquela, daquilo</i>. <i>Queria este, se faz favor</i> (pointing). <i>O que é isto?</i> (what\'s this?)</p>' },
+    { id: 'tbl-numbers', title: 'Numbers', html: nums },
+    { id: 'tbl-times', title: 'Telling the time', html: times },
+  ];
+}
 function showGrammarScreen() {
   const list = document.getElementById('grammar-note-list');
   if (list) {
@@ -5647,6 +5721,17 @@ function showGrammarScreen() {
       card.innerHTML = `<span>${escapeHtmlText(n.title)}</span><span class="vocab-ref-arrow">→</span>`;
       card.onclick = () => showGrammarNote(n.id);
       list.appendChild(card);
+    });
+  }
+  const tlist = document.getElementById('grammar-table-list');
+  if (tlist) {
+    tlist.innerHTML = '';
+    ptTables().forEach(n => {
+      const card = document.createElement('div');
+      card.className = 'vocab-ref-card';
+      card.innerHTML = `<span>${escapeHtmlText(n.title)}</span><span class="vocab-ref-arrow">→</span>`;
+      card.onclick = () => showGrammarNote(n.id);
+      tlist.appendChild(card);
     });
   }
   setupCatBar(document.getElementById('contraction-swatch'), getCategoryBandCounts(GRAMMAR.contractions.map(contractionItem)));
@@ -5663,7 +5748,7 @@ function syncGrammarControls() {
   if (sayCard) sayCard.classList.toggle('selected', !!appSettings.grammarSay);
 }
 function showGrammarNote(id) {
-  const n = GRAMMAR.notes.find(x => x.id === id);
+  const n = GRAMMAR.notes.find(x => x.id === id) || ptTables().find(x => x.id === id);
   if (!n) return;
   grammarNoteBack = 'grammar';
   document.getElementById('grammar-note-title').textContent = n.title;
@@ -6190,7 +6275,7 @@ function enBe(subj) { return subj.p === 0 ? 'am' : subj.p === 2 ? 'is' : 'are'; 
 function enSubj(subj) { return subj.en; }
 // "I am going" -> "I'm going" etc. for readability.
 function enTidy(s) {
-  return s.replace(/^(He|She|It) is\b/, "$1's").replace(/^They are\b/, "They're").replace(/\bI am\b/g, "I'm").replace(/\bwe are\b/g, "we're").replace(/\bWe are\b/g, "We're").replace(/\s+/g, ' ').trim();
+  return s.replace(/^(I|We|They|You) have (already|not)\b/, "$1've $2").replace(/^(He|She) has already\b/, "$1's already").replace(/^(He|She|It) is\b/, "$1's").replace(/^They are\b/, "They're").replace(/\bI am\b/g, "I'm").replace(/\bwe are\b/g, "we're").replace(/\bWe are\b/g, "We're").replace(/\s+/g, ' ').trim();
 }
 
 // --- slot pickers -------------------------------------------------------------
@@ -6558,7 +6643,50 @@ function sAsk() {
     { pt: '— ' + sCap([who.pt, qVerb, objPt, time].filter(Boolean).join(' ')) + '?', en: enQ([enQV(who, tense, a.forms[0]), objEn, a.time.en]) },
     { pt: '— ' + shortV + ', sim.', en: enYes(ans, tense) }];
 }
-const SENTENCE_PATTERNS = [[sAsk, 3], [sActivity, 4], [sMotion, 3], [sQA, 4], [sRoutine, 1.5], [sJob, 1], [sDescribe, 1.5], [sWeather, 1], [sLikes, 1.5], [sOrder, 0.8], [sWhere, 0.8], [sOpening, 0.6]];
+// Giving and already / not yet for the sentence card (2026-11-05), built by
+// the sentence builder's own target maker so the two always agree.
+function sbSentenceFor(mode) {
+  const keep = [sbMode, sbReverse];
+  sbMode = mode; sbReverse = false;
+  let t = null;
+  try { t = sbNewTarget(); } finally { [sbMode, sbReverse] = keep; }
+  if (!t) return null;
+  // eu / nós are usually left out in speech.
+  const pt = t.pt.replace(/^(Eu|Nós) (\S)/, (m, w, c) => c.toUpperCase());
+  return { pt, en: t.en };
+}
+function sGive() {
+  if (sChance(0.3)) {
+    // "A quem é que deste o livro?" - "Ao meu irmão."
+    const keep = [sbMode, sbReverse]; sbMode = 'give'; sbReverse = false;
+    let t = null;
+    try { t = sbNewTarget(); } finally { [sbMode, sbReverse] = keep; }
+    if (!t || t.sel.who.p !== 0 || t.sel.verb.act.askFor || t.sel.when.group === 'ja') return null;
+    const S = t.sel, tense = S.form.tense;
+    const q = tense === 'fut' ? 'vais ' + S.verb.pt : vForm(S.verb.pt, tense, 1);
+    const forms = S.what.forms || S.verb.act.en;
+    const enQ = tense === 'pret' ? `Who did you ${forms[0]} ${S.what.en} to?` : tense === 'fut' ? `Who are you going to ${forms[0]} ${S.what.en} to?` : `Who do you ${forms[0]} ${S.what.en} to?`;
+    return [{ pt: `— A quem é que ${q} ${S.what.pt}?`, en: enQ }, { pt: '— ' + sCap(S.toWhom.pt) + '.', en: sCap('to ' + S.toWhom.en) + '.' }];
+  }
+  return sbSentenceFor('give');
+}
+// "Já comeste bacalhau?" - "Já. Comi ontem." / "Ainda não."
+function sAlready() {
+  const yes = sChance(0.6);
+  if (sChance(0.4)) {
+    const d = sPick(SENT.destinations.filter(x => x.kind === 'city' || x.kind === 'far' || x.kind === 'culture'));
+    const t = sTime('past', x => destOk(d, x, 'past'));
+    return [{ pt: `— Já foste ${ptPrepJoin('a', d)}?`, en: `Have you been to ${d.en} yet?` },
+      yes && t ? { pt: `— Já. Fui ${sLowerStart(t.pt)}.`, en: `Yes, I went ${t.en}.` } : { pt: '— Ainda não. Vou para o ano.', en: 'Not yet. I\'m going next year.' }];
+  }
+  const act = sPick(SENT.activities.filter(a => !a.rare && a.verb !== 'tomar'));
+  const o = sPick(act.objs);
+  const forms = o[2] || act.en;
+  const t = sTime('past', x => !x.long);
+  return [{ pt: `— Já ${vForm(act.verb, 'pret', 1)} ${o[0]}?`, en: `Have you ${enPP(forms)} ${o[1]} yet?` },
+    yes ? { pt: `— Já. ${sCap(vForm(act.verb, 'pret', 0))} ${sLowerStart(t.pt)}.`, en: `Yes - ${t.en}.` } : { pt: '— Ainda não.', en: 'Not yet.' }];
+}
+const SENTENCE_PATTERNS = [[sAsk, 3], [sGive, 1.5], [sAlready, 1.2], [sActivity, 4], [sMotion, 3], [sQA, 4], [sRoutine, 1.5], [sJob, 1], [sDescribe, 1.5], [sWeather, 1], [sLikes, 1.5], [sOrder, 0.8], [sWhere, 0.8], [sOpening, 0.6]];
 const recentSentences = [];
 function generateSentence() {
   if (!SENT) return null;
@@ -6710,7 +6838,34 @@ const SB_MODES = {
   do: { label: 'Doing', slots: [['who', 'Who'], ['verb', 'Verb'], ['what', 'What'], ['where', 'Where'], ['with', 'With whom'], ['when', 'When']] },
   go: { label: 'Going', slots: [['who', 'Who'], ['verb', 'Go: ir'], ['whereTo', 'Where to'], ['how', 'How'], ['with', 'With whom'], ['when', 'When']] },
   being: { label: 'Being', slots: [['who', 'Who / what'], ['verb', 'ser or estar'], ['adj', 'Describing word']] },
+  give: { label: 'Giving', slots: [['who', 'Who'], ['verb', 'Verb'], ['what', 'What'], ['toWhom', 'To whom'], ['when', 'When']] },
 };
+// Already / not yet (2026-11-05, from the Japanese app's もう / まだ): já and
+// ainda não sit in the When column but go BEFORE the verb, with the past:
+// Já comi. / Ainda não fui ao Porto. English: "I've already eaten" /
+// "I haven't been to Porto yet".
+const SB_JA_CARDS = [{ pt: 'já', en: 'already', group: 'ja' }, { pt: 'ainda não', en: 'not yet', group: 'ja' }];
+const EN_PP = { eat: 'eaten', drink: 'drunk', see: 'seen', read: 'read', buy: 'bought', do: 'done', make: 'made', write: 'written', give: 'given', send: 'sent', lend: 'lent', show: 'shown', take: 'taken', have: 'had', go: 'been', get: 'got', go_for: 'been for' };
+function enPP(forms) {
+  const words = forms[0].split(' ');
+  if (words[0] === 'go' && words[1] === 'for') return ['been for'].concat(words.slice(2)).join(' ');
+  if (EN_PP[words[0]]) return [EN_PP[words[0]]].concat(words.slice(1)).join(' ');
+  return forms[2];
+}
+// Recipients for Giving: family and friends (a + o = ao…), plus a few
+// people in shops and on trains for the things you ask them for or show them.
+function sbRecipients() {
+  const out = [];
+  SENT.people.filter(x => x.pt && x.kind !== 'me' && x.kind !== 'we').forEach(x => {
+    const [art, ...rest] = x.pt.split(' ');
+    out.push({ pt: ptPrepJoin('a', { art, pt: rest.join(' ') }), en: x.en, base: x.pt, kind: 'people' });
+  });
+  (SENT.serviceRecipients || []).forEach(([pt, en]) => {
+    const [art, ...rest] = pt.split(' ');
+    out.push({ pt: ptPrepJoin('a', { art, pt: rest.join(' ') }), en, base: pt, kind: 'service' });
+  });
+  return out;
+}
 let sbMode = 'do', sbChallenge = false, sbReverse = false;
 let sbSel = {}, sbTarget = null, sbTry = 0, sbDone = false, sbResult = null, sbCols = null;
 let sbStats = { right: 0, total: 0 };
@@ -6729,8 +6884,9 @@ function sbWhoCard(subj) {
   return sbWhoPool().find(c => c.pt === subj.pt);
 }
 const sbVerbCard = act => ({ pt: act.verb, en: (act.en ? act.en[0] : 'do / make'), act });
+const sbGiveCard = g => ({ pt: g.verb, en: g.en[0], act: g });
 const SB_IR = { pt: 'ir', en: 'go', act: { verb: 'ir', en: ['go', 'goes', 'went', 'going'], objs: [] } };
-const sbWhatCard = o => ({ pt: o[0], en: o[1], forms: o[2] || null });
+const sbWhatCard = o => ({ pt: o[0], en: o[1], forms: Array.isArray(o[2]) ? o[2] : null });
 const sbPlaceCard = pl => ({ pt: ptPrepJoin('em', pl), en: pl.en });
 const sbDestCard = d => ({ pt: ptPrepJoin('a', d), en: d.en });
 const sbHowCard = t => ({ pt: t.pt, en: t.en });
@@ -6815,7 +6971,7 @@ function sbVerbEn(sel, p) {
   const f = sel.form;
   if (!f) return '(' + forms[0] + ')';
   let tense = f.tense;
-  if (tense !== 'fut' && sbFormAmbiguous(sel.verb.pt, f.p)) tense = sel.when && sel.when.group === 'past' ? 'pret' : 'pres';
+  if (tense !== 'fut' && sbFormAmbiguous(sel.verb.pt, f.p)) tense = sel.when && (sel.when.group === 'past' || sel.when.group === 'ja') ? 'pret' : 'pres';
   if (tense === 'pret') return forms[2];
   if (tense === 'pres') return p === 2 ? forms[1] : forms[0];
   return sbBe(p) + ' going to ' + forms[0];
@@ -6824,8 +6980,11 @@ function sbVerbEn(sel, p) {
 // (and for the describing word in Being).
 function sbChunks(sel) {
   const out = [];
+  const ja = sel.when && sel.when.group === 'ja';
   sbSlots().forEach(({ id }, slot) => {
+    if (id === 'when' && ja) return;
     if (id === 'verb') {
+      if (ja) out.push({ slot: sbSlotIdx('when'), id: 'when', pt: sel.when.pt });
       if (sel.form) out.push({ slot, id, pt: sel.form.pt });
       else if (sel.verb && sbMode !== 'go') out.push({ slot, id, pt: sel.verb.pt, verbOnly: true });
       return;
@@ -6856,9 +7015,23 @@ function sbEnOf(sel) {
   // sozinho / sozinha: "on my own", "on her own"…
   const ownEn = { 0: 'my', 1: 'your', 3: 'our', 4: 'their' }[p] || (sel.who && sel.who.g === 'f' ? 'her' : 'his');
   const withEn = sel.with && (/^sozinh/.test(sel.with.pt) ? `on ${ownEn} own` : sel.with.en);
-  const parts = sbMode === 'go'
-    ? [subj, hasVerb ? sbVerbEn(sel, p) : '', sel.whereTo && 'to ' + sel.whereTo.en, sel.how && sel.how.en, withEn, sel.when && sel.when.en]
-    : [subj, hasVerb ? sbVerbEn(sel, p) : '', sel.what && sel.what.en, sel.where && sel.where.en, withEn, sel.when && sel.when.en];
+  const ja = sel.when && sel.when.group === 'ja';
+  let verbEn = hasVerb ? sbVerbEn(sel, p) : '';
+  if (ja && hasVerb && sel.form) {
+    const forms = sbMode === 'go' ? ['go', 'goes', 'went'] : ((sel.what && sel.what.forms) || (sel.verb && sel.verb.act.en) || ['do', 'does', 'did']);
+    const have = p === 2 ? 'has' : 'have';
+    verbEn = sel.when.pt === 'já' ? `${have} already ${enPP(forms)}` : `${have}n't ${enPP(forms)}`;
+  }
+  const whenEn = sel.when && !ja ? sel.when.en : '';
+  const yet = ja && sel.when.pt !== 'já' ? 'yet' : '';
+  let parts;
+  if (sbMode === 'go') parts = [subj, verbEn, sel.whereTo && 'to ' + sel.whereTo.en, sel.how && sel.how.en, withEn, whenEn, yet];
+  else if (sbMode === 'give') {
+    const to = sel.toWhom && sel.toWhom.en;
+    parts = sel.verb && sel.verb.act.askFor
+      ? [subj, verbEn, to, sel.what && 'for ' + sel.what.en, whenEn, yet]
+      : [subj, verbEn, sel.what && sel.what.en, to && 'to ' + to, whenEn, yet];
+  } else parts = [subj, verbEn, sel.what && sel.what.en, sel.where && sel.where.en, withEn, whenEn, yet];
   return enTidy(sCap(parts.filter(Boolean).join(' '))) + '.';
 }
 // Gentle notes in the free builder: what a teacher would point out.
@@ -6880,7 +7053,9 @@ function sbNotes(sel) {
   if (f && sel.when) {
     const amb = f.tense !== 'fut' && sbFormAmbiguous(inf, f.p);
     const p = sbPersonOf(sel), g = sel.when.group;
-    if (amb && g !== 'fut') { /* comemos: right for now and for the past */ }
+    if (g === 'ja' && f.tense !== 'pret' && !amb) notes.push(`${sel.when.pt} goes with the past - ${sbFormText(inf, 'pret', p)}`);
+    else if (g === 'ja') { /* fine */ }
+    else if (amb && g !== 'fut') { /* comemos: right for now and for the past */ }
     else if (g === 'past' && f.tense !== 'pret') notes.push(`${sel.when.pt} is the past - ${sbFormText(inf, 'pret', p)}`);
     else if (g === 'hab' && f.tense !== 'pres') notes.push(`${sel.when.pt} is a habit - the present: ${sbFormText(inf, 'pres', p)}`);
     else if (g === 'fut' && f.tense === 'pret') notes.push(`${sel.when.pt} hasn't happened yet - ${sbFormText(inf, inf === 'ir' ? 'pres' : 'fut', p)}`);
@@ -6905,7 +7080,20 @@ function sbNewTarget() {
       sel = { who, verb: SB_BE_CARDS.find(c => c.pt === adj.be), form: { pt: vForm(adj.be, 'pres', who.p), tense: 'pres', p: who.p, verb: adj.be }, adj, agree: { pt: sbAdjForm(adj, who.g, !!who.pl), g: who.g, pl: !!who.pl } };
       return { sel, pt: sbPtOf(sel), en: sbEnOf(sel), whoOptional: false };
     }
-    if (sbMode === 'go') {
+    if (sbMode === 'give') {
+      const subj = sSubject();
+      const who = sbWhoCard(subj);
+      if (!who) continue;
+      const g = sPick(SENT.giving);
+      const o = sPick(g.objs);
+      const kind = o[2] || 'people';
+      const recips = sbRecipients().filter(r => r.base !== who.pt && (kind === 'any' || r.kind === kind));
+      const tGroup = sPick(['hab', 'fut', 'past', 'past']);
+      const time = sTime(tGroup, t => !t.long && !(tGroup === 'hab' && /Todos/.test(t.pt)));
+      if (!time || !recips.length) continue;
+      const tense = SB_TENSE_FROM_GROUP[tGroup];
+      sel = { who, verb: sbGiveCard(g), form: { pt: sbFormText(g.verb, tense, who.p), tense, p: who.p }, what: sbWhatCard(o), toWhom: sPick(recips), when: sbWhenCard(time, tGroup) };
+    } else if (sbMode === 'go') {
       const m = sMotion();
       if (!m || !m.time) continue;
       const who = sbWhoCard(m.subj);
@@ -6924,6 +7112,8 @@ function sbNewTarget() {
       if (a.place) sel.where = sbPlaceCard(a.place);
       if (a.comp) sel.with = sbWithPool().find(c => c.pt === a.comp.pt) || { pt: a.comp.pt, en: a.comp.en };
     }
+    // Sometimes it's "already / not yet" instead of a time (past only).
+    if (sel.form.tense === 'pret' && sChance(0.25)) sel.when = sChance(0.6) ? SB_JA_CARDS[0] : SB_JA_CARDS[1];
     return { sel, pt: sbPtOf(sel), en: sbEnOf(sel), whoOptional: !sbReverse && (sel.who.p === 0 || sel.who.p === 3) };
   }
   return null;
@@ -6945,18 +7135,20 @@ function sbBuildColumns() {
   const whoPool = sbWhoPool();
   const tw = T && T.who && (sbReverse || (T.who.p !== 0 && T.who.p !== 3)) ? T.who : null;
   const who = whoPool.slice(0, 3).concat(withAns(whoPool.slice(3), tw && whoPool.indexOf(whoPool.find(c => c.pt === tw.pt)) >= 3 ? tw : null, 6));
-  const when = ['hab', 'fut', 'past'].map(g => ({ group: g, items: withAns(SENT.times[g].map(t => sbWhenCard(t, g)), T && T.when.group === g ? T.when : null, 5) }));
+  const when = ['hab', 'fut', 'past'].map(g => ({ group: g, items: withAns(SENT.times[g].map(t => sbWhenCard(t, g)), T && T.when.group === g ? T.when : null, 5) }))
+    .concat([{ group: 'ja', items: SB_JA_CARDS }]);
   sbCols = {
     who, when, with: sbWithPool(),
     verbs: SENT.activities.map(sbVerbCard), where: Object.values(SENT.places).map(sbPlaceCard),
     whereTo: withAns(SENT.destinations.map(sbDestCard), T && T.whereTo, 14), how: SENT.transport.map(sbHowCard),
+    giveVerbs: (SENT.giving || []).map(sbGiveCard), toWhom: withAns(sbRecipients(), T && T.toWhom, 10),
   };
 }
 
 // --- part scores (building and reading kept apart) ------------------------
 const SB_PART_DEFS = [['who', 'Who', 1], ['verb', 'Verb', 2], ['ending', 'Verb ending', 2], ['serestar', 'Ser or estar', 2],
   ['what', 'What', 3], ['whereTo', 'Where to', 3], ['adj', 'Describing word', 3], ['agree', 'Agreement', 3],
-  ['where', 'Where', 4], ['how', 'How', 4], ['with', 'With whom', 5], ['when', 'When', 6]];
+  ['where', 'Where', 4], ['how', 'How', 4], ['toWhom', 'To whom', 4], ['with', 'With whom', 5], ['when', 'When', 6]];
 const SB_PARTS_KEY = 'ptDrillSentenceParts', SB_PARTS_KEY_R = 'ptDrillSentencePartsR';
 let sbParts = {}, sbPartsR = {};
 try { sbParts = JSON.parse(localStorage.getItem(SB_PARTS_KEY)) || {}; } catch (e) { sbParts = {}; }
@@ -7039,7 +7231,7 @@ function sbPick(id, card) {
   const same = sbSel[id] && sbSel[id].pt === card.pt;
   if (same) delete sbSel[id]; else sbSel[id] = card;
   if (sbResult) delete sbResult[id];
-  if (id === 'verb' && sbMode === 'do') {
+  if (id === 'verb' && (sbMode === 'do' || sbMode === 'give')) {
     delete sbSel.form;
     if (sbSel.what && !(sbSel.verb && sbSel.verb.act.objs.some(o => o[0] === sbSel.what.pt))) delete sbSel.what;
     if (sbResult) { delete sbResult.ending; delete sbResult.what; }
@@ -7226,7 +7418,7 @@ function sbRender() {
     col.appendChild(box);
   };
   const whenCol = () => column('when', 'match the verb to the time', col => sbCols.when.forEach(g => {
-    groupHead(col, sbReverse ? { hab: 'Habits', fut: 'Plans', past: 'Done' }[g.group] : { hab: 'Habits → now', fut: 'Plans → going to', past: 'Done → past' }[g.group]);
+    groupHead(col, sbReverse ? { hab: 'Habits', fut: 'Plans', past: 'Done', ja: 'Already / not yet' }[g.group] : { hab: 'Habits → now', fut: 'Plans → going to', past: 'Done → past', ja: 'Already / not yet → past, before the verb' }[g.group]);
     g.items.forEach(c => card(col, 'when', c));
   }));
   const p = sbSel.who ? sbSel.who.p : 0;
@@ -7246,7 +7438,21 @@ function sbRender() {
     });
     return;
   }
-  column('who', sbMode === 'go' || sbMode === 'do' ? 'eu and nós can be left out' : '', col => sbCols.who.forEach(c => card(col, 'who', c)));
+  column('who', 'eu and nós can be left out', col => sbCols.who.forEach(c => card(col, 'who', c)));
+  if (sbMode === 'give') {
+    column('verb', 'then pick the form', col => {
+      sbCols.giveVerbs.forEach(c => card(col, 'verb', c));
+      if (!sbSel.verb) return;
+      formBox(col, sbReverse ? 'who, and when?' : sbSel.verb.pt + ' - now, past, going to', sbFormsFor(sbSel.verb.pt, sbReverse && sbTarget ? sbTarget.sel.form.p : p), sbSel.form, T && T.form, sbPickForm, sbReverse ? sbFormEnLabel : null);
+    });
+    column('what', sbSel.verb && sbSel.verb.act.askFor ? 'pedir X a alguém = ask someone for X' : '', col => {
+      if (!sbSel.verb) { col.insertAdjacentHTML('beforeend', '<div class="sb-hint">Pick a verb first - the things you can give, send or show appear here.</div>'); return; }
+      sbSel.verb.act.objs.map(sbWhatCard).forEach(c => card(col, 'what', c));
+    });
+    column('toWhom', 'a + o = ao, a + a = à, a + os = aos', col => sbCols.toWhom.forEach(c => card(col, 'toWhom', c)));
+    whenCol();
+    return;
+  }
   if (sbMode === 'go') {
     column('verb', 'plans use the present: vou amanhã', col => {
       formBox(col, sbReverse ? 'who, and when?' : 'pick the form', sbFormsFor('ir', sbReverse && sbTarget ? sbTarget.sel.form.p : p), sbSel.form, T && T.form, sbPickForm, sbReverse ? sbFormEnLabel : null);
