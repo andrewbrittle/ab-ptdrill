@@ -1,5 +1,5 @@
 // Service worker for Português Drill - registered by the app itself (see
-// syncServiceWorkerRegistration() in index.html).
+// syncServiceWorkerRegistration() in core/core.js).
 //
 // Strategy: network-first, cache-fallback, for every GET request. Online
 // users always get the freshest version; the cache is only used when the
@@ -12,13 +12,32 @@
 // on activate this deletes every OTHER cache with its own prefix, and apps
 // published under the same github.io address share one cache store - a
 // shared prefix would let this app wipe the Japanese apps' offline copies.
-const CACHE_VERSION = 'pt-drill-v261105-001';
+const CACHE_VERSION = 'pt-drill-v261107-001';
 
 const PRECACHE_URLS = [
   './',
   './index.html',
   './vocab.js',
   './grammar.js',
+  './ui/en.js',
+  './pt/text-en.js',
+  './core/text.js',
+  './pt/app.js',
+  './pt/starter.js',
+  './core/core.js',
+  './core/starter.js',
+  './core/questions.js',
+  './pt/sounds.js',
+  './pt/verbs.js',
+  './pt/grammar-screen.js',
+  './pt/numbers.js',
+  './pt/greeting.js',
+  './pt/sentences.js',
+  './pt/desk-sheets.js',
+  './core/builder.js',
+  './pt/builder.js',
+  './core/start.js',
+  './lang/pt.js',
   './instructions.html',
   './changelog.html',
   './manifest-pt.json',
