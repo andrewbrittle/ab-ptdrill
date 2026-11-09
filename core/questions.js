@@ -5,6 +5,10 @@
 // Split out of app.js on 2026-11-07 (refactor step 6); code unchanged.
 
 function getSpeechText(q) {
+  // A type can say what's spoken (speechText - Japanese: a kanji's reading,
+  // a counter's kana).
+  const t = questionType(q);
+  if (t && t.speechText) return t.speechText(q);
   return q.speakAs || q.char;
 }
 
@@ -21,9 +25,13 @@ function speakCurrent() {
   speakTarget(getSpeechText(q));
 }
 
-function renderTypeAnswerInput(container, placeholder, submitFn) {
+// target: typing in the language's own script (marked with its language, so
+// a phone can offer that keyboard) rather than in Latin letters (Japanese
+// romaji) - and an app can style it (APP.targetInputClass).
+function renderTypeAnswerInput(container, placeholder, submitFn, target = true) {
+  const cls = target && APP.targetInputClass ? ' ' + APP.targetInputClass : '';
   container.innerHTML = '<div class="type-answer-row">' +
-    `<input type="text" id="type-answer-input" class="type-answer-input" lang="${LANG.code}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${placeholder}">` +
+    `<input type="text" id="type-answer-input" class="type-answer-input${cls}" ${target ? `lang="${LANG.code}"` : ''} autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${placeholder}">` +
     `<button type="button" class="type-answer-submit" id="type-answer-submit">${tx('drill.check')}</button>` +
     '</div>';
   const input = document.getElementById('type-answer-input');
@@ -49,12 +57,18 @@ function renderListenPrompt(q, charDisplay, promptText) {
   document.getElementById('q-prompt').textContent = promptText;
   const speakBtn = document.getElementById('speak-btn');
   if (speakBtn) speakBtn.style.display = 'none';
+  // Japanese's romaji button would give the word away.
+  const romajiBtn = document.getElementById('romaji-btn');
+  if (romajiBtn) romajiBtn.style.display = 'none';
   setTimeout(() => { if (deck[current] === q && !answered) say(); }, 120);
 }
 
 // After answering a listening question, show the word that was played
 // (tap it to hear it again).
 function revealListenWord(q) {
+  // A type can show its own (revealListen - Japanese: small っ shows the word).
+  const t = questionType(q);
+  if (t && t.revealListen) { t.revealListen(q); return; }
   const charDisplay = document.getElementById('q-char');
   if (!charDisplay || !charDisplay.querySelector('.listen-play')) return;
   charDisplay.textContent = q.char;
@@ -180,11 +194,19 @@ function renderQuestion() {
   const promptEl = document.getElementById('q-prompt');
 
   // Anything without a registered type is drawn as a word, as before.
+  // A type's badge can depend on the question (badge, badgeClass as
+  // functions); a badged type hides the "where it was seen" card unless it
+  // keeps it (keepsContext - Japanese's words have badges).
   const type = questionType(q) || QUESTION_TYPES.word;
-  if (type.badge) {
-    badge.textContent = type.badge;
-    if (contextCard) contextCard.style.display = 'none';
+  const badgeText = typeof type.badge === 'function' ? type.badge(q) : type.badge;
+  if (badgeText) {
+    badge.textContent = badgeText;
+    if (contextCard && !type.keepsContext) contextCard.style.display = 'none';
   }
+  if (type.badgeClass) badge.className = 'type-badge type-' + (typeof type.badgeClass === 'function' ? type.badgeClass(q) : type.badgeClass);
+  // Anything an app shows with every question (Japanese: "also written",
+  // the romaji button, the counter-quiz reminder) - APP.beforeQuestion.
+  if (APP.beforeQuestion) APP.beforeQuestion(q, { charDisplay, container, promptEl, mode });
   type.render(q, { charDisplay, container, promptEl, mode });
 }
 
@@ -237,9 +259,12 @@ function finishAnswer() {
   nextBtn.innerHTML = (current + 1 < deck.length ? tx('drill.next') : tx('drill.seeResults')) + `<span class="kbd-hint">${tx('drill.keySpace')}</span>`;
 }
 
-function noteMissed(q) {
-  const missedKey = q.char + '|' + q.answer;
-  if (!missed.includes(missedKey)) { missed.push(missedKey); missedItems.push(q); }
+// key: what Drill missed only looks the question up by (default its char
+// and answer); keepItem false for questions an app rebuilds itself instead
+// (Japanese's kana and kanji - see the type's missedItem).
+function noteMissed(q, key, keepItem = true) {
+  const missedKey = key || q.char + '|' + q.answer;
+  if (!missed.includes(missedKey)) { missed.push(missedKey); if (keepItem) missedItems.push(q); }
 }
 
 function choose(btn, selectedVal, answer, char) {
@@ -250,25 +275,32 @@ function choose(btn, selectedVal, answer, char) {
     if (b.dataset.value === answer) b.classList.add('correct');
   });
   const q = deck[current];
+  const type = questionType(q) || QUESTION_TYPES.word;
   const fb = document.getElementById('q-feedback');
   const isCorrect = selectedVal === answer;
   recordKanaResult(q, isCorrect);
   revealListenWord(q);
   revealQuestion(q);
-  // Forward questions: name the Portuguese word alongside the meaning, so a
-  // listening answer still shows what was said.
-  const pair = (!questionType(q).namesWord || answer === q.char) ? '' : ` — ${escapeHtmlText(q.char)}`;
+  // What follows "Correct!": the type can say (feedbackExtra - Japanese: the
+  // hint, a kanji's example word, "Normally shown as"). Otherwise forward
+  // questions name the word alongside the meaning, so a listening answer
+  // still shows what was said, then the word's notes.
+  const extra = type.feedbackExtra ? type.feedbackExtra(q)
+    : ((!type.namesWord || answer === q.char) ? '' : ` — ${escapeHtmlText(q.char)}`) + answerNotesHtml(q);
+  // How the right answer is shown (answerHtml - Japanese: hiragana for a
+  // katakana question, small kana in Japanese answers).
+  const shown = type.answerHtml ? type.answerHtml(q, answer) : escapeHtmlText(answer);
   if (isCorrect) {
     score++;
     btn.classList.add('correct');
-    fb.innerHTML = tx('drill.correct') + pair + answerNotesHtml(q);
+    fb.innerHTML = tx('drill.correct') + extra;
     fb.className = 'feedback good';
   } else {
     btn.classList.add('wrong');
-    fb.innerHTML = tx('drill.notQuite', { a: escapeHtmlText(answer) }) + pair + answerNotesHtml(q);
+    fb.innerHTML = tx('drill.notQuite', { a: shown }) + extra;
     fb.className = 'feedback bad';
     wrong++;
-    noteMissed(q);
+    noteMissed(q, char + '|' + answer, type.missedItem !== false);
   }
   finishAnswer();
 }
@@ -353,8 +385,10 @@ function showResults() {
     // missed entries are "char|answer" composites (see choose()) - display
     // only the char portion, same visual as before.
     const missedChars = missed.map(k => k.split('|')[0]);
-    missedEl.innerHTML = '<div class="missed-chars">' + missedChars.map(escapeHtmlText).join(' · ') + '</div>';
-    missedBtn.textContent = tx('results.repeatMissed', { n: missed.length });
+    missedEl.innerHTML = '<div class="missed-chars">' + missedChars.map(displayWordHtml).join(' · ') + '</div>';
+    // 2026-11-08 (Andrew): one results screen for every app - Japanese's
+    // "Drill missed only", with the missed items separated by dots.
+    missedBtn.textContent = tx('results.drillMissed');
     missedBtn.style.display = 'block';
   } else {
     missedLabel.textContent = '';
@@ -369,17 +403,26 @@ let currentMatchLevel = 'theme';
 
 
 
+// An app with level pills of its own (APP.matchLevel - Japanese's L1/L2,
+// L3, L4, Untaught, Tourist): pick turns a tap into the level to show (or
+// null: nothing to show - a switched-off page, or Grammar, its own tab);
+// pills lights them; lists are the levels shown as a list of word lists.
 function setMatchLevel(level) {
+  const ML = APP.matchLevel;
+  if (ML) { level = ML.pick(level); if (level === null) return; }
   currentMatchLevel = level;
   document.querySelectorAll('#vocab-level-filter-row [data-section]').forEach(p => p.classList.toggle('active', p.dataset.section === level));
   document.getElementById('level-pill-theme').classList.toggle('active', level === 'theme');
   const randomPill = document.getElementById('level-pill-random');
   if (randomPill) randomPill.classList.toggle('active', level === 'random');
+  if (ML && ML.pills) ML.pills(level);
   document.getElementById('vocab-level-filter-row').classList.toggle('showing-theme-colours', level === 'theme');
+  const optRow = document.getElementById('vocab-optional-filter-row');
+  if (optRow) optRow.classList.toggle('showing-theme-colours', level === 'theme');
     // Extra tiers of vocabulary (the Japanese app's Untaught and Andrew lists)
     // reuse this same generic list view: a category with the right level in
     // VOCAB shows up automatically, no hand-built card needed.
-  document.getElementById('match-vocab-view').style.display = SECTION_KEYS.includes(level) ? 'flex' : 'none';
+  document.getElementById('match-vocab-view').style.display = (SECTION_KEYS.includes(level) || (ML && ML.lists.includes(level))) ? 'flex' : 'none';
   document.getElementById('match-theme-view').style.display = level === 'theme' ? 'flex' : 'none';
   document.getElementById('match-random-view').style.display = level === 'random' ? 'flex' : 'none';
   if (level === 'theme') refreshThemeCategorySwatches();
@@ -455,6 +498,8 @@ function buildCategoryTile(key) {
 function buildMatchCategoryList() {
   const container = document.getElementById('match-category-list');
   container.innerHTML = '';
+  // An app's own levels list themselves (APP.matchLevel.list).
+  if (APP.matchLevel && APP.matchLevel.lists.includes(currentMatchLevel)) { APP.matchLevel.list(container, currentMatchLevel); return; }
   if (!SECTION_KEYS.includes(currentMatchLevel)) return;
   // Topic pills (Portuguese build): the categories whose section matches the
   // pill, in vocab.js order, then any private word lists for that section
@@ -477,10 +522,9 @@ function buildMatchCategoryList() {
 // screens can be opened from more than one place, so this can't be hardcoded.
 let vocabRefBackTarget = 'match-settings';
 function closeVocabReference() {
-  // 'grammar-notes-hub' isn't a real screen id - it means "back to the
-  // Grammar notes list", which is itself just another render into
-  // #screen-vocab-reference (see showGrammarNotesHub()), not a distinct
-  // screen to show() into.
+  // An app can send a reference page back somewhere special (APP.refBack, Japanese: the grammar notes).
+  const back = APP.refBack ? APP.refBack(vocabRefBackTarget) : null;
+  if (back) { back(); return; }
   showScreen(vocabRefBackTarget);
 }
 
@@ -631,7 +675,11 @@ function buildVocabReadingDeck(items, groupKey, distractorPool) {
 
 // One word question - used by tile selection and the random decks alike.
 // Options carry both sides; renderQuestion decides which side is asked.
+// A language's words can make their own questions (the word type's build -
+// Japanese: the answer is the reading, with "also written" and the kanji
+// reading breakdown).
 function buildWordQuestion(item, pool, groupKey) {
+  if (QUESTION_TYPES.word.build) return QUESTION_TYPES.word.build(item, pool, groupKey);
   const distractorItems = pickDistractorItems(pool, item, 3);
   const allItems = shuffle([item, ...distractorItems]);
   return {
@@ -682,7 +730,8 @@ function getAllVocabPool() {
 // rule rather than one that moves with Settings - kept in step with
 // itemTierVisible by hand if a new tier is ever added there.
 function isOptionalTierItem(item) {
-  return false;
+  const tags = item.tags || [];
+  return (APP.tiers || []).some(t => t.when(tags));
 }
 
 // "All vocabulary" on the Themes screen is meant to be exactly that - the
@@ -737,9 +786,13 @@ function startWeakestVocab() {
   startVocabReadingDeck(items, 'weakest-vocab', getAllVocabPool());
 }
 function startUntestedVocab() {
-  const items = getUntestedVocabItems();
+  // An app can choose its own untested words (Japanese: twenty, taught words
+  // first) - APP.pickUntested - and then Drill again picks a fresh set.
+  const pick = APP.pickUntested || getUntestedVocabItems;
+  const items = pick();
   if (!items.length) return;
   startVocabReadingDeck(items, 'untested-vocab', getAllVocabPool());
+  if (APP.pickUntested) lastDeckBuilder = () => buildVocabReadingDeck(pick(), 'untested-vocab', getAllVocabPool());
 }
 
 

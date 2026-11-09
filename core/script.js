@@ -63,10 +63,11 @@ function buildLetterQuestion(L, reverse, pool) {
     speakAs: L.char,
   };
 }
-// A run: every letter in the chosen groups once, in random order.
-function startLetterDrill(reverse, groups) {
+// A run: every letter in the chosen groups - or the letters picked in the
+// character picker (core/picker.js) - once, in random order.
+function startLetterDrill(reverse, groups, letters) {
   lastSettingsScreen = 'script';
-  const build = () => { const pool = scriptLetters(groups); return shuffle(pool.slice()).map(L => buildLetterQuestion(L, reverse, pool)); };
+  const build = () => { const pool = letters || scriptLetters(groups); return shuffle(pool.slice()).map(L => buildLetterQuestion(L, reverse, pool)); };
   startDrill(build(), build);
 }
 function buildReadQuestion(item) {

@@ -95,7 +95,7 @@ window.UI_TEXT = {
   "results.hintsUsed": {"one": "{n} hint used", "other": "{n} hints used"},
   "results.keepDrilling": "Keep drilling!",
   "results.noMistakes": "No mistakes — excellent!",
-  "results.repeatMissed": { "one": "Repeat the {n} I missed", "other": "Repeat the {n} I missed" },
+  "results.drillMissed": "Drill missed only",
   "results.perfect": "Perfect score!",
   "say.also": "Also: {w}",
   "say.gotIt": "Got it",
@@ -134,6 +134,16 @@ window.UI_TEXT = {
   "sb.titleBuilder": "Sentence builder",
   "sb.titleChallenge": "Sentence challenge",
   "sb.titleReading": "Reading challenge",
+
+  // ---------- The character picker (core/picker.js) ----------
+  "picker.selectAll": "Select all — {name}",
+  "picker.deselectAll": "Deselect all — {name}",
+  "picker.pickAll": "Pick all {n}",
+  "picker.pickedAll": "Picked: all {n}",
+  "picker.start": "Start · {what}",
+  "picker.pickSome": "Pick some to start",
+  "picker.rowLabel": "Pick the {row} row",
+  "picker.nCharacters": { "one": "{n} character", "other": "{n} characters" },
 
   // ---------- Reading a script (core/script.js) ----------
   "script.letters": "Letters",

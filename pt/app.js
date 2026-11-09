@@ -8,6 +8,9 @@ window.APP = {
   // ptDrillSettings...) so nothing is shared with the Japanese apps on the
   // same site. Never change it: it's how your scores are found again.
   storagePrefix: 'ptDrill',
+  // What's new: change this with each new entry in changelog.html - it's what
+  // lights the Settings cog until Settings is opened (see core/core.js).
+  latestChangelog: '2026-11-08a',
   backupName: 'portuguese-drill-backup',
 
   // The word-list tab's name, and extra pills in its row of section pills.
