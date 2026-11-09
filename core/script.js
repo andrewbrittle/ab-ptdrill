@@ -44,14 +44,16 @@ function scriptLetters(groups) {
 function buildLetterQuestion(L, reverse, pool) {
   const all = APP.script.letters;
   const from = pool.length >= 4 ? pool : all;
-  const face = l => reverse ? l.char : l.sound;
+  // Lower case (the app's "Lower case too"): about half the questions show
+  // the letter as lower case - or, sounds → letters, offer lower-case choices.
+  const showLower = L.lower && appSettings.scriptLowerCase && Math.random() < 0.5;
+  const face = l => reverse ? (showLower && l.lower ? l.lower : l.char) : l.sound;
   const right = face(L);
   const opts = [right];
   if (!reverse && L.confusedWith) opts.push(L.confusedWith);
   shuffle(from.slice()).concat(shuffle(all.slice())).forEach(l => {
     if (opts.length < 4 && !opts.includes(face(l))) opts.push(face(l));
   });
-  const showLower = !reverse && L.lower && appSettings.scriptLowerCase && Math.random() < 0.5;
   return {
     disp: 'letter', reverse, answerMode: 'choice',
     char: reverse ? L.sound : (showLower ? L.lower : L.char),

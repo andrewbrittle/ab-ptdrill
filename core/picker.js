@@ -10,10 +10,13 @@
 //   - every tile shaded by its score, and the usual score bar on top (the
 //     core's setupCatBar, so it reads like every other bar: untested on the
 //     left, strongest on the right, tap it to show or hide untested);
-//   - the direction (かな → romaji or back; letters → sounds or back) above;
+//   - the direction (かな → romaji or back; letters → sounds or back) and any
+//     other options at the bottom, just above Start, as on every other
+//     drilling screen: seen just before a drill starts (Andrew, 9 Nov);
 //   - holding a character does what it did before (its strokes; see and hear
 //     it), and the tap after a hold doesn't pick it;
-//   - Start shows how many are picked and stays in view at the bottom.
+//   - Start, at the end of the page, shows how many are picked. (It floated
+//     at first; a floating Start may come back later, everywhere at once.)
 // Strokes itself comes onto it when Strokes moves onto the core.
 //
 // renderPicker(el, spec) draws it into el and returns { clear, refresh,
@@ -23,7 +26,7 @@
 //   item:     { id, char (HTML, already safe), sub (text), band() -> score band
 //               or '' (untested), peek? (tile) -> attaches hold-to-peek }
 //   direction?: { options: [{ key, label }], get() -> key, set(key) }
-//   extras?:  (el) -> adds anything app-specific under the direction choice
+//   extras?:  (el) -> adds app-specific options beside the direction choice
 //   start(items, directionKey): starts the drill with the picked items
 //   unitKey: the text key counting what's picked ("{n} characters")
 //   name: what Select all names ("Hiragana")
@@ -48,8 +51,8 @@
   .picker-row-label.on { border: 1px solid var(--accent); color: var(--accent); background: var(--accent-dim); }
   .picker-row .kana-ref-card { flex: 1 1 0; min-width: 0; margin: 0; cursor: pointer; }
   .picker-row .kana-ref-card.empty { visibility: hidden; cursor: default; }
-  .picker-start { position: sticky; bottom: 12px; z-index: 5; margin-top: 0.8rem; box-shadow: 0 6px 24px rgba(0,0,0,0.45); }
-  .picker-start:disabled { opacity: 1; background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+  .picker-start { margin-top: 0.8rem; }
+  .picker-dir { margin-top: 1.2rem; }
   `;
   document.head.appendChild(st);
 })();
@@ -69,24 +72,6 @@ function renderPicker(el, spec) {
   const bar = document.createElement('div');
   bar.className = 'cat-bar picker-bar';
   el.appendChild(bar);
-
-  // Direction.
-  if (spec.direction) {
-    const dir = document.createElement('div');
-    dir.className = 'picker-dir';
-    spec.direction.options.forEach(o => {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.dataset.key = o.key;
-      b.innerHTML = o.label;
-      b.onclick = () => { spec.direction.set(o.key); syncDir(); };
-      dir.appendChild(b);
-    });
-    el.appendChild(dir);
-    var syncDir = () => dir.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.key === spec.direction.get()));
-    syncDir();
-  }
-  if (spec.extras) spec.extras(el);
 
   // Select all.
   const selAll = document.createElement('div');
@@ -147,6 +132,24 @@ function renderPicker(el, spec) {
       el.appendChild(row);
     });
   });
+
+  // The options - direction, then the app's own - just above Start.
+  if (spec.direction) {
+    const dir = document.createElement('div');
+    dir.className = 'picker-dir';
+    spec.direction.options.forEach(o => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.key = o.key;
+      b.innerHTML = o.label;
+      b.onclick = () => { spec.direction.set(o.key); syncDir(); };
+      dir.appendChild(b);
+    });
+    el.appendChild(dir);
+    var syncDir = () => dir.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.key === spec.direction.get()));
+    syncDir();
+  }
+  if (spec.extras) spec.extras(el);
 
   // Start.
   const start = document.createElement('button');
