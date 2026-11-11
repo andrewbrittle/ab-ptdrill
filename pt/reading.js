@@ -15,6 +15,15 @@ const RP_DEST_PLACE = { praia: 'beach', jardim: 'park', biblioteca: 'library', m
 // What can be described: by destination, by kind of destination, by transport.
 const RP_DESCRIBE_DEST = { restaurante: 'restaurant' }, RP_DESCRIBE_KIND = { city: 'town' };
 const RP_DESCRIBE_TRANSPORT = { 'de comboio': 'comboio', 'de autocarro': 'autocarro' };
+// A false sentence about what something was like says the opposite plainly
+// ("The restaurant was expensive" when it was cheap) - never "wasn't", which
+// made you untangle a double negative (Andrew, 11 Nov). An adjective with no
+// clear opposite here (delicious, interesting...) gives no sentence to mark.
+const RP_OPPOSITE_EN = {
+  caro: 'cheap', barato: 'expensive', cheio: 'empty', vazio: 'full', grande: 'small', pequeno: 'big',
+  rápido: 'slow', lento: 'fast', frio: 'warm', quente: 'cold', novo: 'old', velho: 'new',
+  fechado: 'open', estreito: 'wide', limpo: 'dirty', bom: 'bad', atrasado: 'on time', antigo: 'modern',
+};
 
 const rpOther = (list, cur, same) => sPick(list.filter(x => !same(x, cur)));
 const rpObjEn = o => o[1];
@@ -59,9 +68,10 @@ function rpPassage() {
   if (it) {
     const a = sPick(it.adj), pl = nounPlural(it), g = nounGender(it);
     const be = vForm(a[2], 'imp', pl ? 4 : 2), adj = ptAgree(a[0], g, pl), very = sChance(0.35);
-    const was = pl ? 'were' : 'was', wasnt = pl ? "weren't" : "wasn't";
+    const was = pl ? 'were' : 'was';
     lines.push({ pt: sCap(`${ptArticle(it)} ${be} ${very ? 'muito ' : ''}${adj}.`), en: sCap(`${it.en} ${was} ${very ? 'very ' : ''}${a[1]}.`) });
-    facts.push({ t: sCap(`${it.en} ${was} ${a[1]}.`), f: sCap(`${it.en} ${wasnt} ${a[1]}.`) });
+    const opp = RP_OPPOSITE_EN[a[0]];
+    facts.push({ t: sCap(`${it.en} ${was} ${a[1]}.`), f: opp && sCap(`${it.en} ${was} ${opp}.`) });
   }
   // 4. Then home, and something there.
   const home = rpActsAt('home').filter(x => x.act !== A.act && !['tomar'].includes(x.act.verb));
@@ -110,7 +120,7 @@ function rpRender() {
           ${c.ans !== undefined ? `<div class="rp-verdict">${esc(tx(c.ans === c.truth ? 'rp.right' : 'rp.notThisTime', { tf: tx(c.truth ? 'rp.itsTrue' : 'rp.itsFalse') }))}</div>` : ''}</div>`;
       }).join('')}
     </div>
-    ${done ? `<div class="sb-verdict${rpCur.claims.every(c => c.ans === c.truth) ? ' good' : ''}">${esc(tx('rp.score', { r: rpCur.claims.filter(c => c.ans === c.truth).length, n: rpCur.claims.length, sr: rpStats.right, st: rpStats.total }))}</div>` : ''}
+    ${done ? `<div class="sb-verdict rp-score${rpCur.claims.every(c => c.ans === c.truth) ? ' good' : ''}">${esc(tx('rp.score', { r: rpCur.claims.filter(c => c.ans === c.truth).length, n: rpCur.claims.length, sr: rpStats.right, st: rpStats.total }))}</div>` : ''}
     <div class="ds-buttons"><button type="button" class="ds-btn ds-btn-main" onclick="showReadingPassage()">${esc(tx(done ? 'rp.next' : 'rp.different'))}</button></div>`;
 }
 
