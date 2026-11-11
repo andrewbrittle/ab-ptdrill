@@ -38,6 +38,7 @@
   const st = document.createElement('style');
   st.id = 'picker-styles';
   st.textContent = `
+  .picker-bar { margin: 0.4rem 0 1rem; }
   .picker-dir { display: flex; gap: 8px; margin: 0.6rem 0 0.4rem; }
   .picker-dir button { flex: 1; padding: 9px 4px; border-radius: 99px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
   .picker-dir button.on { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }

@@ -10,7 +10,7 @@ window.APP = {
   storagePrefix: 'ptDrill',
   // What's new: change this with each new entry in changelog.html - it's what
   // lights the Settings cog until Settings is opened (see core/core.js).
-  latestChangelog: '2026-11-08a',
+  latestChangelog: '2026-11-11a',
   backupName: 'portuguese-drill-backup',
 
   // The word-list tab's name, and extra pills in its row of section pills.
@@ -35,6 +35,7 @@ window.APP = {
     'grammar-note': { home: 'grammar', pill: () => grammarNoteBack === 'verbs' ? 'nav-match' : 'nav-grammar' },
     'desk-sheets': { home: 'build', pill: 'nav-build' },
     sb: { home: 'build', pill: 'nav-build' },
+    reading: { home: 'build', pill: 'nav-build' },
   },
 
   // Hooks the core calls (2026-11-07): at start-up, on Back, and the extra

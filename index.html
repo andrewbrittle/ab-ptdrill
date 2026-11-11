@@ -931,6 +931,22 @@
   /* Listening (2026-10-07) */
   .listen-play { width: 96px; height: 96px; border-radius: 50%; border: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
   .listen-play:active { transform: scale(0.96); }
+  /* Reading passages (2026-11-11, as the Japanese app's). */
+  .rp-passage { background: var(--surface, #1a1a1a); border: 1px solid var(--border, #2a2a2a); border-radius: 12px; padding: 14px 16px; margin: 10px 0; }
+  .rp-line { padding: 6px 0; cursor: pointer; border-bottom: 1px dashed rgba(127,127,127,0.18); }
+  .rp-line:last-child { border-bottom: none; }
+  .rp-pt { font-size: 18px; line-height: 1.5; }
+  .rp-en { font-size: 13px; color: var(--text-muted, #aaa); font-style: italic; }
+  .rp-claims { margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+  .rp-claim { border: 1px solid var(--border, #2a2a2a); border-radius: 10px; padding: 10px 12px; }
+  .rp-claim.rp-right { border-color: rgba(76,175,80,0.6); }
+  .rp-claim.rp-wrong { border-color: rgba(229,115,115,0.6); }
+  .rp-claim-en { font-size: 15px; margin-bottom: 8px; }
+  .rp-tf { display: flex; gap: 8px; }
+  .rp-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border, #333); background: transparent; color: inherit; font: inherit; font-size: 14px; cursor: pointer; }
+  .rp-btn.active { border-color: var(--accent, #e8c468); color: var(--accent, #e8c468); }
+  .rp-btn:disabled { cursor: default; opacity: 0.8; }
+  .rp-verdict { font-size: 13px; margin-top: 6px; color: var(--text-muted, #aaa); }
 </style>
 </head>
 <body>
@@ -1053,7 +1069,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261109.002</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261111.002</div>
   </div>
 
 
@@ -1446,6 +1462,20 @@
         <div class="random-choice-desc" data-t="page.the-other-way-round-a-portuguese"></div>
       </div>
     </div>
+    <!-- Reading passage (2026-11-11, from the Japanese app). -->
+    <div class="group-card cat-tile" onclick="showReadingPassage()" style="cursor:pointer;">
+      <div class="cat-tile-top cat-tile-top-stack">
+        <div class="group-name" data-t="rp.title"></div>
+        <div class="random-choice-desc" data-t="page.reading-passage-desc"></div>
+      </div>
+    </div>
+    <!-- Answer it (2026-11-11, from the Japanese app): a question about you. -->
+    <div class="group-card cat-tile" onclick="showSentenceBuilder('answer')" style="cursor:pointer;">
+      <div class="cat-tile-top cat-tile-top-stack">
+        <div class="group-name" data-t="page.answer-it"></div>
+        <div class="random-choice-desc" data-t="page.answer-it-desc"></div>
+      </div>
+    </div>
     <div id="sb-parts-panel"></div>
     <!-- Example sentences (2026-10-11) - same generator as the greeting card. -->
     <div class="greet-card greet-sentence grammar-sentence" id="grammar-sentence"></div>
@@ -1505,6 +1535,13 @@
   </div>
 
   <!-- Grammar note / verb table screen (2026-10-11) -->
+  <!-- Reading passage (2026-11-11, pt/reading.js): a short diary and four
+       true-or-false statements about it. -->
+  <div class="screen" id="screen-reading">
+    <div class="settings-title" data-t="rp.title"></div>
+    <div id="reading-body"></div>
+  </div>
+
   <div class="screen" id="screen-grammar-note">
     <div class="settings-title" id="grammar-note-title"></div>
     <div class="grammar-note" id="grammar-note-body"></div>
@@ -1530,37 +1567,38 @@
      bump it together with the footer version and sw.js CACHE_VERSION.
      (Every script tag below has one - vocab.js, grammar.js, lang/pt.js,
      and each file in core/ and pt/.) -->
-<script src="vocab.js?v=261109.002"></script>
+<script src="vocab.js?v=261111.002"></script>
 <!-- Verbs, contractions and grammar notes (2026-10-11). -->
-<script src="grammar.js?v=261109.002"></script>
+<script src="grammar.js?v=261111.002"></script>
 <!-- The language module (2026-11-06): Portuguese rules - numbers and times so
      far - as a JavaScript module, handed to the app as window.LANG. Module
      scripts and "defer" scripts run in page order once the page has loaded,
      so this always runs before app.js below. -->
 <script type="module">
-import pt from './lang/pt.js?v=261109.002';
+import pt from './lang/pt.js?v=261111.002';
 window.LANG = pt;
 </script>
 <!-- The app (2026-11-07: split into the shared core and the Portuguese
      features). "defer" scripts run in this order once the page has loaded;
      core/start.js goes last because it starts the app. -->
-<script defer src="ui/en.js?v=261109.002"></script>
-<script defer src="pt/text-en.js?v=261109.002"></script>
-<script defer src="core/text.js?v=261109.002"></script>
-<script defer src="pt/app.js?v=261109.002"></script>
-<script defer src="pt/starter.js?v=261109.002"></script>
-<script defer src="core/core.js?v=261109.002"></script>
-<script defer src="core/starter.js?v=261109.002"></script>
-<script defer src="core/questions.js?v=261109.002"></script>
-<script defer src="pt/sounds.js?v=261109.002"></script>
-<script defer src="pt/verbs.js?v=261109.002"></script>
-<script defer src="pt/grammar-screen.js?v=261109.002"></script>
-<script defer src="pt/numbers.js?v=261109.002"></script>
-<script defer src="pt/greeting.js?v=261109.002"></script>
-<script defer src="pt/sentences.js?v=261109.002"></script>
-<script defer src="pt/desk-sheets.js?v=261109.002"></script>
-<script defer src="core/builder.js?v=261109.002"></script>
-<script defer src="pt/builder.js?v=261109.002"></script>
-<script defer src="core/start.js?v=261109.002"></script>
+<script defer src="ui/en.js?v=261111.002"></script>
+<script defer src="pt/text-en.js?v=261111.002"></script>
+<script defer src="core/text.js?v=261111.002"></script>
+<script defer src="pt/app.js?v=261111.002"></script>
+<script defer src="pt/starter.js?v=261111.002"></script>
+<script defer src="core/core.js?v=261111.002"></script>
+<script defer src="core/starter.js?v=261111.002"></script>
+<script defer src="core/questions.js?v=261111.002"></script>
+<script defer src="pt/sounds.js?v=261111.002"></script>
+<script defer src="pt/verbs.js?v=261111.002"></script>
+<script defer src="pt/grammar-screen.js?v=261111.002"></script>
+<script defer src="pt/numbers.js?v=261111.002"></script>
+<script defer src="pt/greeting.js?v=261111.002"></script>
+<script defer src="pt/sentences.js?v=261111.002"></script>
+<script defer src="pt/desk-sheets.js?v=261111.002"></script>
+<script defer src="core/builder.js?v=261111.002"></script>
+<script defer src="pt/builder.js?v=261111.002"></script>
+<script defer src="pt/reading.js?v=261111.002"></script>
+<script defer src="core/start.js?v=261111.002"></script>
 </body>
 </html>

@@ -301,6 +301,69 @@ function sbNewTarget() {
   }
   return null;
 }
+// --- Answer it (11 Nov 2026, from the Japanese app) ----------------------
+// A question about you in Portuguese - "Onde é que comes ao domingo?" -
+// answered by building your sentence. Doing and Going. The target is a
+// sentence about eu (left out of the answer shown, as people do); one part
+// is asked about, and any card that fits it is right (answerFits), the
+// answer then becoming yours (adoptAnswer). The questions use the daily
+// sentences' own Q&A pieces (sentences.js: askWho, sQ, enQV, enQ).
+const sbDropEu = t => t.replace(/^Eu (\S)/, (m, c) => c.toUpperCase());
+function sbNewAnswerTarget() {
+  const me = SENT.people.find(x => x.kind === 'me');
+  const you = askWho(me);
+  for (let i = 0; i < 40; i++) {
+    const tense = sPick(['hab', 'hab', 'fut', 'past']);
+    const who = sbWhoCard(me);
+    let sel, slot, question;
+    if (sbMode === 'go') {
+      const m = sMotion({ subj: me, tense });
+      if (!m || !m.time) continue;
+      const ft = tense === 'past' ? 'pret' : 'pres';
+      sel = { who, verb: SB_IR, form: { pt: vForm('ir', ft, 0), tense: ft, p: 0 }, whereTo: sbDestCard(m.dest), when: sbWhenCard(m.time, m.tense) };
+      if (m.tr) sel.how = sbHowCard(m.tr);
+      if (m.comp) sel.with = sbWithPool().find(c => c.pt === m.comp.pt) || { pt: m.comp.pt, en: m.comp.en };
+      slot = sPick(['whereTo', 'whereTo', 'when'].concat(m.tr ? ['how', 'how'] : [], m.comp ? ['with'] : []));
+      const qv = vForm('ir', ft, you.p), dest = ptPrepJoin('a', m.dest), time = sLowerStart(m.time.pt);
+      const toDest = 'to ' + m.dest.en, enV = enQV(you, tense, 'go', 'going');
+      const tr = m.tr ? [m.tr.pt, m.tr.en] : ['', ''], comp = m.comp ? [m.comp.pt, m.comp.en] : ['', ''];
+      if (slot === 'whereTo') question = { pt: sQ('onde', you, [qv, tr[0], comp[0], time].filter(Boolean).join(' ')), en: enQ(['where', enV, tr[1], comp[1], m.time.en]) };
+      else if (slot === 'when') question = { pt: sQ('quando', you, [qv, dest, tr[0], comp[0]].filter(Boolean).join(' ')), en: enQ(['when', enV, toDest, tr[1], comp[1]]) };
+      else if (slot === 'how') question = { pt: sQ('como', you, [qv, dest, time].join(' ')), en: enQ(['how', enQV(you, tense, 'get', 'getting'), toDest, m.time.en]) };
+      else question = { pt: sQ('com quem', you, [qv, dest, time].join(' ')), en: enQ(['who', enV, toDest, 'with', m.time.en]) };
+    } else {
+      const a = sActivity({ subj: me, tense });
+      if (!a || !a.time) continue;
+      const vt = SB_TENSE_FROM_GROUP[tense];
+      sel = { who, verb: sbVerbCard(a.act), form: { pt: sbFormText(a.act.verb, vt, 0), tense: vt, p: 0 }, what: sbWhatCard(a.obj), when: sbWhenCard(a.time, tense) };
+      if (a.place) sel.where = sbPlaceCard(a.place);
+      if (a.comp) sel.with = sbWithPool().find(c => c.pt === a.comp.pt) || { pt: a.comp.pt, en: a.comp.en };
+      slot = sPick(['what', 'what', 'when'].concat(a.place ? ['where', 'where'] : [], a.comp ? ['with'] : []));
+      const qv = ptTenseForm(a.act.verb, tense, you.p), time = sLowerStart(a.time.pt), enV = enQV(you, tense, a.forms[0]);
+      const obj = [a.obj[0], a.obj[1]], place = a.place ? [ptPrepJoin('em', a.place), a.place.en] : ['', ''], comp = a.comp ? [a.comp.pt, a.comp.en] : ['', ''];
+      if (slot === 'what') question = { pt: sQ('o que', you, [qv, place[0], comp[0], time].filter(Boolean).join(' ')), en: enQ(['what', enV, place[1], comp[1], a.time.en]) };
+      else if (slot === 'when') question = { pt: sQ('quando', you, [qv, obj[0], place[0], comp[0]].filter(Boolean).join(' ')), en: enQ(['when', enV, obj[1], place[1], comp[1]]) };
+      else if (slot === 'where') question = { pt: sQ('onde', you, [qv, obj[0], comp[0], time].filter(Boolean).join(' ')), en: enQ(['where', enV, obj[1], comp[1], a.time.en]) };
+      else question = { pt: sQ('com quem', you, [qv, obj[0], place[0], time].filter(Boolean).join(' ')), en: enQ(['who', enV, obj[1], place[1], 'with', a.time.en]) };
+    }
+    question.slot = slot;
+    return { sel, pt: sbDropEu(sbPtOf(sel)), en: sbEnOf(sel), whoOptional: true, question };
+  }
+  return null;
+}
+// Any card that answers the question: a time that suits its tense, a thing
+// this verb takes; anywhere, anyone, any way of getting there.
+function sbAnswerFits(id, s, t) {
+  if (id === 'when') return !!t && s.group === t.group;
+  if (id === 'what') return sbTarget.sel.verb.act.objs.some(o => o[0] === s.pt);
+  return ['where', 'with', 'whereTo', 'how'].includes(id);
+}
+function sbAdoptAnswer(id, s) {
+  sbTarget.sel[id] = s;
+  sbTarget.pt = sbDropEu(sbPtOf(sbTarget.sel));
+  sbTarget.en = sbEnOf(sbTarget.sel);
+}
+
 // Columns: a fresh pick of cards, always including the challenge's answer.
 function sbBuildColumns() {
   const T = sbTarget && sbTarget.sel;
@@ -401,8 +464,8 @@ registerBuilderMode(Object.assign(sbModeBase('go'), {
   },
 }));
 registerBuilderMode(Object.assign(sbModeBase('being'), {
-  // No reading challenge for Being; ser or estar is scored as its own part.
-  reading: false, agreeSlot: 'adj', partFor: id => id === 'verb' ? 'serestar' : id,
+  // No reading challenge or Answer it for Being; ser or estar is scored as its own part.
+  reading: false, answer: false, agreeSlot: 'adj', partFor: id => id === 'verb' ? 'serestar' : id,
   onPick(id, _card, same) {
     if (id === 'who' && !same) {
       // A new subject has its own describing words.
@@ -429,7 +492,7 @@ registerBuilderMode(Object.assign(sbModeBase('being'), {
   },
 }));
 registerBuilderMode(Object.assign(sbModeBase('give'), {
-  onPick: sbVerbPicked, endingNote: sbEndingNote,
+  answer: false, onPick: sbVerbPicked, endingNote: sbEndingNote,
   draw(ui) {
     const { column, card, groupHead, formBox, T, p } = ui;
     column('who', tx('sbCol.who'), col => sbCols.who.forEach(c => card(col, 'who', c)));
@@ -449,7 +512,8 @@ registerBuilderMode(Object.assign(sbModeBase('give'), {
 // Portuguese's builder rules, for every mode.
 setBuilderLanguage({
   assemble: sbPtOf, chunks: sbChunks, english: sbEnOf, notes: sbNotes,
-  newTarget: sbNewTarget, buildColumns: sbBuildColumns,
+  newTarget: () => sbAnswer ? sbNewAnswerTarget() : sbNewTarget(), buildColumns: sbBuildColumns,
+  answerFits: sbAnswerFits, adoptAnswer: sbAdoptAnswer,
   // A form is right if it's the same word - and in reading, the same tense
   // too, unless the word is both (comemos: we eat / we ate).
   formsMatch: (sf, tf, T) => sf.pt === tf.pt && (sf.tense === tf.tense || !sbReverse || sbFormAmbiguous(T.verb.pt, tf.p)),
