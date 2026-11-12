@@ -2100,10 +2100,14 @@ function downloadScoresBackup() {
 // other device in a tap or two (laptop testing; drilling the landscape
 // exercises there and bringing the scores back). Where a browser can't
 // share files, it's an ordinary download.
+// Shared as a .txt file: Chrome on Android shares only some kinds of file
+// (pictures, sound, video, PDF, plain text) and refuses .json, so the first
+// version fell back to a download every time (Andrew, 12 Nov). The contents
+// are the same JSON; Restore takes .txt as well as .json.
 async function shareScoresBackup() {
-  const name = backupFileName();
+  const name = backupFileName().replace(/\.json$/, '.txt');
   let file;
-  try { file = new File([backupFileData()], name, { type: 'application/json' }); } catch (e) { file = null; }
+  try { file = new File([backupFileData()], name, { type: 'text/plain' }); } catch (e) { file = null; }
   if (!file || !navigator.canShare || !navigator.canShare({ files: [file] })) { downloadScoresBackup(); return; }
   try {
     await navigator.share({ files: [file], title: name });
