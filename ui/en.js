@@ -55,7 +55,8 @@ window.UI_TEXT = {
   "sound.onTapToMute": "Sound on - tap to mute",
 
   // ---------- Backup and private word lists ----------
-  "backup.confirmRestore": "This replaces your current progress with what's in this backup. Continue?",
+  "backup.confirmRestore": "Replace ALL the scores on this device with the ones in {name}?\n\nAnything practised on this device since that backup was made will be lost. To keep it, download or share a backup from here first.",
+  "backup.shared": "Backup shared",
   "backup.downloaded": "Backup downloaded",
   "backup.notValid": "That file isn't a valid backup",
   "backup.restored": "Progress restored",
@@ -294,7 +295,8 @@ window.UI_TEXT = {
   "page.fade-confidence-colours-over-time": "Fade confidence colours over time",
   "page.also-fades-the-colours-themselves-over": "Also fades the colours themselves over time, not just drill odds — off by default",
   "page.back-up-my-progress": "Back up my progress",
-  "page.saves-your-scores-to-a-file": "Saves your scores to a file you can restore later",
+  "page.saves-your-scores-to-a-file": "Saves your scores to a file you can restore later, here or on another device. Share sends it straight to Drive, email or another device. Restoring replaces the scores on this device.",
+  "page.share-backup": "Share backup",
   "page.download-backup": "Download backup",
   "page.restore-from-backup": "Restore from backup",
   "page.private-vocab": "Private vocab",

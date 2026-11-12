@@ -16,7 +16,8 @@
 //       readings, endings and か, Answer it): screen (its screen id), title(),
 //       onReset(why) ('enter' | 'challenge' | 'clear': its own state),
 //       targetSel(target), same(a, b), sayPick(id, card), sayText(),
-//       targetSay(), mark(id, s, t) (before the usual right / missing /
+//       targetSay(), beforeCheck(sel) (may take the picks as the answer),
+//       mark(id, s, t) (before the usual right / missing /
 //       extra; undefined to carry on), compare(id, s, t), afterMark(res, prev),
 //       counts(res) -> { r, n } (session and verdict), recordParts(res),
 //       labelHtml(label), stripHtml(chunks), answerHtml(), endingMsg(),
@@ -174,6 +175,9 @@ function sbSayTarget() { if (sbTarget) speakTarget(BUILDER.targetSay ? BUILDER.t
 function sbCheck() {
   if (!sbTarget || sbDone) return;
   sbTry++;
+  // A language may first take the picks as the answer (Japanese Being's
+  // Answer it: any answer that hangs together is yours).
+  sbHook('beforeCheck', sbSel);
   const M = sbM(), T = sbTargetSel(), S = sbSel, res = {}, prev = sbResult || {};
   sbSlots().forEach(({ id }) => {
     if (prev[id] === 'right') { res[id] = 'right'; return; }

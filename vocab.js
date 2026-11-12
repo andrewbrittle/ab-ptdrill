@@ -18,8 +18,8 @@
 //   tags      category tag + trip / core etc.; br-diff = has a Brazilian form
 //   dateAdded drives the "Latest words" group
 // Scores are keyed on pt|en - changing either resets that word's score.
-// After editing: bump CACHE_VERSION in sw.js (and the footer version in
-// index.html) so phones pick up the new words.
+// After editing: bump CACHE_VERSION in pt/sw.js (and the footer version
+// and ?v= in pt/index.html) so phones pick up the new words.
 // Generated 2026-10-10 from a starter list - edit freely from here on.
 window.PT_DRILL_VOCAB = {
   "vocab-greetings": {

@@ -10,7 +10,7 @@ window.APP = {
   storagePrefix: 'ptDrill',
   // What's new: change this with each new entry in changelog.html - it's what
   // lights the Settings cog until Settings is opened (see core/core.js).
-  latestChangelog: '2026-11-11a',
+  latestChangelog: '2026-11-12a',
   backupName: 'portuguese-drill-backup',
 
   // The word-list tab's name, and extra pills in its row of section pills.

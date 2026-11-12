@@ -1596,7 +1596,9 @@ function drillMissed() {
   // Questions the app builds again itself (APP.rebuildMissed - Japanese's
   // kana and kanji), then the ones kept as they were asked.
   const rebuilt = APP.rebuildMissed ? APP.rebuildMissed(missedSet) : [];
-  startDrill(shuffle([...rebuilt, ...missedItems.filter(q => missedSet.has(q.char + '|' + q.answer))]));
+  const again = [...rebuilt, ...missedItems.filter(q => missedSet.has(q.char + '|' + q.answer))];
+  if (!again.length) return; // never an empty drill
+  startDrill(shuffle(again));
 }
 
 const SPEECH_SUPPORTED = ('speechSynthesis' in window);
@@ -2065,24 +2067,50 @@ function saveKanaScores() {
 // mutates kanaScores on load but only reaches localStorage on the next
 // actual score write), so reading kanaScores directly is what guarantees
 // the file always reflects the current shape.
-function downloadScoresBackup() {
+function backupFileData() {
   // With the sentence builder's part scores, where the app has a builder.
   const parts = typeof sbParts !== 'undefined' ? { __parts: sbParts, __partsR: sbPartsR } : {};
   // And the scores shared with another app (Japanese: the kanji, shared with
   // Kanji Cards), so one backup holds everything this app drills.
   if (LINKED_SCORES) parts.__linked = linkedScores;
-  const data = JSON.stringify(Object.assign({}, kanaScores, parts));
-  const blob = new Blob([data], { type: 'application/json' });
+  return JSON.stringify(Object.assign({}, kanaScores, parts));
+}
+// Dated to the minute, so several backups in a day (testing on the laptop
+// from the same starting scores, again and again) can be told apart.
+function backupFileName() {
+  const d = new Date(), p = n => String(n).padStart(2, '0');
+  return `${APP.backupName}-${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.json`;
+}
+
+function downloadScoresBackup() {
+  const blob = new Blob([backupFileData()], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const today = new Date().toISOString().slice(0, 10);
   a.href = url;
-  a.download = `${APP.backupName}-${today}.json`;
+  a.download = backupFileName();
   document.body.appendChild(a);
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
   showBackupStatus(tx('backup.downloaded'), false);
+}
+
+// SHARE (12 Nov 2026, Andrew): the same file, handed to the phone's share
+// sheet - Drive, OneDrive, Synology, email, Nearby Share - so it's on the
+// other device in a tap or two (laptop testing; drilling the landscape
+// exercises there and bringing the scores back). Where a browser can't
+// share files, it's an ordinary download.
+async function shareScoresBackup() {
+  const name = backupFileName();
+  let file;
+  try { file = new File([backupFileData()], name, { type: 'application/json' }); } catch (e) { file = null; }
+  if (!file || !navigator.canShare || !navigator.canShare({ files: [file] })) { downloadScoresBackup(); return; }
+  try {
+    await navigator.share({ files: [file], title: name });
+    showBackupStatus(tx('backup.shared'), false);
+  } catch (e) {
+    if (e && e.name !== 'AbortError') downloadScoresBackup(); // cancelled: nothing to do
+  }
 }
 
 function triggerRestoreFilePicker() {
@@ -2112,7 +2140,7 @@ function handleRestoreFileSelected(event) {
       showBackupStatus(tx('backup.notValid'), true);
       return;
     }
-    if (!window.confirm(tx('backup.confirmRestore'))) return;
+    if (!window.confirm(tx('backup.confirmRestore', { name: file.name }))) return;
     // The builder's part scores (2026-11-08: Portuguese's backups now carry
     // them too), and an old Japanese backup's production score, now retired.
     if (typeof sbParts !== 'undefined') {

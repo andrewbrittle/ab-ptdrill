@@ -300,7 +300,11 @@ function choose(btn, selectedVal, answer, char) {
     fb.innerHTML = tx('drill.notQuite', { a: shown }) + extra;
     fb.className = 'feedback bad';
     wrong++;
-    noteMissed(q, char + '|' + answer, type.missedItem !== false);
+    // Noted by the question's own char|answer, whichever way it was asked
+    // (12 Nov 2026: a reversed question - romaji → かな, English → Portuguese
+    // - passed its char as the answer, so it was noted as あ|あ, which Drill
+    // missed only couldn't find: an empty drill, 0 of 0, NaN%).
+    noteMissed(q, null, type.missedItem !== false);
   }
   finishAnswer();
 }
