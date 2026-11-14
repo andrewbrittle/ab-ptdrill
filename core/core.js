@@ -699,6 +699,9 @@ function pickDistractorItems(pool, correctItem, count) {
     // Same spelling, different word (いま "now" / いま "living room", かい,
     // なん): as an option it would also be a right answer, so never offered.
     if (candidate !== correctItem && candidate.jp === correctItem.jp) continue;
+    // Same meaning, different word (あか / あかい, both "red"): also a right
+    // answer, so never offered either (13 Nov 2026, the Colours group).
+    if (candidate !== correctItem && candidate.en === correctItem.en) continue;
     if (!seen.has(val)) {
       seen.add(val);
       candidates.push(candidate);
@@ -730,6 +733,13 @@ const vocabTileReversedMode = {}; // categoryKey -> boolean, remembered independ
 const vocabTileTypeAnswerMode = {}; // same idea, for the typed-answer toggle (2026-09-22)
 const vocabTileListenMode = {}; // same idea, for the listening toggle (2026-10-07)
 const vocabTileSayMode = {}; // and for Say it out loud (2026-10-11)
+// Flashcards or Study (14 Nov 2026): categoryKey -> 'cards' | 'study' | none.
+const vocabTileCardMode = {};
+function toggleVocabTileCardMode(kind) {
+  const categoryKey = vocabTileCategory;
+  vocabTileCardMode[categoryKey] = vocabTileCardMode[categoryKey] === kind ? null : kind;
+  syncVocabTileModeToggles(categoryKey);
+}
 // categoryKey -> boolean. When true, a "Select random 20" pick is active: the
 // real selection (used for drilling) is a genuine random 20, but every tile
 // is shown as selected and made non-interactive, so there's no visual way to
@@ -796,6 +806,17 @@ function syncVocabTileModeToggles(categoryKey) {
   }
   const sayCard = document.getElementById('vocab-tile-say-card');
   if (sayCard) sayCard.classList.toggle('selected', sayOn);
+  // Flashcards and Study take the place of how you answer: typing, listening
+  // and Say it step aside while one is on (the direction still applies).
+  const cardMode = vocabTileCardMode[categoryKey];
+  [['vocab-tile-cards-card', 'cards'], ['vocab-tile-study-card', 'study']].forEach(([id, kind]) => {
+    const c = document.getElementById(id);
+    if (c) c.classList.toggle('selected', cardMode === kind);
+  });
+  if (cardMode) ['vocab-tile-type-answer-card', 'vocab-tile-listen-card', 'vocab-tile-say-card'].forEach(id => {
+    const c = document.getElementById(id);
+    if (c) c.classList.add('disabled');
+  });
 }
 
 // Maps a category key to the reference screen(s) shown on its tile-selection
@@ -846,6 +867,15 @@ function showVocabTileSelection(categoryKey) {
       });
       refLinks.appendChild(row);
     }
+    // A group can explain itself (cat.about: a few short paragraphs, shown
+    // under the title - 13 Nov 2026, Japanese's Colours: which colours are
+    // い-adjectives and which only nouns).
+    (cat.about || []).forEach(text => {
+      const p = document.createElement('div');
+      p.className = 'settings-sub cat-about';
+      p.innerHTML = displayWordHtml(text);
+      refLinks.appendChild(p);
+    });
   }
   syncTileSoundControls(categoryKey);
   buildVocabTileGrid(categoryKey);
@@ -886,7 +916,11 @@ function setLatestWordsRange(range) {
 const COLOUR_HUES = {
   red: [229, 72, 77], blue: [77, 136, 229], yellow: [229, 195, 46], green: [77, 199, 113],
   brown: [160, 104, 77], purple: [155, 89, 208], pink: [229, 77, 155], orange: [229, 138, 77],
+  grey: [165, 165, 165], indigo: [88, 86, 214],
 };
+// A group whose tiles carry their colour on the edge: Colours, and any group
+// marked colourTiles (Japanese's L4 Colours, 13 Nov 2026).
+const isColourTileGroup = key => key === 'vocab-colours' || !!(VOCAB[key] && VOCAB[key].colourTiles);
 
 // Level-colour borders, for theme screens only (items pooled from several
 // source categories at once, so a tile's own level isn't otherwise visible).
@@ -1167,7 +1201,7 @@ function buildVocabTileGrid(categoryKey) {
     // selected regardless of whether it's actually one of the 20 - that's
     // the whole point (no clue which ones are really included).
     const isSelected = randomMode || selected.has(idx);
-    if (categoryKey === 'vocab-colours') {
+    if (isColourTileGroup(categoryKey)) {
       tile.style.borderWidth = '3px';
       tile.classList.add('colour-tile');
       if (!isSelected) {
@@ -1203,7 +1237,7 @@ function buildVocabTileGrid(categoryKey) {
 // its own hue/confidence style, theme tiles use their source level's colour,
 // everything else has no special resting border at all.
 function applyRestingTileBorder(categoryKey, item, tileEl) {
-  if (categoryKey === 'vocab-colours') {
+  if (isColourTileGroup(categoryKey)) {
     const scoreKey = item.jp + '|' + item.en;
     const borderColor = colourBorderStyle(item.en, displayScore(kanaScores[scoreKey]));
     if (borderColor) tileEl.style.borderColor = borderColor;
@@ -1369,8 +1403,11 @@ function drillVocabTileSelection() {
       const same = distractorPool.filter(i => i.dividerGroup === item.dividerGroup);
       if (same.length >= 4) pool = same;
     }
-    return buildWordQuestion(item, pool, item.groupKey || categoryKey);
+    const q = buildWordQuestion(item, pool, item.groupKey || categoryKey);
+    if (vocabTileCardMode[categoryKey]) q.cardMode = vocabTileCardMode[categoryKey];
+    return q;
   });
+  if (vocabTileCardMode[categoryKey]) { sayMode = false; typeAnswerMode = false; listenMode = false; }
   lastSettingsScreen = 'vocab-tile-selection';
   startDrill(shuffle(customDeck));
 }
@@ -1598,6 +1635,9 @@ function drillMissed() {
   const rebuilt = APP.rebuildMissed ? APP.rebuildMissed(missedSet) : [];
   const again = [...rebuilt, ...missedItems.filter(q => missedSet.has(q.char + '|' + q.answer))];
   if (!again.length) return; // never an empty drill
+  // Missed flashcards come back as flashcards (a rebuilt question starts plain).
+  const cardMode = (deck.find(q => q.cardMode) || {}).cardMode;
+  if (cardMode) again.forEach(q => { q.cardMode = cardMode; });
   startDrill(shuffle(again));
 }
 

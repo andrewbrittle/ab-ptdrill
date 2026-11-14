@@ -207,7 +207,87 @@ function renderQuestion() {
   // Anything an app shows with every question (Japanese: "also written",
   // the romaji button, the counter-quiz reminder) - APP.beforeQuestion.
   if (APP.beforeQuestion) APP.beforeQuestion(q, { charDisplay, container, promptEl, mode });
+  // Flashcards or Study, when the question carries one (q.cardMode).
+  if (q.cardMode && type.cards !== false) { renderCardQuestion(q, type, { charDisplay, container, promptEl, mode }); return; }
   type.render(q, { charDisplay, container, promptEl, mode });
+}
+
+// ---------- Flashcards and Study (14 Nov 2026) ----------
+// From Kanji Cards, for every app (Andrew: Cards' functions into Japanese and
+// the core, so the other languages can use them too). A question can carry
+// a card mode, set when the deck is built (q.cardMode):
+//   'cards' - see the front, recall it, Show answer (Space), then rate
+//             yourself: Didn't know it (1), Almost (2), Knew it (3). Scored
+//             as Kanji Cards scored them, which is how the core scores a
+//             wrong answer, a half-credit right one and a right one
+//             (-0.75, +0.25, +0.5). Didn't know it goes to Drill missed only.
+//   'study'   - front and back together, Next, nothing scored: a first look.
+// The front is the question's prompt side; the back is its answer, plus
+// whatever the type adds (type.cardBack(q) - Japanese's kanji: readings and
+// example words; else its feedbackExtra notes). A type can draw its own
+// front (type.cardFront) or opt out (cards: false).
+function cardFrontText(q) {
+  const word = (questionType(q) || QUESTION_TYPES.word) === QUESTION_TYPES.word || q.disp === 'word';
+  // Words follow the direction switch: the target word, or its meaning.
+  if (word) { q.answer = vocabReversed ? q.char : (q.answerEn || q.answer); return vocabReversed ? { text: q.answerEn || q.answer, target: false } : { text: q.char, target: true }; }
+  return { text: q.char, target: true };
+}
+function cardBackHtml(q, type) {
+  if (type.cardBack) return type.cardBack(q);
+  const word = type === QUESTION_TYPES.word || q.disp === 'word';
+  const back = word && vocabReversed ? displayWordHtml(q.char) : escapeHtmlText(word ? (q.answerEn || q.answer) : q.answer);
+  return `<div class="say-answer">${back}</div>` + answerNotesHtml(q) + (type.feedbackExtra ? type.feedbackExtra(q) : '');
+}
+function renderCardQuestion(q, type, ui) {
+  const { charDisplay, container, promptEl } = ui;
+  if (type.cardFront) type.cardFront(q, ui);
+  else {
+    const f = cardFrontText(q);
+    charDisplay.style.fontSize = promptFontSize(f.text);
+    if (f.target) charDisplay.innerHTML = displayWordHtml(f.text); else charDisplay.textContent = f.text;
+  }
+  promptEl.textContent = q.cardMode === 'study' ? '' : tx('cards.prompt');
+  const speakBtn = document.getElementById('speak-btn');
+  const showBack = () => {
+    revealQuestion(q);
+    if (speakBtn) speakBtn.style.display = SPEECH_SUPPORTED ? 'inline-flex' : 'none';
+    return `<div class="say-answer-box card-back">${cardBackHtml(q, type)}</div>`;
+  };
+  if (q.cardMode === 'study') {
+    container.innerHTML = showBack();
+    answered = true;
+    finishAnswer();
+    return;
+  }
+  // Hidden until revealed unless the front is the word itself, read forward:
+  // hearing a kanji's reading, or the target word for an English front,
+  // would give the answer away.
+  const frontIsWord = !type.cardFront && (type === QUESTION_TYPES.word || q.disp === 'word') && !vocabReversed;
+  if (speakBtn && !frontIsWord) speakBtn.style.display = 'none';
+  container.innerHTML = `<button type="button" class="start-btn say-reveal-btn" id="say-reveal-btn">${tx('say.showAnswer')}<span class="kbd-hint">${tx('drill.keySpace')}</span></button>`;
+  document.getElementById('say-reveal-btn').onclick = () => {
+    container.innerHTML = showBack() + '<div class="card-rate-row"></div>';
+    const row = container.querySelector('.card-rate-row');
+    if (soundAllowed()) speakTarget(getSpeechText(q));
+    [['miss', tx('cards.miss')], ['almost', tx('cards.almost')], ['know', tx('cards.know')]].forEach(([outcome, label], idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt card-rate card-' + outcome;
+      btn.innerHTML = `<span class="opt-num">${idx + 1}</span><span class="opt-rd">${label}</span>`;
+      btn.onclick = () => rateCard(q, type, outcome, btn);
+      row.appendChild(btn);
+    });
+  };
+}
+function rateCard(q, type, outcome, btn) {
+  if (answered) return;
+  answered = true;
+  document.querySelectorAll('#q-options .opt').forEach(b => { b.disabled = true; });
+  btn.classList.add(outcome === 'miss' ? 'wrong' : 'correct');
+  recordKanaResult(q, outcome !== 'miss', outcome === 'almost', false);
+  if (outcome === 'know') score++;
+  else if (outcome === 'almost') score += 0.5;
+  else { wrong++; noteMissed(q, null, type.missedItem !== false); }
+  finishAnswer();
 }
 
 // A word question: meaning, reversed, typed, listening, dictation or say it.
@@ -375,6 +455,8 @@ function nextQuestion() { current++; renderQuestion(); }
 
 function showResults() {
   clearDrillSession();
+  // Study scores nothing, so there's nothing to show: back where it began.
+  if (deck.length && deck.every(q => q.cardMode === 'study')) { navBack(); return; }
   showScreen('results');
   const total = deck.length;
   const pct = Math.round((score / total) * 100);
