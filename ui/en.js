@@ -91,6 +91,7 @@ window.UI_TEXT = {
   "drill.whichIsTarget": "Which is the {target}?",
   "groups.nWordsAlways": "{n} words",
   "results.focusOn": "Focus on these:",
+  "results.almostN": "{n} almost - worth another look:",
   "results.gettingThere": "Getting there!",
   "results.great": "Great work!",
   "results.hintsUsed": {"one": "{n} hint used", "other": "{n} hints used"},

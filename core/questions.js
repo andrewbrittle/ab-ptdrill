@@ -240,6 +240,7 @@ function cardBackHtml(q, type) {
 }
 function renderCardQuestion(q, type, ui) {
   const { charDisplay, container, promptEl } = ui;
+  q.cardRated = null;
   if (type.cardFront) type.cardFront(q, ui);
   else {
     const f = cardFrontText(q);
@@ -284,8 +285,11 @@ function rateCard(q, type, outcome, btn) {
   document.querySelectorAll('#q-options .opt').forEach(b => { b.disabled = true; });
   btn.classList.add(outcome === 'miss' ? 'wrong' : 'correct');
   recordKanaResult(q, outcome !== 'miss', outcome === 'almost', false);
+  q.cardRated = outcome;
   if (outcome === 'know') score++;
-  else if (outcome === 'almost') score += 0.5;
+  // Almost (14 Nov, Andrew): half a point, not a mistake, but listed on the
+  // results and back in Drill missed only.
+  else if (outcome === 'almost') { score += 0.5; noteMissed(q, null, type.missedItem !== false); }
   else { wrong++; noteMissed(q, null, type.missedItem !== false); }
   finishAnswer();
 }
@@ -466,8 +470,10 @@ function showResults() {
   const missedEl = document.getElementById('res-missed');
   const missedBtn = document.getElementById('res-missed-btn');
   const missedLabel = document.getElementById('res-missed-label');
+  const almostN = deck.filter(q => q.cardRated === 'almost').length;
   if (missed.length > 0) {
-    missedLabel.textContent = tx('results.focusOn');
+    // Only Almosts (flashcards): still no mistakes, said with the count.
+    missedLabel.innerHTML = wrong === 0 && almostN ? `<div class="no-missed">${tx('results.noMistakes')}</div>` + tx('results.almostN', { n: almostN }) : tx('results.focusOn');
     // missed entries are "char|answer" composites (see choose()) - display
     // only the char portion, same visual as before.
     const missedChars = missed.map(k => k.split('|')[0]);
