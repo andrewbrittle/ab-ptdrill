@@ -43,18 +43,40 @@ function vReflexive(inf, tense, p) {
   return f + '-' + REFL_PRON[p];
 }
 // Adjective agreement from the masculine singular.
-const ADJ_IRREG = { bom: ['bom', 'boa', 'bons', 'boas'] };
+const ADJ_IRREG = { bom: ['bom', 'boa', 'bons', 'boas'], mau: ['mau', 'má', 'maus', 'más'] };
+// Colours that are really nouns never change (16 Nov 2026): as flores laranja.
+const ADJ_INVARIANT = ['laranja', 'cor-de-rosa', 'rosa', 'violeta'];
+// -or adjectives that compare (melhor, pior...) keep one form for o and a.
+const ADJ_OR_SAME = ['melhor', 'pior', 'maior', 'menor', 'superior', 'inferior', 'anterior', 'posterior', 'exterior', 'interior'];
 function ptAgree(adj, g, pl) {
   if (ADJ_IRREG[adj]) return ADJ_IRREG[adj][(g === 'f' ? 1 : 0) + (pl ? 2 : 0)];
+  if (ADJ_INVARIANT.includes(adj)) return adj;
   let f = adj;
   if (g === 'f' && /o$/.test(adj)) f = adj.slice(0, -1) + 'a';
-  if (g === 'f' && /or$/.test(adj)) f = adj + 'a';
+  if (g === 'f' && /or$/.test(adj) && !ADJ_OR_SAME.includes(adj)) f = adj + 'a';
   if (!pl) return f;
   if (/[aeiouáéíóú]$/.test(f)) return f + 's';
   if (/vel$/.test(f)) return f.replace(/vel$/, 'veis');
+  // fácil, difícil, útil (stress before the -il): fáceis; gentil: gentis.
+  if (/il$/.test(f) && /[áéíóúâêô]/.test(f)) return f.replace(/il$/, 'eis');
   if (/l$/.test(f)) return f.replace(/l$/, 'is');
   if (/[rz]$/.test(f)) return f + 'es';
   return f + 's';
+}
+// An adjective's four forms, for the note after it's drilled (16 Nov 2026,
+// as Japanese shows な / い): pequeno · pequena · pequenos · pequenas;
+// grande · grandes when o and a share a form; laranja never changes. Not
+// for the words tagged adjectives that are really adverbs (perto, longe).
+const ADJ_NO_FORMS = ['perto', 'longe'];
+function ptAdjFormsNote(item) {
+  const tags = item.tags || [];
+  if (!tags.includes('adjectives') && !tags.includes('colours')) return null;
+  const adj = String(item.jp).split(' / ')[0].trim();
+  if (/\s/.test(adj) || ADJ_NO_FORMS.includes(adj)) return null;
+  if (ADJ_INVARIANT.includes(adj)) return tx('adj.never', { w: adj });
+  const [ms, fs, mp, fp] = [ptAgree(adj, 'm', false), ptAgree(adj, 'f', false), ptAgree(adj, 'm', true), ptAgree(adj, 'f', true)];
+  if (ms === fs) return tx('adj.twoForms', { s: ms, p: mp });
+  return tx('adj.fourForms', { forms: [ms, fs, mp, fp].join(' · ') });
 }
 function nounGender(n) { return /^(a|as|uma)$/.test(n.art) ? 'f' : 'm'; }
 function nounPlural(n) { return /^(os|as)$/.test(n.art); }

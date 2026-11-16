@@ -89,6 +89,7 @@ function answerNotesHtml(q) {
   if (q.disp === 'word' && LANG.reading) html += `<div class="feedback-standard-note">${escapeHtmlText(LANG.reading(q.char))}</div>`;
   if (q.br) html += `<div class="feedback-standard-note">${tx('drill.inBrazil', { w: escapeHtmlText(q.br) })}</div>`;
   if (q.note) html += `<div class="feedback-standard-note">${escapeHtmlText(q.note)}</div>`;
+  if (q.wordNote) html += `<div class="feedback-standard-note">${escapeHtmlText(q.wordNote)}</div>`;
   return html;
 }
 
@@ -789,6 +790,9 @@ function buildWordQuestion(item, pool, groupKey) {
     seenAs: item.seenAs,
     source: item.source,
     speakAs: item.speakAs,
+    // An app's own note on the word, shown once answered (APP.wordNote -
+    // Portuguese: an adjective's forms, 16 Nov 2026).
+    ...(APP.wordNote && APP.wordNote(item) ? { wordNote: APP.wordNote(item) } : {}),
   };
 }
 

@@ -5,6 +5,9 @@
 Object.assign(window.UI_TEXT, {
   // ---------- Portuguese: this app ----------
   "verbs.title": "Verbs",
+  "adj.fourForms": "Forms: {forms}",
+  "adj.twoForms": "Forms: {s} · {p} - the same for o and a",
+  "adj.never": "{w} never changes: o carro {w}, as flores {w}",
   "voice.brazilOnly": "Only a Brazilian Portuguese voice was found on this device, so words will sound Brazilian - add a Portugal (pt-PT) voice in your phone's spoken content / text-to-speech settings.",
   "voice.none": "This device doesn't seem to have a Portuguese voice installed - add one (Portugal) in your phone's spoken content / text-to-speech settings.",
 

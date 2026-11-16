@@ -10,7 +10,7 @@ window.APP = {
   storagePrefix: 'ptDrill',
   // What's new: change this with each new entry in changelog.html - it's what
   // lights the Settings cog until Settings is opened (see core/core.js).
-  latestChangelog: '2026-11-14a',
+  latestChangelog: '2026-11-16',
   backupName: 'portuguese-drill-backup',
 
   // The word-list tab's name, and extra pills in its row of section pills.
@@ -47,6 +47,9 @@ window.APP = {
     return true;
   },
   randomDrills: { sounds: { items: () => soundScoreItems(), start: () => startSoundDrill() } },
+
+  // A note shown once a word is answered: an adjective's forms (16 Nov 2026).
+  wordNote: item => ptAdjFormsNote(item),
 
   // Shown under "Tap to hear" when the device has no Portugal voice.
   voiceNotes: { fallback: tx('voice.brazilOnly'), none: tx('voice.none') },

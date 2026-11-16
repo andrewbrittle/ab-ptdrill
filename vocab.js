@@ -1105,7 +1105,15 @@ window.PT_DRILL_GROUPS = [
   { key: 'theme-sentence-glue', label: 'Sentence glue', note: 'The words that hold sentences together', tagQuery: { any: ['expressions', 'states', 'quantities', 'time-expressions', 'little-words', 'question-word'] } },
   { key: 'theme-eating-out', label: 'Eating & drinking out', tagQuery: { any: ['cafe', 'restaurant', 'food'] } },
   { key: 'theme-getting-around', label: 'Getting around town', tagQuery: { any: ['transport', 'directions', 'position', 'town', 'shops'] } },
-  { key: 'theme-core-words', label: 'Core words', tagQuery: { any: ['little-words', 'question-word', 'verbs', 'adjectives'] } },
+  // Core words split 16 Nov 2026 (as Japanese's, 13 Nov): its little words
+  // and question words are all in Sentence glue already.
+  { key: 'theme-verbs', label: 'Verbs', tagQuery: 'verbs' },
+  { key: 'theme-adjectives', label: 'Adjectives', note: 'Each one shows its forms once answered', tagQuery: 'adjectives' },
+  { key: 'theme-colours', label: 'Colours', colourTiles: true, tagQuery: 'colours', about: [
+    'Colours come after the noun, and most agree like adjectives: o carro vermelho, a casa vermelha, os sapatos pretos, as malas pretas.',
+    'Ending in -e or a consonant, they change only for more than one: verde → verdes, azul → azuis.',
+    'laranja and cor-de-rosa never change: as flores laranja, os vestidos cor-de-rosa.',
+  ] },
   { key: 'theme-same-word', label: 'Same word, two meanings', note: 'One word, two jobs: banco, carta, estação…', tagQuery: 'same-word' },
   { key: 'theme-portugal-brazil', label: 'Portugal vs Brazil', note: 'Words that differ', tagQuery: 'br-diff' },
 ];

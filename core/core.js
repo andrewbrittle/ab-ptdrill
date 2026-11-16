@@ -404,6 +404,7 @@ function resolveVocabCategory(key) {
     hasReference: true,
     noMeaningMode: false,
     isTheme: true,
+    about: theme.about, // a group's own explanation (16 Nov 2026: Portuguese's Colours)
   };
   return THEME_CACHE[key];
 }
@@ -920,7 +921,7 @@ const COLOUR_HUES = {
 };
 // A group whose tiles carry their colour on the edge: Colours, and any group
 // marked colourTiles (Japanese's L4 Colours, 13 Nov 2026).
-const isColourTileGroup = key => key === 'vocab-colours' || !!(VOCAB[key] && VOCAB[key].colourTiles);
+const isColourTileGroup = key => key === 'vocab-colours' || !!(VOCAB[key] && VOCAB[key].colourTiles) || !!(THEMES[key] && THEMES[key].colourTiles);
 
 // Level-colour borders, for theme screens only (items pooled from several
 // source categories at once, so a tile's own level isn't otherwise visible).
