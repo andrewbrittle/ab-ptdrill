@@ -46,7 +46,8 @@ async function playWake(r, on) {
 }
 
 const TP_SPEED_KEY = APP.storagePrefix + 'TilePlaySpeed';
-const TP_PACE = Object.assign({ lead: 750, hold: 1600, perLetter: 40 }, APP.playThrough || {});
+// Trimmed a little (26 Nov, Andrew: "very slightly long overall"): was 750 / 1600.
+const TP_PACE = Object.assign({ lead: 650, hold: 1400, perLetter: 40 }, APP.playThrough || {});
 let tp = null;   // { pos, playing, gen, tile, utter, lock } while the bar is open
 
 // The button, under the "Tap a word..." line, and the bar - made once.
@@ -87,6 +88,15 @@ function tpOpen() {
   if (!tp) {
     tp = { pos: 0, playing: false, gen: 0, tile: null, utter: null, lock: null };
     document.getElementById('screen-vocab-tile-selection').classList.add('play-on');
+    // Words picked for a drill look picked all the way through otherwise:
+    // shown as plain tiles while playing (the picks are kept, and come back
+    // on Close - the grid is redrawn).
+    const items = tpItems();
+    tpTiles().forEach((t, i) => {
+      if (!t.classList.contains('selected')) return;
+      t.classList.remove('selected');
+      if (items[i]) applyRestingTileBorder(vocabTileCategory, items[i], t);
+    });
     document.getElementById('tp-bar').classList.add('show');
   }
   tpSync();
@@ -102,6 +112,10 @@ function tpClose() {
   if (sc) sc.classList.remove('play-on');
   const bar = document.getElementById('tp-bar');
   if (bar) bar.classList.remove('show');
+  if (vocabTileCategory && document.getElementById('vocab-tile-grid')) {
+    buildVocabTileGrid(vocabTileCategory);
+    refreshKanaScoreShading('vocab-tile-grid');
+  }
 }
 
 function tpMsg(text) {
