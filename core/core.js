@@ -1735,10 +1735,16 @@ function toggleSoundOn() {
 // Says text in the target language. Which voice is right is the language's
 // call (LANG.pickVoice); a fallback voice gets a note under "Tap to hear".
 let speakGeneration = 0;
+// What the voice is given for a word: a language can tidy it first
+// (LANG.forSpeech - Portuguese: "obrigado / obrigada" gets a pause between
+// the two, which otherwise ran together like one word).
+function speechText(text) { return LANG.forSpeech ? LANG.forSpeech(text) : text; }
+
 function speakTarget(text) {
   if (!soundAllowed()) return null;
   unlockSpeech();
   cancelSpeechIfBusy();
+  text = speechText(text);
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = LANG.code;
   utter.rate = LANG.rate || 0.9; // a language can ask for a slower voice (Japanese: 0.85)

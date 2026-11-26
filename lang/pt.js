@@ -164,6 +164,11 @@ function compareTyped(accepted, given) {
 // very different (open vowels, "tch" for ti/di), so it's only a fallback,
 // and the app says so. iPhone/iPad: Joana or Catarina (pt-PT) can be added
 // in Settings > Accessibility > Spoken Content > Voices.
+// Two forms written with a slash ("obrigado / obrigada", "o tio / a tia")
+// are said as two, with a stop between (26 Nov 2026, Andrew: they ran
+// together like a single word).
+function forSpeech(text) { return text.replace(/\s*\/\s*/g, '. '); }
+
 function pickVoice(voices) {
   const norm = v => (v.lang || '').toLowerCase().replace('_', '-');
   const best = voices.find(v => norm(v) === 'pt-pt');
@@ -175,6 +180,7 @@ export default {
   id: 'pt',
   code: 'pt-PT',
   pickVoice,           // (device voices) -> { voice, fallback }: Portugal first, Brazil with a note
+  forSpeech,           // a word as the voice is given it: two forms with a stop between
   numberToWords,       // 0-999 999: "mil duzentos e cinquenta"
   belowThousand,       // 0-999, feminine optional: "duas", "duzentas"
   numberToBrazilian,   // the Brazilian teens: dezesseis, dezenove

@@ -164,7 +164,7 @@ function tpSay(item, done) {
   if (!SPEECH_SUPPORTED || !soundAllowed()) { if (done) setTimeout(done, 600); return; }
   const gen = tp.gen;
   cancelSpeechIfBusy();
-  const u = new SpeechSynthesisUtterance(item.speakAs || item.jp);
+  const u = new SpeechSynthesisUtterance(speechText(item.speakAs || item.jp));
   u.lang = LANG.code;
   const v = LANG.pickVoice(window.speechSynthesis.getVoices()).voice;
   if (v) { u.voice = v; u.lang = v.lang || LANG.code; }
