@@ -179,6 +179,20 @@
      text selection while a card is held. */
   #vocab-tile-grid .kana-ref-card { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
   #vocab-tile-grid .kana-ref-card.tile-peeking { border-color: var(--accent); }
+  /* Play through (2026-11-26) - core/playthrough.js makes the button and
+     the bar; the word being played is .play-current. */
+  .play-open { display: block; margin: 0.2rem 0 0.6rem; }
+  .play-on .play-open { visibility: hidden; }
+  #screen-vocab-tile-selection.play-on { padding-bottom: 7rem; }
+  #vocab-tile-grid .kana-ref-card.play-current { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .play-bar { display: none; position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 900; width: min(560px, calc(100% - 24px)); background: var(--surface2); border: 1px solid var(--border-hover); border-radius: 16px; box-shadow: 0 6px 24px rgba(0,0,0,0.35); padding: 6px 8px; }
+  .play-bar.show { display: block; }
+  .play-msg { font-size: 13px; color: var(--text-muted); text-align: center; padding: 4px 6px 2px; }
+  .play-btns { display: flex; align-items: center; justify-content: space-between; gap: 2px; }
+  .play-btns button { flex: 1 1 0; min-width: 0; height: 44px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; border-radius: 10px; color: var(--text-muted); cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 700; padding: 0; }
+  .play-btns button:active { background: var(--accent-dim); }
+  .play-btns .play-play { color: var(--accent); flex-grow: 1.4; }
+  .play-btns .play-speed { font-size: 13px; }
   /* Peek bubble - floats above (or beside) the held card, since a finger
      covers the card itself. Never intercepts touches. */
   .tile-peek-bubble {
@@ -1086,7 +1100,7 @@
       <div class="backup-status-msg" id="private-vocab-msg"></div>
     </div>
 
-    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261116.001</div>
+    <div style="text-align:center; font-size:12px; font-weight:600; color:var(--text-dim); margin-top:0.75rem;">v261126.001</div>
   </div>
 
 
@@ -1599,38 +1613,39 @@
      bump it together with the footer version and sw.js CACHE_VERSION.
      (Every script tag below has one - vocab.js, grammar.js, lang/pt.js,
      and each file in core/ and pt/.) -->
-<script src="vocab.js?v=261116.001"></script>
+<script src="vocab.js?v=261126.001"></script>
 <!-- Verbs, contractions and grammar notes (2026-10-11). -->
-<script src="grammar.js?v=261116.001"></script>
+<script src="grammar.js?v=261126.001"></script>
 <!-- The language module (2026-11-06): Portuguese rules - numbers and times so
      far - as a JavaScript module, handed to the app as window.LANG. Module
      scripts and "defer" scripts run in page order once the page has loaded,
      so this always runs before app.js below. -->
 <script type="module">
-import pt from './lang/pt.js?v=261116.001';
+import pt from './lang/pt.js?v=261126.001';
 window.LANG = pt;
 </script>
 <!-- The app (2026-11-07: split into the shared core and the Portuguese
      features). "defer" scripts run in this order once the page has loaded;
      core/start.js goes last because it starts the app. -->
-<script defer src="ui/en.js?v=261116.001"></script>
-<script defer src="pt/text-en.js?v=261116.001"></script>
-<script defer src="core/text.js?v=261116.001"></script>
-<script defer src="pt/app.js?v=261116.001"></script>
-<script defer src="pt/starter.js?v=261116.001"></script>
-<script defer src="core/core.js?v=261116.001"></script>
-<script defer src="core/starter.js?v=261116.001"></script>
-<script defer src="core/questions.js?v=261116.001"></script>
-<script defer src="pt/sounds.js?v=261116.001"></script>
-<script defer src="pt/verbs.js?v=261116.001"></script>
-<script defer src="pt/grammar-screen.js?v=261116.001"></script>
-<script defer src="pt/numbers.js?v=261116.001"></script>
-<script defer src="pt/greeting.js?v=261116.001"></script>
-<script defer src="pt/sentences.js?v=261116.001"></script>
-<script defer src="pt/desk-sheets.js?v=261116.001"></script>
-<script defer src="core/builder.js?v=261116.001"></script>
-<script defer src="pt/builder.js?v=261116.001"></script>
-<script defer src="pt/reading.js?v=261116.001"></script>
-<script defer src="core/start.js?v=261116.001"></script>
+<script defer src="ui/en.js?v=261126.001"></script>
+<script defer src="pt/text-en.js?v=261126.001"></script>
+<script defer src="core/text.js?v=261126.001"></script>
+<script defer src="pt/app.js?v=261126.001"></script>
+<script defer src="pt/starter.js?v=261126.001"></script>
+<script defer src="core/core.js?v=261126.001"></script>
+<script defer src="core/playthrough.js?v=261126.001"></script>
+<script defer src="core/starter.js?v=261126.001"></script>
+<script defer src="core/questions.js?v=261126.001"></script>
+<script defer src="pt/sounds.js?v=261126.001"></script>
+<script defer src="pt/verbs.js?v=261126.001"></script>
+<script defer src="pt/grammar-screen.js?v=261126.001"></script>
+<script defer src="pt/numbers.js?v=261126.001"></script>
+<script defer src="pt/greeting.js?v=261126.001"></script>
+<script defer src="pt/sentences.js?v=261126.001"></script>
+<script defer src="pt/desk-sheets.js?v=261126.001"></script>
+<script defer src="core/builder.js?v=261126.001"></script>
+<script defer src="pt/builder.js?v=261126.001"></script>
+<script defer src="pt/reading.js?v=261126.001"></script>
+<script defer src="core/start.js?v=261126.001"></script>
 </body>
 </html>

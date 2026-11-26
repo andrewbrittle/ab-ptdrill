@@ -1084,7 +1084,9 @@ function showTilePeekBubble(tile, item) {
     const dx = (left + bw / 2) - (r.left + r.width / 2), dy = (top + bh / 2) - (r.top + r.height / 2);
     arrow.textContent = Math.abs(dy) >= Math.abs(dx) ? (dy < 0 ? '↑' : '↓') : (dx < 0 ? '←' : '→');
   }
-  if (afterPlaced) afterPlaced();
+  // b.drawn: the app's after-step's result (Japanese: a promise for the
+  // kana having been drawn - Play through waits for it).
+  if (afterPlaced) b.drawn = afterPlaced();
   return b;
 }
 function hideTilePeekBubble() {
@@ -1489,6 +1491,7 @@ function showScreen(id) {
   // Anything an app does on leaving a screen (APP.beforeShowScreen -
   // Japanese: stop the sentence-order playback, turn sideways).
   if (APP.beforeShowScreen) APP.beforeShowScreen(id);
+  if (typeof tpClose === 'function') tpClose();   // Play through (core/playthrough.js)
   if (id === 'match-settings' || (APP.screens[id] && APP.screens[id].vocabRoot)) lastVocabRoot = id;
   navRecord(id);
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
@@ -1633,8 +1636,13 @@ function drillMissed() {
   const missedSet = new Set(missed);
   // Questions the app builds again itself (APP.rebuildMissed - Japanese's
   // kana and kanji), then the ones kept as they were asked.
-  const rebuilt = APP.rebuildMissed ? APP.rebuildMissed(missedSet) : [];
-  const again = [...rebuilt, ...missedItems.filter(q => missedSet.has(q.char + '|' + q.answer))];
+  // A question kept as it was asked wins: its key can also match something
+  // the app would rebuild (16 Nov 2026: the word に "at" missed in Time words
+  // brought back the kana に too - both are に|ni - so it came up twice).
+  const kept = missedItems.filter(q => missedSet.has(q.char + '|' + q.answer));
+  const keptKeys = new Set(kept.map(q => q.char + '|' + q.answer));
+  const rebuilt = (APP.rebuildMissed ? APP.rebuildMissed(missedSet) : []).filter(q => !keptKeys.has(q.char + '|' + q.answer));
+  const again = [...rebuilt, ...kept];
   if (!again.length) return; // never an empty drill
   // Missed flashcards come back as flashcards (a rebuilt question starts plain).
   const cardMode = (deck.find(q => q.cardMode) || {}).cardMode;
