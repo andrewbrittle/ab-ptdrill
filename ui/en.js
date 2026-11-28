@@ -302,6 +302,7 @@ window.UI_TEXT = {
 
   // ---------- Written into the page (index.html) ----------
   "page.settings": "Settings",
+  "page.copyright": "© 2026 Andrew Brittle. All rights reserved.",
   "page.all-data-and-settings-are-stored": "All data and settings are stored on this device and never go anywhere else.",
   "page.install-the-app": "Install the app",
   "page.installed-it-opens-full-screen-from": "Installed, it opens full screen from its own icon and works offline.",
